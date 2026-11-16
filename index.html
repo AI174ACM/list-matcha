@@ -387,6 +387,7 @@ function render(flashN){
   const gF=S.ev.filter(e=>e.k==='g').length, gA=S.ev.filter(e=>e.k==='ga').length;
   home.textContent=S.home; away.textContent=S.away; score.textContent=gF+':'+gA; venue.textContent=S.venue; pdate.textContent=' '+(S.date||'');
   pName.textContent=PN(S.cur);
+  if(VIEW){pPrev.style.display=pNext.style.display='none'}
   document.getElementById('theme').innerHTML=[['light','Светлый'],['board','Табло'],['tiles','Плитки']].map(([v,t])=>`<button data-th="${v}" class="${UI.theme===v?'on':''}">${t}</button>`).join('');
   document.getElementById('tabs').style.display=VIEW?'none':'';
   document.getElementById('tabs').innerHTML=[['input','Ввод'],['sum','Итоги']].map(([v,t])=>`<button data-tab="${v}" class="${UI.tab===v?'on':''}">${t}</button>`).join('');
