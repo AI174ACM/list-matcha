@@ -607,7 +607,7 @@ function renderSum(){
   const lvHtml=()=>S.roster.some(p=>p.ln&&!p.out)?`<div class="lv">${[1,2,3,4].map(l=>`<div class="lr"><div class="lt"><b>${l}</b>звено</div>${LSL.map((sl,i)=>pcard(lat(l,sl),i===3?' d1':'')).join('')}</div>`).join('')}
      <div class="lb">${(S.gk||[]).filter(Boolean).length?`<b>Вратари:</b> ${S.gk.filter(Boolean).map(g=>g.n+' '+g.name).join(', ')}. `:''}${rest.length?`<b>Вне пятёрок:</b> ${rest.join(', ')}.`:''}</div></div>`
     :`<div class="note" style="padding:14px">Пятёрки ещё не расставлены${VIEW?'.':' — нажмите на название команды вверху или Меню → «Состав на матч».'}</div>`;
-  v.innerHTML=`<div class="sumv"><div class="tbl${lv?' lvw':''}" style="--rows:${(all.length+1+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small" id="sumPer">${[['all','Весь матч'],[1,'1-й'],[2,'2-й'],[3,'3-й'],[4,'ОТ']].map(([p,t])=>`<button data-sp="${p}" class="${UI.sumPer===p?'on':''}">${t}</button>`).join('')}</div><div class="seg small" id="sumView"><button data-sv="tbl" class="${lv?'':'on'}">Таблица</button><button data-sv="lines" class="${lv?'on':''}">Пятёрки</button></div><span class="note">${VIEW||lv?'':'Нажмите на число — откроются эти записи.'}</span></div>
+  v.innerHTML=`<div class="sumv"><div class="tbl${lv?' lvw':''}" style="--rows:${(all.length+1+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small" id="sumPer">${[['all','Весь матч'],[1,'1-й'],[2,'2-й'],[3,'3-й'],[4,'ОТ']].map(([p,t])=>`<button data-sp="${p}" class="${UI.sumPer===p?'on':''}">${t}</button>`).join('')}</div><div class="seg small" id="sumView"><button data-sv="tbl" class="${lv?'':'on'}">Таблица</button><button data-sv="lines" class="${lv?'on':''}">Пятёрки</button></div><span class="note" style="flex:1;min-width:0">${VIEW||lv?'':'Нажмите на число — откроются эти записи.'}</span><button class="btn acc" data-print style="height:44px;padding:0 18px;flex:none" title="Напечатать то, что на экране, или сохранить как PDF">Печать · PDF</button></div>
     ${lv?lvHtml():`<table><tr><th class="l">Игрок</th>${COLS.map(([,l])=>`<th>${l}</th>`).join('')}</tr>${rows}</table>`}
     ${un&&UI.sumPer!=='all'?'<div class="note" style="padding:10px 14px">На бумажном листе блоки, силовые, потери, удаления и плюс-минус за 1–2-й периоды записаны вместе — по периодам их не разделить, они видны в «Весь матч».</div>':''}</div>
    <div class="side"><div class="box"><div class="cap">Голы</div>${glr||'<div class="sub">Голов нет</div>'}</div>
@@ -939,14 +939,14 @@ function coach(i){document.querySelectorAll('.coach,.ring').forEach(x=>x.remove(
 document.addEventListener('click',e=>{if(!VIEW&&e.target.closest('#home,#away')&&!ov.classList.contains('on')){rosterSheet();return}
   if(UI.pl&&!UI.act&&UI.tab==='input'&&!ov.classList.contains('on')&&!e.target.closest('button,.pop')){UI.pl=null;render();return}
   const b=e.target.closest('button');if(!b||ov.contains(b))return;const d=b.dataset;
-  if(VIEW&&!(d.tab||d.th||d.sp!=null||d.sv||d.sm||b.id==='menuB'))return;
+  if(VIEW&&!(d.tab||d.th||d.sp!=null||d.sv||d.sm||'print' in d||b.id==='menuB'))return;
   if(d.gk){record('sv',+d.gk);return}
   if('gkswap' in d){const old=S.gk.slice(),a=gk0(),b2=S.gk.find(g=>g&&g.n!==a.n);S.gk=[b2,a];UI.act=UI.pl=null;save();render();snack('В воротах '+b2.n+' '+b2.name+' — дальше считаю ему','Вернуть',()=>{S.gk=old;save();render()});return}
   if(d.act){choose(d.act,null);return} if(d.pl){choose(null,+d.pl);return}
   if(d.del){delGroup(+d.del);return} if(b.id==='undoB'){undoLast();return}
   if(d.tab){UI.tab=d.tab;render();if(d.tab==='season')loadSeason();return}
   if(d.sm){SEASON.mode=d.sm;render();return} if(d.th){UI.theme=d.th;document.documentElement.dataset.theme=d.th;try{localStorage.setItem('lm_theme',d.th)}catch(_){}render();return}
-  if(d.sp!=null){UI.sumPer=d.sp==='all'?'all':+d.sp;render();return} if(d.sv){UI.sumView=d.sv;render();return}
+  if(d.sp!=null){UI.sumPer=d.sp==='all'?'all':+d.sp;render();return} if(d.sv){UI.sumView=d.sv;render();return} if('print' in d){window.print();return}
   if(d.pend){endPen(d.pend);return} if('opp' in d){oppPenSheet();return} if(d.pull){S.pull[d.pull]=!S.pull[d.pull];save();render();return}
   if(b.id==='pPrev'){S.cur=Math.max(1,S.cur-1);save();render();return} if(b.id==='pNext'){S.cur=Math.min(4,S.cur+1);save();render();return}
   if(b.id==='menuB'){menuSheet();return}});
