@@ -235,7 +235,7 @@ html[data-theme="board"] .snack{background:#fff;color:#1D1D1F}
 
 <script>
 const KEY='list_matcha_v1';
-const API='';   /* адрес приёмника в Google Таблице; подставляется при публикации */
+const API='https://script.google.com/macros/s/AKfycbz2jG-gntMFAdd0OaCrxcGIgImqLvjk0F4jXOk5a-tm4qpTRv9HgwIqZuthMZthKaFJWg/exec';   /* адрес приёмника в Google Таблице; подставляется при публикации */
 const Q=new URLSearchParams(location.search);
 const VIEW=Q.get('view')||'';                 // ключ чтения → режим «Просмотр»
 if(Q.get('k')){try{localStorage.setItem('lm_key',Q.get('k'))}catch(e){} history.replaceState(null,'',location.pathname)}
