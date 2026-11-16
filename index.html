@@ -567,8 +567,10 @@ function renderInput(flashN){
     el.classList.add(side);el.style.left=left+'px';el.style.top=top+'px';
     el.style.setProperty('--ax',fit(r.left+r.width/2-left,18,w-18)+'px');el.style.setProperty('--ay',fit(r.top+r.height/2-top,18,h-18)+'px')}
 }
-const COLS=[['fo','Вбрасывания'],['sh','Броски'],['g','Голы'],['a','Передачи'],['bl','Заблоки­ровал'],['hit','Силовые приёмы'],['to','Потери шайбы'],['pen','Удаления'],['pm','Плюсы и минусы']];
+const COLS=[['fo','Вбрасывания'],['sh','Броски'],['g','Голы'],['a','Передачи'],['bl','Заблоки­ровал'],['hit','Силовые приёмы'],['to','Потери шайбы'],['pen','Штраф, минуты'],['pm','Плюсы и минусы']];
+const PMIN={minor:2,double:4,major:5,misc:10};
 function st(n){const f=e=>e.n===n&&(UI.sumPer==='all'||e.p===UI.sumPer);const r={};for(const k of ['fw','fl','sh','g','a','bl','hit','to','pen'])r[k]=S.ev.filter(e=>f(e)&&e.k===k).length;
+  r.pen=S.ev.filter(e=>f(e)&&e.k==='pen').reduce((s,e)=>s+(PMIN[e.min]||2),0);   // удаления — в минутах штрафа (слова Антона 16.11); запись без вида штрафа считается малым, 2 минуты
   const pm=S.ev.filter(e=>f(e)&&e.k==='pm');r.pm=pm.reduce((s,e)=>s+e.v,0);r.pmc=pm.length;r.pl=pm.filter(e=>e.v>0).length;r.mi=r.pmc-r.pl;return r}
 /* плюсы и минусы показываются отдельно, без общего итога (слова Антона 16.11): «+2 −1» */
 const pmTxt=(pl,mi)=>`+${pl} −${mi}`;
@@ -596,7 +598,7 @@ function renderSum(){
   const gks=(S.gk||[]).filter(Boolean).map(g=>{const sv=S.ev.filter(e=>e.k==='sv'&&e.n===g.n&&inP(e)).length,ga=S.ev.filter(e=>e.k==='ga'&&inP(e)&&(e.gk!=null?e.gk===g.n:e.gk===undefined&&e.src!=='лист'&&g0&&g0.n===g.n&&S.ev.some(x=>x.k==='sv'))).length;return {g,sv,ga}}).filter(x=>x.sv||x.ga);
   const gkBox=gks.length?`<div class="box"><div class="cap">Вратарь</div>${gks.map(x=>`<div class="gl" style="grid-template-columns:1fr auto"><span class="w">${x.g.n} ${x.g.name}</span><span>отбил <b>${x.sv}</b> · пропустил <b>${x.ga}</b>${x.sv+x.ga?` · <b>${(100*x.sv/(x.sv+x.ga)).toFixed(1).replace('.',',')} %</b>`:''}</span></div>`).join('')}</div>`:'';
   const pcard=(p,cls)=>{if(!p)return `<div class="pc e${cls||''}"></div>`;const s=st(p.n),z=v=>v?`<b>${v}</b>`:'<b class="z">·</b>';
-    const ex=[s.fw+s.fl?`вбрас. ${s.fw}–${s.fl}`:'',s.bl?`блоки ${s.bl}`:'',s.hit?`силовые ${s.hit}`:'',s.to?`потери ${s.to}`:'',s.pen?`удал. ${s.pen}`:''].filter(Boolean).join(' · ');
+    const ex=[s.fw+s.fl?`вбрас. ${s.fw}–${s.fl}`:'',s.bl?`блоки ${s.bl}`:'',s.hit?`силовые ${s.hit}`:'',s.to?`потери ${s.to}`:'',s.pen?`штраф ${s.pen} мин`:''].filter(Boolean).join(' · ');
     return `<div class="pc${cls||''}"><div class="ph">${avatar(p)}<div class="pn"><b>${p.n}</b><span>${p.name}</span></div></div>
       <div class="pv"><div>${s.g||s.a?`<b>${s.g}+${s.a}</b>`:'<b class="z">·</b>'}<small>Очки</small></div><div>${z(s.sh)}<small>Броски</small></div><div>${s.pmc?`<b class="pmv" style="white-space:nowrap">${pmTxt(s.pl,s.mi)}</b>`:'<b class="z">·</b>'}<small>+ и −</small></div></div>
       <div class="px">${ex||'&nbsp;'}</div></div>`};
@@ -918,7 +920,7 @@ const fname=()=>(S.date||'').split('.').reverse().join('-')+'_'+S.home+'_'+S.awa
 function csv(){const keep=UI.sumPer,out=[];
   for(const [p,l] of [['all','Матч'],[0,'1–2 пер. (не разделено)'],[1,'1 период'],[2,'2 период'],[3,'3 период'],[4,'ОТ']]){if(p!=='all'&&!S.ev.some(e=>e.p===p))continue;UI.sumPer=p;
     for(const x of ord(true).filter(p=>!p.out||S.ev.some(e=>e.n===p.n))){const s=st(x.n);out.push([l,x.n,x.name,x.pos,s.fw,s.fl,s.sh,s.g,s.a,s.bl,s.hit,s.to,s.pen,s.pmc?s.pl:'',s.pmc?s.mi:''].join(';'))}}
-  UI.sumPer=keep;dl(fname()+'.csv','﻿Часть;№;Игрок;Амплуа;Выиграл вбр.;Проиграл вбр.;Броски;Голы;Передачи;Заблокировал;Силовые;Потери;Удаления;Плюсы;Минусы\n'+out.join('\n'),'text/csv')}
+  UI.sumPer=keep;dl(fname()+'.csv','﻿Часть;№;Игрок;Амплуа;Выиграл вбр.;Проиграл вбр.;Броски;Голы;Передачи;Заблокировал;Силовые;Потери;Штраф, мин;Плюсы;Минусы\n'+out.join('\n'),'text/csv')}
 
 /* ---------- первое знакомство: три подсказки ---------- */
 const HINTS=[['.acts','Увидели действие на льду — нажмите его здесь, например «Бросок».'],
