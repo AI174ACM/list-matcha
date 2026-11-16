@@ -250,7 +250,7 @@ html[data-theme="tiles"] .sl{box-shadow:inset 0 0 0 2px var(--ink)} html[data-th
 .lpop{position:fixed;z-index:12;width:480px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;background:var(--card);border-radius:18px;padding:10px;box-shadow:0 12px 40px rgba(0,0,0,.28),0 0 0 1px var(--line)}
 html[data-theme="tiles"] .lpop{background:#fff;box-shadow:0 12px 40px rgba(0,0,0,.28),0 0 0 2px var(--ink)} html[data-theme="board"] .lpop{background:#1c1c1f}
 .lpop .lpt{font-size:12px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em;padding:4px 6px 8px}
-.lpop .lpg{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.lpop .lpg{display:grid;grid-template-columns:1fr 1fr;gap:4px} .lpop.w3{width:720px} .lpop.w3 .lpg{grid-template-columns:repeat(3,1fr)} .lpop.w3 .lpt{padding-bottom:4px}
 .li{display:flex;align-items:center;gap:8px;height:44px;padding:0 10px;border-radius:10px;background:var(--tile);text-align:left;min-width:0;width:100%}
 .li:hover{background:var(--tileH)} .li b{font:800 16px/1 var(--num);min-width:24px;text-align:right} .li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;flex:1}
 .li small{flex:none;font-size:11px;color:var(--ink2)} .li.in{background:none;box-shadow:inset 0 0 0 1px var(--line)} .li.wide{justify-content:center;font-weight:700;margin-top:6px}
@@ -734,7 +734,10 @@ function rosterSheet(isNew){
   let SUB={};try{SUB=JSON.parse(localStorage.getItem('lm_sub'))||{}}catch(e){}
   const subOf=c=>[...new Set((c.sub||'')+(SUB[c.id||'n'+c.n]||''))].join('');
   const attach=()=>R.forEach(p=>{if(!p.id){const c=CLUB.find(c=>c.pos!=='в'&&c.n===p.n&&nearName(c.name,p.name));if(c)p.id=c.id}});
-  const tidy=()=>R.forEach(p=>{if(p.out||!p.ln){delete p.ln;delete p.sl}else p.pos=slotPos(p.sl)||p.pos});
+  /* амплуа на матч — по месту в пятёрке; в 4-й паре защитников может стоять нападающий (схема 13 + 7) — он остаётся нападающим */
+  const baseP=p=>{const c=p.id&&cById(p.id);return c?c.pos:p.pos};
+  const posFor=p=>{const w=slotPos(p.sl);return !w?baseP(p):w==='з'&&p.ln===4&&baseP(p)==='н'?'н':w};
+  const tidy=()=>R.forEach(p=>{if(p.out||!p.ln){delete p.ln;delete p.sl}else p.pos=posFor(p)});
   const keepSl=old=>{R.forEach(p=>{const o=old.find(x=>x.n===p.n&&nearName(x.name,p.name));if(o){if(o.id)p.id=o.id;if(o.ln&&!p.out){p.ln=o.ln;p.sl=o.sl}}});attach();tidy()};
   const at=(ln,sl)=>R.find(p=>!p.out&&p.ln===ln&&p.sl===sl);
   const slotPos=sl=>sl==='ld'||sl==='rd'?'з':sl[0]==='x'?null:'н';
@@ -749,12 +752,12 @@ function rosterSheet(isNew){
       if(x){if(!x.out||S.ev.some(e=>e.n===x.n)){snack('Номер '+c.n+' сейчас у игрока '+x.name+' — сначала уберите его из состава','Понятно',()=>{});return}R.splice(R.indexOf(x),1)}
       r={n:c.n,name:c.name,pos:c.pos,out:true};if(c.id)r.id=c.id;R.push(r)}
     const o=at(ln,sl);
-    if(o&&o!==r){if(r.ln&&!r.out){o.ln=r.ln;o.sl=r.sl;o.pos=slotPos(o.sl)||o.pos}else{o.out=true}}
-    r.out=false;r.ln=ln;r.sl=sl;r.pos=slotPos(sl)||r.pos;
+    if(o&&o!==r){if(r.ln&&!r.out){o.ln=r.ln;o.sl=r.sl}else{o.out=true}}
+    r.out=false;r.ln=ln;r.sl=sl;
     if(showAll&&slotPos(sl)==='н'&&c.pos==='н'){const L=sl==='c'?'ц':'к',k=c.id||'n'+c.n;if(!subOf(c).includes(L)){SUB[k]=(SUB[k]||'')+L;try{localStorage.setItem('lm_sub',JSON.stringify(SUB))}catch(e){}}}
     tidy()};
   const slotB=(ln,sl)=>{const p=at(ln,sl),on=sel&&sel.ln===ln&&sel.sl===sl;
-    return `<button class="sl${p?'':' e'}${on?' on':''}" data-s="${ln}|${sl}">${avatar(p)}<span class="st">${p?`<b>${p.n}</b><span>${p.name}</span>`:`<span>${SLN[sl]}</span>`}</span></button>`};
+    return `<button class="sl${p?'':' e'}${on?' on':''}" data-s="${ln}|${sl}">${avatar(p)}<span class="st">${p?`<b>${p.n}</b><span>${p.name}</span>`:`<span>${ln===4&&slotPos(sl)==='з'?'Защитник или нападающий':SLN[sl]}</span>`}</span></button>`};
   const gkB=i=>{const p=G[i],on=sel&&sel.g===i;
     return `<button class="sl${p?'':' e'}${on?' on':''}" data-g="${i}">${avatar(p)}<span class="st">${p?`<b>${p.n}</b><span>${p.name}</span>`:'<span>Вратарь</span>'}</span></button>`};
   const linesHtml=()=>{const un=R.filter(p=>!p.out&&!p.ln),pl=R.filter(p=>!p.out).length;
@@ -764,17 +767,17 @@ function rosterSheet(isNew){
      <div class="unp"><span>В составе ${pl} полевых.</span>${un.length?`<span>Играют, но не расставлены — нажмите, чтобы убрать из состава:</span>${un.map(p=>`<button data-u="${p.n}">${p.n} ${p.name}</button>`).join('')}`:''}</div>`};
   const popup=()=>{const old=sh.querySelector('.lpop');if(old)old.remove();if(!sel)return;
     const isG=sel.g!=null,sl=sel.sl,cur=isG?G[sel.g]:at(sel.ln,sl),want=isG?null:slotPos(sl);
-    let c1=[],c2=[];
+    let c1=[],c2=[],h2='Амплуа не размечено';
     if(isG)c1=CLUB.filter(c=>c.pos==='в');
     else if(showAll||!want)c1=pool();
-    else if(want==='з')c1=pool().filter(c=>c.pos==='з');
+    else if(want==='з'){c1=pool().filter(c=>c.pos==='з');if(sel.ln===4){c2=pool().filter(c=>c.pos==='н');h2='Нападающие — если играете в 13 нападающих и 7 защитников'}}
     else{const L=sl==='c'?'ц':'к',f=pool().filter(c=>c.pos==='н');c1=f.filter(c=>c.sub.includes(L));c2=f.filter(c=>!c.sub)}
     const byN=(a,b)=>a.n-b.n;c1.sort(byN);c2.sort(byN);
     const item=c=>{const r=isG?null:rOf(c),here=isG?G.some(g=>g&&g.id===c.id):!!(r&&!r.out);
       const where=isG?(here?'в заявке':''):r&&!r.out?(r.ln?(r.ln===5?'запас':r.ln+'-е звено'):'не расставлен'):'';
       return `<button class="li${here?' in':''}" data-c="${c.id?'i'+c.id:'n'+c.n}"><b>${c.n}</b><span>${c.name}${c.first?' '+c.first:''}</span>${where?`<small>${where}</small>`:''}</button>`};
-    const el=document.createElement('div');el.className='lpop';
-    el.innerHTML=`<div class="lpt">${isG?'Вратарь':SLN[sl]+' · '+LNN(sel.ln)}${showAll&&!isG?' · все игроки':''}</div><div class="lpg">${c1.map(item).join('')}${c2.length?`<div class="lps">Амплуа не размечено</div>${c2.map(item).join('')}`:''}</div>
+    const el=document.createElement('div');el.className='lpop'+(c1.length+c2.length>24?' w3':'');
+    el.innerHTML=`<div class="lpt">${isG?'Вратарь':SLN[sl]+' · '+LNN(sel.ln)}${showAll&&!isG?' · все игроки':''}</div><div class="lpg">${c1.map(item).join('')}${c2.length?`<div class="lps">${h2}</div>${c2.map(item).join('')}`:''}</div>
       ${cur?'<button class="li wide" data-rm>Убрать с этого места</button>':''}${!isG&&want&&!showAll?'<button class="li wide" data-all>Показать всех игроков</button>':''}`;
     sh.appendChild(el);const b=sh.querySelector(isG?`[data-g="${sel.g}"]`:`[data-s="${sel.ln}|${sl}"]`).getBoundingClientRect(),w=el.offsetWidth,h=el.offsetHeight;
     let top=b.bottom+6;if(top+h>innerHeight-8)top=b.top-6-h>=8?b.top-6-h:Math.max(8,innerHeight-8-h);
