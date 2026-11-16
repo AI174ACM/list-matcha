@@ -57,6 +57,22 @@ html[data-theme="tiles"] .per,html[data-theme="tiles"] .seg,html[data-theme="til
 .sc .tm{cursor:pointer}
 .pdate{display:none}
 .tl.off{opacity:.45}
+.pop{position:fixed;z-index:6;width:236px;display:grid;grid-template-columns:1fr;gap:5px;background:var(--card);border-radius:18px;padding:10px;box-shadow:0 10px 34px rgba(0,0,0,.16),0 0 0 1px var(--line);animation:popIn .12s ease-out}
+@keyframes popIn{from{opacity:0;transform:scale(.97)}}
+.pop::before{content:"";position:absolute;width:14px;height:14px;background:inherit;transform:rotate(45deg);border-radius:3px}
+.pop.r::before{left:-6px;top:calc(var(--ay) - 7px)} .pop.l::before{right:-6px;top:calc(var(--ay) - 7px)}
+.pop.b::before{top:-6px;left:calc(var(--ax) - 7px)} .pop.t::before{bottom:-6px;left:calc(var(--ax) - 7px)}
+.pb{position:relative;height:44px;border-radius:11px;background:var(--tile);font-weight:600;font-size:15px;line-height:1.1;padding:0 12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pb:hover{background:var(--tileH)} .pb:active{transform:scale(.98)}
+.pb.goal{background:var(--btn);color:var(--btnTx);font-weight:800;text-align:center;font-size:17px}
+html[data-theme="board"] .pop{background:#1c1c1f;box-shadow:0 10px 34px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.14)} html[data-theme="board"] .pb{background:#2a2a2e} html[data-theme="board"] .pb:hover{background:#36363b} html[data-theme="board"] .pb.goal{background:var(--btn)}
+html[data-theme="tiles"] .pop{background:#fff;box-shadow:0 10px 34px rgba(0,0,0,.22),0 0 0 2px var(--ink)} html[data-theme="tiles"] .pop::before{display:none}
+html[data-theme="tiles"] .pb{background:var(--bg)} html[data-theme="tiles"] .pb.goal{background:var(--btn)}
+/* пока открыт список, остальное отступает на второй план */
+.main .col.side,.main .tl,.main .cap,.main .foot{transition:opacity .12s}
+.main.picking .col.side{opacity:.4} .main.picking .tl:not(.pick){opacity:.4} .main.picking .mid .cap,.main.picking .mid .foot{opacity:.4}
+.tl.nw{box-shadow:inset 0 0 0 3px var(--acc)} .tl.nw em{color:var(--acc)}
+.sheet.drag{outline:3px dashed var(--acc);outline-offset:-10px}
 .tl em{position:absolute;top:6px;left:0;right:0;text-align:center;font:700 10px Onest,sans-serif;font-style:normal;text-transform:uppercase;letter-spacing:.04em;color:var(--ink2)}
 .mlist{display:flex;flex-direction:column;gap:6px;margin:14px 0;max-height:60vh;overflow:auto}
 .mrow{display:flex;align-items:center;gap:14px;padding:0 16px;min-height:56px;border-radius:12px;background:var(--tile);text-align:left;font-size:17px;font-weight:600}
@@ -99,8 +115,8 @@ html[data-theme="tiles"] .act.on{background:var(--acc)}
 html[data-theme="tiles"] .act.goal{background:var(--btn)}
 html[data-theme="tiles"] .act.ga{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 3px var(--ink)}
 /* игроки */
-.hint{font-size:20px;font-weight:600;padding:4px 6px 2px;min-height:34px}
-.hint b{color:var(--btn)} html[data-theme="board"] .hint b{color:var(--acc)}
+.hint{font-size:19px;font-weight:600;padding:4px 6px 2px;min-height:34px;color:var(--ink2)}
+.hint b{color:var(--ink)} html[data-theme="board"] .hint b{color:var(--acc)}
 .pgrp{display:flex;flex-direction:column;min-height:0;gap:6px}
 .pgrp.f{flex:2}.pgrp.d{flex:1}
 .tiles{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:1fr;gap:8px;flex:1;min-height:0}
@@ -113,7 +129,6 @@ html[data-theme="tiles"] .act.ga{background:#fff;color:var(--ink);box-shadow:ins
 .tl.pick{background:var(--sel);color:var(--selTx)} .tl.pick span,.tl.pick i{color:inherit;opacity:.8}
 .tl.flash{animation:fl .7s}
 @keyframes fl{0%{box-shadow:0 0 0 4px var(--acc)}100%{box-shadow:0 0 0 0 transparent}}
-.waiting .tl{opacity:.55}
 html[data-theme="board"] .tl b{text-shadow:0 0 14px rgba(255,255,255,.18)}
 html[data-theme="tiles"] .tl{border-radius:8px;box-shadow:inset 0 0 0 2px var(--ink)}
 html[data-theme="tiles"] .tl.pick{background:var(--acc);color:#fff;box-shadow:none}
@@ -150,6 +165,14 @@ td.z{color:var(--ink3);font-weight:400}
 td.cl{cursor:pointer} td.cl:hover{background:var(--tile)}
 tr.g td{background:var(--tile);height:28px;font:700 11px Onest,sans-serif;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em;text-align:left;padding-left:14px}
 tr.t td{font-size:14px;color:var(--ink2)}
+td.gp{color:var(--ink2);font-weight:500}
+td small{font-size:.7em;font-weight:500;color:var(--ink2);margin-left:1px}
+.tr{font-size:.55em;color:var(--ink2);margin-left:3px;vertical-align:middle}
+.pt tr.sumr td{border-bottom:0;font-weight:800} .pt tr.sumr td:first-child{color:var(--ink)}
+.sm{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);font-weight:600}
+.sm .d{font:600 13px var(--num);color:var(--src)} .sm .s{font:800 16px var(--num)} .sm .w{min-width:0} .sm small{color:var(--ink2);font-weight:500}
+.sm .y{display:block;font-size:12px} .sm.off .w,.sm.off .s{color:var(--ink2)} .sm.off .s{font-weight:500}
+.box.empty{padding:28px} .box.empty h2{margin:0 0 8px;font-size:26px} .box.empty .sub{max-width:34em;line-height:1.45}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc);margin-left:3px;vertical-align:super}
 .warn{color:var(--bad);font-size:12px;margin-left:2px;vertical-align:super}
 .side{display:flex;flex-direction:column;gap:10px;min-height:0;overflow:auto}
@@ -191,6 +214,9 @@ html[data-theme="tiles"] .sheet{background:#fff}
 .tl.on1{background:var(--sel);color:var(--selTx)} .tl.on1 span,.tl.on1 i{color:inherit;opacity:.8}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .btn{height:52px;padding:0 20px;border-radius:12px;background:var(--tile);font-weight:700;font-size:16px}
+.btn:disabled{opacity:.55;cursor:default}
+.row.foot{position:sticky;bottom:-24px;margin:16px 0 -24px;padding:12px 0 24px;background:var(--card);z-index:2}
+html[data-theme="tiles"] .row.foot{background:#fff}
 .btn.acc{background:var(--btn);color:var(--btnTx)}
 .btn.dark{background:var(--ink);color:var(--card)}
 .lbl{font-size:12px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px}
@@ -210,7 +236,7 @@ html[data-theme="board"] .snack{background:#fff;color:#1D1D1F}
 @media (max-width:1400px){.tl span{font-size:12px}}
 @media (max-height:900px){.side{gap:8px}.box{padding:9px 14px}.gl{padding:4px 0}.gl .s{font-size:15px}.pt td{height:25px;font-size:15px}.pt th{height:22px}.bar{margin:4px 0}.bar .v{font-size:15px}.box.note{font-size:11px;line-height:1.3}}
 @media (max-width:1300px){.sc .tm{font-size:17px}.sc .num{font-size:32px}.seg button{padding:0 11px}.per b{min-width:96px}}
-@media (max-width:820px){html,body{overflow:auto;height:auto}#view{display:block!important}.sc{flex-wrap:wrap;gap:8px}.sc .tm{font-size:17px}.sc .num{font-size:30px}.per{height:44px}.per b{min-width:0;padding:0 14px;font-size:15px}.sync{width:100%}.gl{grid-template-columns:auto auto 1fr;row-gap:2px}.gl .tag{grid-column:3;justify-self:start}.gl .w{white-space:normal}.app{height:auto;display:block;padding:10px}.top{flex-wrap:wrap;gap:8px;margin-bottom:8px}.sp{display:none}.strip{flex-wrap:wrap;margin-bottom:8px}.sumv{display:block}.tbl{container-type:normal;--rh:34px;overflow-x:auto;margin-bottom:10px}.tbl table{min-width:640px}.side{overflow:visible}.main{display:block}.col{margin-bottom:10px}.gtiles{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:820px){.pop{width:calc(100vw - 16px);grid-template-columns:1fr 1fr;gap:6px}.pb{height:50px;white-space:normal}html,body{overflow:auto;height:auto}.row.foot{position:static;margin:16px 0 0;padding:0}#view{display:block!important}.sc{flex-wrap:wrap;gap:8px}.sc .tm{font-size:17px}.sc .num{font-size:30px}.per{height:44px}.per b{min-width:0;padding:0 14px;font-size:15px}.sync{width:100%}.gl{grid-template-columns:auto auto 1fr;row-gap:2px}.gl .tag{grid-column:3;justify-self:start}.gl .w{white-space:normal}.app{height:auto;display:block;padding:10px}.top{flex-wrap:wrap;gap:8px;margin-bottom:8px}.sp{display:none}.strip{flex-wrap:wrap;margin-bottom:8px}.sumv{display:block}.tbl{container-type:normal;--rh:34px;overflow-x:auto;margin-bottom:10px}.tbl table{min-width:640px}.side{overflow:visible}.main{display:block}.col{margin-bottom:10px}.gtiles{grid-template-columns:repeat(4,1fr)}}
 @page{size:A4 landscape;margin:9mm}
 @media print{html,body{overflow:visible;height:auto;background:#fff}.app{height:auto;display:block;padding:0}.top .seg,.mbtn,.strip,.per button,.sync,.snack,.coach,.ring,.ov,.noprint{display:none!important}.top{margin-bottom:5mm}.per{background:none}.pdate{display:inline;font-size:14px;color:#444}
  .sumv{display:grid;grid-template-columns:1.5fr 1fr;gap:5mm;align-items:start}#view{display:block!important}.gl .w{white-space:normal}.box.note{font-size:10px}.gl{padding:3px 0}.pt td{height:22px;font-size:14px}.bar{margin:3px 0}.side{gap:3mm}.tbl,.side{overflow:visible}.tbl{container-type:normal;--rh:min(6.4mm,calc(160mm/var(--rows,25)))}.tbl table{min-width:0}.box,.tbl{border:1px solid #bbb;border-radius:8px}.side{gap:3mm}.box{break-inside:avoid;padding:6px 12px}th{position:static}}
@@ -311,6 +337,18 @@ function save(){if(VIEW)return;S.savedAt=new Date().toISOString();try{localStora
 /* ---------- связь с таблицей ---------- */
 async function api(body,ms=20000){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);
   try{const r=await fetch(API,{method:'POST',body:JSON.stringify({k:WKEY||VIEW,...body}),signal:c.signal});const j=await r.json();if(!j.ok)throw new Error(j.err||'ошибка');return j}finally{clearTimeout(t)}}
+/* заявка из файла: фото уменьшается до 2400 точек, PDF идёт как есть */
+async function fileB64(f){let blob=f,mime=/\.pdf$/i.test(f.name)?'application/pdf':/\.hei[cf]$/i.test(f.name)?'image/heic':f.type;
+  if(/^image\/(jpeg|png|webp)$/.test(mime)){try{const bm=await createImageBitmap(f),k=Math.min(1,2400/Math.max(bm.width,bm.height));
+    if(k<1||f.size>15e5){const c=document.createElement('canvas');c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);c.getContext('2d').drawImage(bm,0,0,c.width,c.height);
+      const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.88));if(b){blob=b;mime='image/jpeg'}}}catch(e){}}
+  const data=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]||'');r.onerror=()=>no(new Error('file'));r.readAsDataURL(blob)});
+  return {data,mime}}
+const cleanName=x=>{x=String(x||'').replace(/[^А-Яа-яЁёA-Za-z .'-]/g,'').replace(/\s+/g,' ').trim().slice(0,28);return x?x[0].toUpperCase()+x.slice(1):''};
+/* одна и та же фамилия с разницей в одну-две буквы (ошибка чтения, ё/е) */
+function nearName(a,b){const z=x=>String(x).toLowerCase().replace(/ё/g,'е').replace(/[^а-яa-z]/g,'');a=z(a);b=z(b);if(a===b)return true;if(Math.abs(a.length-b.length)>2)return false;
+  let p=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){const q=[i];for(let j=1;j<=b.length;j++)q[j]=Math.min(p[j]+1,q[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=q}
+  return p[b.length]<=(Math.min(a.length,b.length)<=4?1:2)}
 const hm=d=>d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
 const sync={t:null,busy:false,err:false,last:null,
   on(){return !!(API&&WKEY&&!VIEW)},
@@ -375,10 +413,10 @@ function undoLast(){const e=[...S.ev].reverse().find(e=>e.src==='ввод');if(!
 function snack(t,b,fn){const s=document.getElementById('snack');document.getElementById('snackT').textContent=t;const bb=document.getElementById('snackB');bb.textContent=b;bb.onclick=()=>{s.classList.remove('on');fn()};s.classList.add('on');clearTimeout(snack.h);snack.h=setTimeout(()=>s.classList.remove('on'),6000)}
 
 function choose(k,n){ // действие и игрок в любом порядке
-  if(k!=null){ if(k==='g'){goalSheet(true);return} if(k==='ga'){goalSheet(false);return}
+  if(k!=null){ if(k==='g'){const p=UI.pl;UI.pl=null;render();goalSheet(true,p);return} if(k==='ga'){goalSheet(false);return}
     UI.act=UI.act===k?null:k; }
   if(n!=null){ UI.pl=UI.pl===n&&k==null?null:n; }
-  if(UI.act&&UI.pl){ const a=UI.act,p=UI.pl; if(a==='pen'){penSheet(p);return} record(a,p); return }
+  if(UI.act&&UI.pl){ const a=UI.act,p=UI.pl; if(a==='pen'){const o=document.querySelector('.pop');if(o)o.remove();penSheet(p);return} record(a,p); return }
   render();
 }
 
@@ -390,19 +428,19 @@ function render(flashN){
   pName.textContent=PN(S.cur);
   if(VIEW){pPrev.style.display=pNext.style.display='none'}
   document.getElementById('theme').innerHTML=[['light','Светлый'],['board','Табло'],['tiles','Плитки']].map(([v,t])=>`<button data-th="${v}" class="${UI.theme===v?'on':''}">${t}</button>`).join('');
-  document.getElementById('tabs').style.display=VIEW?'none':'';
-  document.getElementById('tabs').innerHTML=[['input','Ввод'],['sum','Итоги']].map(([v,t])=>`<button data-tab="${v}" class="${UI.tab===v?'on':''}">${t}</button>`).join('');
+  
+  document.getElementById('tabs').innerHTML=[['input','Ввод'],['sum','Итоги'],['season','Сезон']].filter(x=>!VIEW||x[0]!=='input').map(([v,t])=>`<button data-tab="${v}" class="${UI.tab===v?'on':''}">${t}</button>`).join('');
   // полоса положения
   const s=sit(), st=document.getElementById('strip'); st.className='strip '+s.type;
   const pens=S.pens.map(p=>`<span class="pchip">${p.side==='us'?nm(p.n):S.away}${p.kind==='major'?' · 5 мин':p.kind==='double'?' · 2+2':' · 2 мин'}${VIEW?'':`<button data-pend="${p.id}">Штраф закончился</button>`}</span>`).join('');
   st.innerHTML=`<span class="what">${s.type==='pk'?'<span class="sign"><span>!</span></span>':''}${SITW[s.type]} · <span class="n">${s.us} на ${s.them}</span></span><div class="pens">${pens}</div><span class="sp"></span>${VIEW?'':`
    <button class="chipb" data-opp>Удаление у соперника</button><button class="chipb${S.pull.us?' on':''}" data-pull="us">Наш вратарь снят</button><button class="chipb${S.pull.them?' on':''}" data-pull="them">Их вратарь снят</button>`}`;
-  UI.tab==='input'?renderInput(flashN):renderSum(); sync.show();
+  UI.tab==='input'?renderInput(flashN):UI.tab==='season'?renderSeason():renderSum(); sync.show();
 }
 function renderInput(flashN){
   const v=document.getElementById('view');
   const a=UI.act, pl=UI.pl;
-  const hint=a&&!pl?`<b>${AN[a]}</b> — теперь нажмите номер игрока`:pl&&!a?`<b>${nm(pl)}</b> — теперь нажмите действие слева`:'Увидели действие — нажмите его слева, затем номер игрока';
+  const hint=a&&!pl?`<b>${AN[a]}</b> — теперь нажмите номер игрока`:pl&&!a?`<b>${nm(pl)}</b> — что сделал?`:'Нажмите игрока, затем что он сделал — или наоборот';
   const tile=p=>{const c=a?cnt(p.n,a,S.cur):0;return `<button class="tl${pl===p.n?' pick':''}${flashN===p.n?' flash':''}" data-pl="${p.n}"><b>${p.n}</b><span>${p.name}</span>${a&&c?`<i>${c}</i>`:''}</button>`};
   const pc=k=>S.ev.filter(e=>e.k===k&&e.p===S.cur).length;
   const fw=pc('fw'),fl=pc('fl');
@@ -419,19 +457,32 @@ function renderInput(flashN){
     else t=`${AN[m.k]} · ${nm(m.n)}`;
     const sub=PS(m.p)+(m.src==='лист'?' · с бумажного листа':m.src==='лига'?' · по трансляции лиги':m.ts?' · '+new Date(m.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):'')+((gl||ga)&&(gl||ga).sit?' · '+SITS[sitOf((gl||ga).sit)]:'');
     return `<div class="it${cls}${m.gid===UI.lastGid&&i===0?' new':''}"><div class="tx"><b>${t}</b><small>${sub}</small></div><button class="x" data-del="${m.gid}" title="Убрать эту запись">×</button></div>`}).join('');
-  v.innerHTML=`<div class="main">
-   <div class="col"><div class="cap">1. Что произошло</div><div class="acts">
+  v.innerHTML=`<div class="main${pl&&!a?' picking':''}">
+   <div class="col side"><div class="cap">Что произошло</div><div class="acts">
      ${ACTS.map(([k,l,key])=>`<button class="act${a===k?' on':''}" data-act="${k}"><span>${l}</span><span class="k">${key}</span><span class="c">${pc(k)||''}</span></button>`).join('')}
      <button class="act goal" data-act="g">Гол<span class="k">G</span></button>
      <button class="act ga" data-act="ga">Гол в наши ворота</button>
    </div></div>
-   <div class="col ${a||pl?'':'waiting'}"><div class="hint">${hint}</div>
-     <div class="pgrp f" style="flex:${Math.ceil(nF.length/cF)||1}"><div class="cap">2. Кто · нападающие</div><div class="tiles" style="grid-template-columns:repeat(${cF},minmax(0,1fr))">${nF.map(tile).join('')}</div></div>
+   <div class="col mid"><div class="hint">${hint}</div>
+     <div class="pgrp f" style="flex:${Math.ceil(nF.length/cF)||1}"><div class="cap">Нападающие</div><div class="tiles" style="grid-template-columns:repeat(${cF},minmax(0,1fr))">${nF.map(tile).join('')}</div></div>
      <div class="pgrp d" style="flex:${Math.ceil(nD.length/cD)||1}"><div class="cap">Защитники</div><div class="tiles" style="grid-template-columns:repeat(${cD},minmax(0,1fr))">${nD.map(tile).join('')}</div></div>
      <div class="foot">${PN(S.cur)}: броски <b>${pc('sh')}</b> · вбрасывания <b>${fw}</b> из <b>${fw+fl}</b> · потери <b>${pc('to')}</b> · силовые <b>${pc('hit')}</b></div>
    </div>
-   <div class="col"><div class="cap">Последние записи · ошиблись — нажмите ×</div><div class="feed">${feed||'<div class="sub">Записей пока нет</div>'}${nList?`<div class="sub" style="padding:8px 4px;font-size:13px">Ещё ${nList} записей перенесены с бумажного листа (1–2-й периоды). Проверить или убрать — во вкладке «Итоги», нажав на число.</div>`:''}</div><button class="undo" id="undoB">Отменить последнее · ${MOD}Z</button></div>
+   <div class="col side"><div class="cap">Последние записи · ошиблись — нажмите ×</div><div class="feed">${feed||'<div class="sub">Записей пока нет</div>'}${nList?`<div class="sub" style="padding:8px 4px;font-size:13px">Ещё ${nList} записей перенесены с бумажного листа (1–2-й периоды). Проверить или убрать — во вкладке «Итоги», нажав на число.</div>`:''}</div><button class="undo" id="undoB">Отменить последнее · ${MOD}Z</button></div>
   </div>`;
+  // игрок выбран первым — сбоку от него список действий по амплуа (у защитников нет вбрасываний)
+  const pp=pl&&!a?P(pl):null, tl=pp&&v.querySelector(`.tl[data-pl="${pl}"]`);
+  if(tl){const el=document.createElement('div');el.className='pop';
+    const L=[['sh','Бросок'],['bl','Заблокировал бросок'],...(pp.pos==='н'?[['fw','Выиграл вбрасывание'],['fl','Проиграл вбрасывание']]:[]),['hit','Силовой приём'],['to','Потеря шайбы'],['pen','Удаление']];
+    el.innerHTML=L.map(([k,l])=>`<button class="pb" data-act="${k}">${l}</button>`).join('')+'<button class="pb goal" data-act="g">Гол</button>';
+    v.appendChild(el);const r=tl.getBoundingClientRect(),c=tl.closest('.col').getBoundingClientRect(),w=el.offsetWidth,h=el.offsetHeight,G=12;
+    const fit=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));let left,top,side;
+    if(innerWidth>820&&r.right+G+w<=c.right-4){left=r.right+G;side='r'}
+    else if(innerWidth>820&&r.left-G-w>=c.left+4){left=r.left-G-w;side='l'}
+    if(side){top=fit(r.top+r.height/2-h/2,Math.max(8,c.top+8),Math.min(innerHeight,c.bottom)-h-8)}
+    else{side=r.bottom+G+h<=innerHeight-8?'b':'t';top=fit(side==='b'?r.bottom+G:r.top-G-h,8,innerHeight-h-8);left=fit(r.left+r.width/2-w/2,8,innerWidth-w-8)}
+    el.classList.add(side);el.style.left=left+'px';el.style.top=top+'px';
+    el.style.setProperty('--ax',fit(r.left+r.width/2-left,18,w-18)+'px');el.style.setProperty('--ay',fit(r.top+r.height/2-top,18,h-18)+'px')}
 }
 const COLS=[['fo','Вбрасывания'],['sh','Броски'],['g','Голы'],['a','Передачи'],['bl','Заблоки­ровал'],['hit','Силовые приёмы'],['to','Потери шайбы'],['pen','Удаления'],['pm','Плюс-минус']];
 function st(n){const f=e=>e.n===n&&(UI.sumPer==='all'||e.p===UI.sumPer);const r={};for(const k of ['fw','fl','sh','g','a','bl','hit','to','pen'])r[k]=S.ev.filter(e=>f(e)&&e.k===k).length;
@@ -464,9 +515,51 @@ function renderSum(){
     ${S.source||S.sheetP1?`<div class="box note">${S.source||''} ${S.sheetP1||''}</div>`:''}</div></div>`;
 }
 
+/* ---------- сезон: считает приёмник в таблице, здесь только показ ---------- */
+const SEASON={data:null,at:0,busy:false,err:false,mode:'avg'};
+try{const c=JSON.parse(localStorage.getItem('lm_season')||'null');if(c&&c.data){SEASON.data=c.data;SEASON.at=c.at}}catch(e){}
+async function loadSeason(){if(!API||!(WKEY||VIEW)||SEASON.busy||(SEASON.data&&Date.now()-SEASON.at<20000&&!SEASON.err))return;
+  SEASON.busy=true;if(UI.tab==='season')render();
+  try{const r=await api({op:'season'},30000);SEASON.data=r.season;SEASON.at=Date.now();SEASON.err=false;try{localStorage.setItem('lm_season',JSON.stringify({data:SEASON.data,at:SEASON.at}))}catch(e){}}
+  catch(e){SEASON.err=true}
+  SEASON.busy=false;if(UI.tab==='season'&&!ov.classList.contains('on'))render()}
+function renderSeason(){
+  const v=document.getElementById('view'),D=SEASON.data,can=API&&(WKEY||VIEW);
+  const state=SEASON.busy?'Считаю по таблице…':SEASON.err?'Нет связи с таблицей'+(D?' — показан расчёт от '+hm(new Date(SEASON.at)):''):D?'По таблице на '+hm(new Date(SEASON.at)):'';
+  if(!D||!D.n){
+    const ml=D&&D.matches.length?`<div class="box"><div class="cap">Матчи в таблице</div>${seasonList(D)}</div>`:'';
+    v.innerHTML=`<div class="sumv"><div class="box empty"><h2>Сезон</h2><p class="sub">${!can?'Сезон считается по всем матчам в таблице. Откройте программу по ссылке оператора или по ссылке просмотра — здесь появятся средние по игрокам и команде.':SEASON.busy&&!D?'Считаю по таблице…':SEASON.err&&!D?'Нет связи с таблицей. Сезон появится, когда связь вернётся.':'В расчёте пока нет ни одного матча. Матч попадает в сезон, когда в программе введены все три периода.'}</p></div><div class="side">${ml}</div></div>`;return}
+  const last=SEASON.mode==='last'&&D.n>5, avg=SEASON.mode!=='sum';
+  const fx=x=>(Math.round(x*10)/10).toFixed(1).replace('.',',').replace('-','−');
+  const KS=['sh','g','a','bl','hit','to','pen'];
+  const all=D.players.map(p=>({p,gp:last?p.gp5:p.gp,t:last?p.t5:p.t})).filter(x=>x.gp>0).sort((a,b)=>(a.p.pos===b.p.pos?0:a.p.pos==='н'?-1:1)||a.p.n-b.p.n);
+  const val=(x,k)=>avg?x.t[k]/x.gp:x.t[k];
+  const mx={};for(const k of KS){mx[k]=Math.max(0,...all.map(x=>val(x,k)));mx[k+'c']=all.filter(x=>val(x,k)===mx[k]).length}
+  const trend=(x,k)=>{if(!last||!x.p.gp)return '';const a=x.t[k]/x.gp,b=x.p.t[k]/x.p.gp;return Math.abs(a-b)>=.3&&Math.abs(a-b)>=b*.2?`<span class="tr">${a>b?'▲':'▼'}</span>`:''};
+  const cell=(x,k)=>{const t=x.t;
+    if(k==='fo'){const n=t.fw+t.fl;return n?`<td>${avg?Math.round(100*t.fw/n)+'<small>%</small>':t.fw+'–'+t.fl}</td>`:'<td class="z">·</td>'}
+    if(k==='pm'){if(!t.pmc)return '<td class="z">·</td>';const q=avg?t.pm/x.gp:t.pm;return `<td>${q>0?'+':''}${avg?fx(q):String(q).replace('-','−')}</td>`}
+    if(!t[k])return '<td class="z">·</td>';const q=val(x,k),lead=mx[k]===q&&mx[k+'c']===1&&all.length>1;
+    return `<td>${avg?fx(q):q}${trend(x,k)}${lead&&['sh','a','bl','hit'].includes(k)?'<span class="dot" title="больше всех"></span>':''}${lead&&['to','pen'].includes(k)?'<span class="warn" title="больше всех">!</span>':''}</td>`};
+  let rows='';for(const [g,l] of [['н','Нападающие'],['з','Защитники']]){rows+=`<tr class="g"><td colspan="11">${l}</td></tr>`;
+    for(const x of all.filter(x=>x.p.pos===g))rows+=`<tr><td class="l"><span class="no">${x.p.n}</span>${x.p.name}</td><td class="gp">${x.gp}</td>${COLS.map(([k])=>cell(x,k)).join('')}</tr>`}
+  const T=D.team,N=D.n,tv=(o,k)=>avg?fx(o[k]/N):o[k],fo=o=>o.fw+o.fl?(avg?Math.round(100*o.fw/(o.fw+o.fl))+'<small>%</small>':o.fw+'–'+o.fl):'·';
+  if(!last)rows+=`<tr class="t"><td class="l">Команда</td><td class="gp">${N}</td><td>${fo(T.t)}</td>${KS.map(k=>`<td>${tv(T.t,k)}</td>`).join('')}<td></td></tr>`;
+  const pr=[[1,'1-й период'],[2,'2-й период'],[3,'3-й период']].map(([p,l])=>{const o=T.per[p];return `<tr><td>${l}</td><td>${fx(o.g/N)} : ${fx(o.ga/N)}</td><td>${fx(o.sh/N)}</td><td>${o.fw+o.fl?Math.round(100*o.fw/(o.fw+o.fl))+'%':'·'}</td><td>${fx(o.to/N)}</td><td>${fx(o.pen/N)}</td></tr>`}).join('')
+    +`<tr class="sumr"><td>Весь матч</td><td>${fx(T.t.g/N)} : ${fx(T.t.ga/N)}</td><td>${fx(T.t.sh/N)}</td><td>${T.t.fw+T.t.fl?Math.round(100*T.t.fw/(T.t.fw+T.t.fl))+'%':'·'}</td><td>${fx(T.t.to/N)}</td><td>${fx(T.t.pen/N)}</td></tr>`;
+  const modes=[['avg','В среднем за матч'],['sum','Всего'],...(D.n>5?[['last','Последние 5 матчей']]:[])];
+  v.innerHTML=`<div class="sumv"><div class="tbl" style="--rows:${(all.length+(last?0:1)+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small">${modes.map(([m,t])=>`<button data-sm="${m}" class="${(last?'last':avg?'avg':'sum')===m?'on':''}">${t}</button>`).join('')}</div><span class="note">${last?'▲ ▼ — выше или ниже своего среднего за сезон':'Матчей в расчёте: '+N}</span></div>
+    <table><tr><th class="l">Игрок</th><th>Матчи</th>${COLS.map(([k,l])=>`<th>${k==='fo'&&avg?'Выиграно вбрасываний':l}</th>`).join('')}</tr>${rows}</table></div>
+   <div class="side"><div class="box"><div class="cap">Команда в среднем за матч</div><table class="pt"><tr><th class="l"></th><th>Шайбы</th><th>Броски</th><th>Вбрас.</th><th>Потери</th><th>Удал.</th></tr>${pr}</table></div>
+    <div class="box"><div class="cap">Матчи сезона</div>${seasonList(D)}</div>
+    <div class="box note">${state}${state?'. ':''}В сезон идут матчи, введённые в программе целиком: с записями во всех трёх периодах. Среднее игрока считается на сыгранный им матч.</div></div></div>`;
+}
+function seasonList(D){return D.matches.map(m=>`<div class="sm${m.why?' off':''}"><span class="d">${(m.date||'').slice(0,5)}</span><span class="w">${m.away||'Соперник'}${m.venue?` <small>${m.venue==='ВЫЕЗД'?'в гостях':'дома'}</small>`:''}${m.why?`<small class="y">не в расчёте: ${m.why}</small>`:''}</span><span class="s">${m.score}</span></div>`).join('')}
+
 /* ---------- листы ---------- */
 const ov=document.getElementById('ov'),sh=document.getElementById('sheet');
-function open_(){ov.classList.add('on')} function close_(){ov.classList.remove('on');sh.onkey=null}
+function open_(){ov.classList.add('on')} function close_(){ov.classList.remove('on');sh.onkey=null;sh.ondrop=sh.ondragover=sh.ondragleave=null;sh.classList.remove('drag')}
+addEventListener('dragover',e=>e.preventDefault());addEventListener('drop',e=>e.preventDefault());
 function penSheet(n){
   sh.innerHTML=`<h2>Удаление · ${nm(n)}</h2><p class="sub">Какой штраф? Состав на льду изменится сам.</p>
    <div class="row" style="margin-top:14px"><button class="btn dark" data-pk="minor">2 минуты</button><button class="btn dark" data-pk="double">2 + 2 минуты</button><button class="btn dark" data-pk="major">5 минут</button><button class="btn" data-pk="misc">10 минут (состав не меняется)</button><span class="sp"></span><button class="btn" data-x>Отмена</button></div>`;
@@ -491,9 +584,10 @@ function endPen(id){const p=S.pens.find(x=>x.id==id);if(!p)return;
 function goalEndsPen(side){ // гол в большинстве снимает один малый штраф проигравшей стороны
   const i=S.pens.findIndex(p=>p.side===side&&(p.kind==='minor'||p.kind==='double'));if(i<0)return null;
   const p=S.pens[i];if(p.kind==='double'){p.kind='minor';return 'осталось 2 минуты штрафа'}S.pens.splice(i,1);return 'штраф закончился'}
-function goalSheet(ours){
+function goalSheet(ours,sc0){
   const s0=sit();
-  const g={step:ours?1:3,sc:null,as:[],on:new Set(),key:s0.key,t:''};
+  const pre=ours&&sc0!=null&&!!P(sc0);
+  const g={step:ours?(pre?2:1):3,sc:pre?sc0:null,as:[],on:new Set(pre?[sc0]:[]),key:s0.key,t:''};
   const need=()=>+g.key.split('x')[0];
   const draw=()=>{
     const q=g.step===1?'Кто забил?':g.step===2?'Кто отдал передачу? (до двух)':`Кто ещё был на льду? Отмечено ${g.on.size} из ${need()}`;
@@ -566,25 +660,51 @@ function menuSheet(){
 }
 /* Состав на матч: все игроки клуба плитками, нажатие — играет / не играет */
 function rosterSheet(isNew){
-  let touched=false, R=S.roster.map(p=>({n:p.n,name:p.name,pos:p.pos,out:!!p.out})), ven=S.venue, f={h:S.home,a:isNew?'':S.away,d:S.date}, note='', list=false, np='н';
+  let touched=false, R=S.roster.map(p=>({n:p.n,name:p.name,pos:p.pos,out:!!p.out})), ven=S.venue, f={h:S.home,a:isNew?'':S.away,d:S.date}, note='', list=false, np='н', busy=false;
   const keep=()=>{for(const [k,id] of [['h','fH'],['a','fA'],['d','fD']]){const el=document.getElementById(id);if(el)f[k]=el.value}};
   const srt=()=>R.sort((a,b)=>(a.pos===b.pos?0:a.pos==='н'?-1:1)||a.n-b.n);
   const draw=()=>{srt();
-    const tile=p=>`<button class="tl${p.out?' off':''}" data-t="${p.n}">${p.out?'<em>не играет</em>':''}<b>${p.n}</b><span>${p.name}</span></button>`;
+    const tile=p=>`<button class="tl${p.out?' off':''}${p.fresh&&!p.out?' nw':''}" data-t="${p.n}">${p.out?'<em>не играет</em>':p.fresh?'<em>новый</em>':''}<b>${p.n}</b><span>${p.name}</span></button>`;
     const grp=(pos,l)=>{const g=R.filter(p=>p.pos===pos);return `<div class="lbl">${l} · играют ${g.filter(p=>!p.out).length} из ${g.length}</div><div class="gtiles">${g.map(tile).join('')}</div>`};
     sh.innerHTML=`<h2>${isNew?'Новый матч · кто сегодня играет':'Состав на матч'}</h2><p class="sub">Нажмите на игрока — он «играет» или «не играет». Кнопки на экране ввода изменятся сами.${note?' '+note:''}</p>
      <div class="row" style="margin:12px 0"><input type="text" id="fH" value="${f.h}" style="width:150px"><span class="sub">против</span><input type="text" id="fA" value="${f.a}" placeholder="Соперник" style="width:170px"><input type="text" id="fD" value="${f.d}" style="width:120px"><div class="seg" id="fV"><button class="${ven==='ДОМА'?'on':''}">ДОМА</button><button class="${ven==='ВЫЕЗД'?'on':''}">ВЫЕЗД</button></div></div>
      ${list?`<p class="sub">Одна строка — один игрок: номер, фамилия, «н» (нападающий) или «з» (защитник). Лишнюю строку можно стереть.</p><textarea id="fR" style="min-height:240px">${R.map(p=>`${p.n} ${p.name} ${p.pos}`).join('\n')}</textarea>`
       :grp('н','Нападающие')+grp('з','Защитники')+`<div class="lbl">Новый игрок, которого нет в списке</div>
      <div class="row"><input type="text" id="nN" placeholder="№" style="width:70px" inputmode="numeric"><input type="text" id="nF" placeholder="Фамилия" style="width:200px"><div class="seg" id="nP"><button class="${np==='н'?'on':''}" data-np="н">Нападающий</button><button class="${np==='з'?'on':''}" data-np="з">Защитник</button></div><button class="btn dark" data-add>Добавить</button></div>`}
-     <div class="row" style="margin-top:16px"><button class="btn" data-list>${list?'Вернуться к плиткам':'Править списком'}</button>${sync.on()?'<button class="btn" data-cloud>Взять состав из таблицы</button>':''}<span class="sp"></span><button class="btn" data-x>Отмена</button><button class="btn acc" data-ok>${isNew?'Готово, начать матч':'Сохранить'}</button></div>`};
+     <div class="row foot"><button class="btn" data-list>${list?'Вернуться к плиткам':'Править списком'}</button>${sync.on()?`<button class="btn" data-file${busy?' disabled':''}>${busy?'Читаю заявку…':'Состав из файла'}</button><button class="btn" data-cloud>Состав из таблицы</button>`:''}<span class="sp"></span><button class="btn" data-x>Отмена</button><button class="btn acc" data-ok>${isNew?'Готово, начать матч':'Сохранить'}</button></div>`};
   const fromList=()=>{const el=document.getElementById('fR');if(!el)return;const old=Object.fromEntries(R.map(p=>[p.n,p.out]));
     const r=el.value.split('\n').map(x=>x.trim().split(/\s+/)).filter(a=>a.length>=2&&!isNaN(+a[0])&&a[0]!=='').map(a=>({n:+a[0],name:a[1],pos:a[2]==='з'?'з':'н',out:!!old[+a[0]]}));if(!r.length)return;
     const lost=R.filter(p=>!r.some(x=>x.n===p.n)&&S.ev.some(e=>e.n===p.n));
     if(lost.length){r.push(...lost);snack('У '+lost.map(p=>p.n+' '+p.name).join(', ')+' уже есть записи в этом матче — оставил в списке','Понятно',()=>{})}
     R=r};
-  const cloud=async quiet=>{try{const r=await api({op:'rosterGet'},6000);if(r.roster&&r.roster.length){if(quiet&&touched){const same=JSON.stringify(r.roster.map(p=>[p.n,p.name,p.pos]).sort())===JSON.stringify(R.map(p=>[p.n,p.name,p.pos]).sort());if(!same){keep();note='<b>В таблице другой список игроков — чтобы взять его, нажмите «Взять состав из таблицы».</b>';draw()}return}keep();R=r.roster;note='<b>Состав взят из таблицы.</b>';draw()}else if(!quiet)snack('В таблице состава пока нет','Понятно',()=>{})}catch(e){if(!quiet)snack('Нет связи с таблицей — показан состав с этого компьютера','Понятно',()=>{})}};
-  sh.onclick=e=>{const b=e.target.closest('button');if(!b)return;keep();if(b.dataset.t||'add' in b.dataset||'list' in b.dataset)touched=true;
+  const cloud=async quiet=>{try{const r=await api({op:'rosterGet'},6000);if(r.roster&&r.roster.length){if(quiet&&touched){const same=JSON.stringify(r.roster.map(p=>[p.n,p.name,p.pos]).sort())===JSON.stringify(R.map(p=>[p.n,p.name,p.pos]).sort());if(!same){keep();note='<b>В таблице другой список игроков — чтобы взять его, нажмите «Состав из таблицы».</b>';draw()}return}keep();R=r.roster;note='<b>Состав взят из таблицы.</b>';draw()}else if(!quiet)snack('В таблице состава пока нет','Понятно',()=>{})}catch(e){if(!quiet)snack('Нет связи с таблицей — показан состав с этого компьютера','Понятно',()=>{})}};
+  const apply=(t,fp,gk)=>{const m=new Map(fp.map(p=>[p.n,p]));let fresh=[];
+    R.forEach(x=>{const p=m.get(x.n);x.out=!p;delete x.fresh;if(p){if(!nearName(p.name,x.name)){fresh.push(p.n+' '+p.name+' (в списке был '+x.name+')');x.name=p.name;x.pos=p.pos;x.fresh=true}m.delete(x.n)}});
+    for(const p of m.values()){R.push({n:p.n,name:p.name,pos:p.pos,out:false,fresh:true});fresh.push(p.n+' '+p.name)}
+    touched=true;list=false;
+    note=`<b>Из заявки${t.team?' «'+t.team+'»':''}: играют ${fp.length}.</b>${fresh.length?' <b>Новые, проверьте фамилии: '+fresh.join(', ')+'.</b>':''}${gk?' Вратари ('+gk+') в лист не вносятся.':''} Сверьте с заявкой и начинайте.`;draw()};
+  const scan=async file=>{if(busy||!file||!sync.on())return;keep();
+    const bad=t=>snack(t,'Понятно',()=>{});
+    if(!/\.(pdf|jpe?g|png|webp|hei[cf])$/i.test(file.name)&&!/^(application\/pdf|image\/)/.test(file.type)){bad('Нужен файл заявки: PDF или фото');return}
+    if(file.size>20e6){bad('Файл больше 20 МБ — сделайте фото заявки и загрузите его');return}
+    if(list){fromList();list=false}
+    busy=true;const old=note;note='<b>Читаю заявку — это до полминуты. Игроков пока не трогайте.</b>';draw();
+    try{const fb=await fileB64(file),r=await api({op:'scan',...fb},90000);
+      const teams=(r.teams||[]).map(t=>{const seen=new Set();return {team:cleanName(t.team),all:t.players.length,
+        fp:t.players.filter(p=>p.pos!=='в'&&Number.isInteger(p.n)&&p.n>=0&&p.n<100&&!seen.has(p.n)&&seen.add(p.n)).map(p=>({n:p.n,name:cleanName(p.name)||'Игрок',pos:p.pos==='з'?'з':'н'}))}}).filter(t=>t.fp.length);
+      if(!teams.length){note=old;bad('В файле не нашлось заявки с номерами игроков. Отметьте игроков плитками');return}
+      const hit=t=>t.fp.filter(p=>R.some(x=>x.n===p.n&&nearName(p.name,x.name))).length;
+      const t=teams.sort((a,b)=>hit(b)-hit(a))[0],gk=t.all-t.fp.length;
+      if(hit(t)*2<t.fp.length){note=`<b>Похоже, это заявка другой команды${t.team?' — «'+t.team+'»':''}: с нашим списком совпали ${hit(t)} из ${t.fp.length}. Состав не изменён.</b>`;
+        snack('Заявка не похожа на наш состав','Всё равно взять',()=>{keep();apply(t,t.fp,gk)});return}
+      apply(t,t.fp,gk)}
+    catch(e){note=old;const m=String(e&&e.message||e);
+      bad(m==='big'?'Файл слишком большой — сделайте фото заявки и загрузите его':e&&e.name==='AbortError'||/fetch|network/i.test(m)?'Нет связи или ответ идёт слишком долго. Отметьте игроков плитками':'Заявку прочитать не получилось. Отметьте игроков плитками')}
+    finally{busy=false;draw()}};
+  const fi=document.createElement('input');fi.type='file';fi.accept='application/pdf,image/*,.pdf,.heic,.heif';fi.onchange=()=>{const f=fi.files[0];fi.value='';scan(f)};
+  if(sync.on()){sh.ondragover=e=>{e.preventDefault();sh.classList.add('drag')};sh.ondragleave=e=>{if(!sh.contains(e.relatedTarget))sh.classList.remove('drag')};
+    sh.ondrop=e=>{e.preventDefault();sh.classList.remove('drag');scan(e.dataTransfer.files[0])}}
+  sh.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(busy&&!('x' in b.dataset))return;keep();if(b.dataset.t||'add' in b.dataset||'list' in b.dataset)touched=true;
     if(b.parentElement.id==='fV'){ven=b.textContent;draw();return}
     if(b.dataset.np){np=b.dataset.np;const n=nN.value,fam=nF.value;draw();nN.value=n;nF.value=fam;return}
     if(b.dataset.t){const p=R.find(x=>x.n===+b.dataset.t);p.out=!p.out;draw();return}
@@ -594,9 +714,10 @@ function rosterSheet(isNew){
       R.push({n,name:name[0].toUpperCase()+name.slice(1),pos:np,out:false});draw();return}
     if('list' in b.dataset){if(list)fromList();list=!list;draw();return}
     if('cloud' in b.dataset){cloud();return}
+    if('file' in b.dataset){fi.click();return}
     if('x' in b.dataset){close_();return}
     if('ok' in b.dataset){if(list)fromList();if(!R.some(p=>!p.out)){snack('Отметьте хотя бы одного игрока','Понятно',()=>{});return}
-      Object.assign(S,{roster:srt(),home:f.h.trim()||'Челмет',away:f.a.trim()||'Соперник',date:f.d.trim()||today(),venue:ven});
+      R.forEach(p=>delete p.fresh);Object.assign(S,{roster:srt(),home:f.h.trim()||'Челмет',away:f.a.trim()||'Соперник',date:f.d.trim()||today(),venue:ven});
       sync.flag('lm_rdirty',true);save();close_();render()}};
   draw();open_(); if(isNew&&sync.on()&&!sync.flag('lm_rdirty'))cloud(true);
 }
@@ -637,11 +758,13 @@ function coach(i){document.querySelectorAll('.coach,.ring').forEach(x=>x.remove(
 
 /* ---------- события ---------- */
 document.addEventListener('click',e=>{if(!VIEW&&e.target.closest('#home,#away')&&!ov.classList.contains('on')){rosterSheet();return}
+  if(UI.pl&&!UI.act&&UI.tab==='input'&&!ov.classList.contains('on')&&!e.target.closest('button,.pop')){UI.pl=null;render();return}
   const b=e.target.closest('button');if(!b||ov.contains(b))return;const d=b.dataset;
-  if(VIEW&&!(d.tab||d.th||d.sp!=null||b.id==='menuB'))return;
+  if(VIEW&&!(d.tab||d.th||d.sp!=null||d.sm||b.id==='menuB'))return;
   if(d.act){choose(d.act,null);return} if(d.pl){choose(null,+d.pl);return}
   if(d.del){delGroup(+d.del);return} if(b.id==='undoB'){undoLast();return}
-  if(d.tab){UI.tab=d.tab;render();return} if(d.th){UI.theme=d.th;document.documentElement.dataset.theme=d.th;try{localStorage.setItem('lm_theme',d.th)}catch(_){}render();return}
+  if(d.tab){UI.tab=d.tab;render();if(d.tab==='season')loadSeason();return}
+  if(d.sm){SEASON.mode=d.sm;render();return} if(d.th){UI.theme=d.th;document.documentElement.dataset.theme=d.th;try{localStorage.setItem('lm_theme',d.th)}catch(_){}render();return}
   if(d.sp!=null){UI.sumPer=d.sp==='all'?'all':+d.sp;render();return}
   if(d.pend){endPen(d.pend);return} if('opp' in d){oppPenSheet();return} if(d.pull){S.pull[d.pull]=!S.pull[d.pull];save();render();return}
   if(b.id==='pPrev'){S.cur=Math.max(1,S.cur-1);save();render();return} if(b.id==='pNext'){S.cur=Math.min(4,S.cur+1);save();render();return}
