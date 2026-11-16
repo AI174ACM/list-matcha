@@ -233,6 +233,46 @@ html[data-theme="board"] .snack{background:#fff;color:#1D1D1F}
 .snack.on{opacity:1;pointer-events:auto}
 .snack button{flex:none;height:36px;padding:0 12px;border-radius:9px;background:var(--acc);color:#fff;font-weight:700}
 @media (max-height:720px){.app{gap:8px;padding:8px 12px}.acts{gap:4px;grid-template-rows:repeat(7,minmax(44px,1fr)) minmax(54px,1.3fr) minmax(44px,1fr)}.col{padding:8px 10px;gap:6px}.hint{font-size:18px;min-height:28px;padding:0 6px}.strip{min-height:50px;padding:3px 8px 3px 18px}}
+/* состав по пятёркам */
+.lgrid{display:grid;grid-template-columns:104px repeat(3,minmax(0,1fr)) 6px repeat(2,minmax(0,1fr));gap:5px 6px;align-items:center;margin-top:2px}
+.lgrid .lh{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em;text-align:center}
+.lgrid .ll{font-size:14px;font-weight:700}
+.sl{display:flex;align-items:center;gap:8px;height:52px;padding:0 10px 0 4px;border-radius:26px;background:var(--tile);text-align:left;min-width:0}
+.sl.e{background:none;box-shadow:inset 0 0 0 2px var(--line);color:var(--ink2)} .sl.e .av{background:none;box-shadow:inset 0 0 0 2px var(--ink3);color:var(--ink2);font-size:22px}
+.sl.on{box-shadow:inset 0 0 0 3px var(--acc)}
+html[data-theme="tiles"] .sl{box-shadow:inset 0 0 0 2px var(--ink)} html[data-theme="tiles"] .sl.e{box-shadow:inset 0 0 0 2px var(--ink3)} html[data-theme="tiles"] .sl.on{box-shadow:inset 0 0 0 3px var(--acc)}
+.av{flex:none;width:44px;height:44px;border-radius:50%;background:var(--tileH);display:flex;align-items:center;justify-content:center;font:800 17px/1 var(--num);font-style:normal;overflow:hidden;position:relative;color:var(--ink2)}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sl .st{min-width:0;display:flex;flex-direction:column;gap:2px} .sl .st b{font:800 18px/1 var(--num)} .sl .st span{font-size:13px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sl:not(.e) .st span{color:var(--ink2)}
+.unp{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--ink2)}
+.unp button{height:44px;padding:0 12px;border-radius:10px;background:var(--accSoft);color:var(--ink);font-weight:700}
+.lpop{position:fixed;z-index:12;width:480px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;background:var(--card);border-radius:18px;padding:10px;box-shadow:0 12px 40px rgba(0,0,0,.28),0 0 0 1px var(--line)}
+html[data-theme="tiles"] .lpop{background:#fff;box-shadow:0 12px 40px rgba(0,0,0,.28),0 0 0 2px var(--ink)} html[data-theme="board"] .lpop{background:#1c1c1f}
+.lpop .lpt{font-size:12px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em;padding:4px 6px 8px}
+.lpop .lpg{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.li{display:flex;align-items:center;gap:8px;height:44px;padding:0 10px;border-radius:10px;background:var(--tile);text-align:left;min-width:0;width:100%}
+.li:hover{background:var(--tileH)} .li b{font:800 16px/1 var(--num);min-width:24px;text-align:right} .li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;flex:1}
+.li small{flex:none;font-size:11px;color:var(--ink2)} .li.in{background:none;box-shadow:inset 0 0 0 1px var(--line)} .li.wide{justify-content:center;font-weight:700;margin-top:6px}
+.lpop .lps{grid-column:1/-1;font-size:11px;color:var(--ink2);padding:6px 6px 0}
+/* «Итоги» → «Пятёрки» */
+.tbl.lvw{display:flex;flex-direction:column}
+.lv{flex:1;min-height:0;display:grid;grid-template-rows:repeat(4,minmax(0,1fr)) auto;gap:6px;padding:0 12px 12px}
+.lr{display:grid;grid-template-columns:58px repeat(5,minmax(0,1fr));gap:6px;min-height:0}
+.lr .lt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink2);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.lr .lt b{font:800 26px/1 var(--num);color:var(--ink)}
+.pc{background:var(--tile);border-radius:12px;padding:5px 8px;display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;min-height:0;overflow:hidden}
+.pc.d1{margin-left:8px} .pc.e{background:none;box-shadow:inset 0 0 0 1px var(--line)}
+.pc .ph{display:flex;align-items:center;gap:8px;min-width:0} .pc .av{width:36px;height:36px;font-size:15px}
+.pc .pn{min-width:0;display:flex;flex-direction:column;gap:2px} .pc .pn b{font:800 18px/1 var(--num)} .pc .pn span{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc .pv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.pc .pv div{display:flex;flex-direction:column;align-items:center;gap:1px} .pc .pv b{font:800 15px/1 var(--num)} .pc .pv b.z{color:var(--ink3)}
+.pc .pv small{font-size:9px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+.pc .px{font-size:11px;line-height:13px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.lv .lb{font-size:13px;color:var(--ink2);padding:2px 4px;line-height:1.4} .lv .lb b{color:var(--ink)}
+html[data-theme="tiles"] .pc{background:#fff;box-shadow:inset 0 0 0 2px var(--ink)}
+@media (max-width:820px){.lgrid{grid-template-columns:1fr 1fr}.lgrid .lh,.lgrid .gp{display:none}.lgrid .ll{grid-column:1/-1;margin-top:8px}.lv{display:block}.lr{grid-template-columns:1fr 1fr;margin-bottom:10px}.lr .lt{grid-column:1/-1;flex-direction:row;gap:6px}.pc.d1{margin-left:0}.lpop{width:calc(100vw - 16px)}}
+@media print{.sumv:has(.lv){display:block}.sumv:has(.lv) .side{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm;margin-top:3mm;align-items:start}.lr{grid-template-columns:16mm repeat(5,minmax(0,1fr))}.pc{padding:2mm 3mm;gap:1.5mm}.pc .av{width:13mm;height:13mm}.pc .pn b{font-size:17pt}.pc .pn span{font-size:12pt}.pc .pv b{font-size:14pt}.pc .pv small{font-size:7pt}.pc .px{font-size:9pt;line-height:1.2}.pc{border:1px solid #bbb;background:none}.lv{display:block;padding:0 3mm 3mm}.lr{margin-bottom:2mm;break-inside:avoid}.av{border:1px solid #bbb;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 @media (max-width:1400px){.tl span{font-size:12px}}
 @media (max-height:900px){.side{gap:8px}.box{padding:9px 14px}.gl{padding:4px 0}.gl .s{font-size:15px}.pt td{height:25px;font-size:15px}.pt th{height:22px}.bar{margin:4px 0}.bar .v{font-size:15px}.box.note{font-size:11px;line-height:1.3}}
 @media (max-width:1300px){.sc .tm{font-size:17px}.sc .num{font-size:32px}.seg button{padding:0 11px}.per b{min-width:96px}}
@@ -270,6 +310,17 @@ const mkId=()=>new Date().toISOString().slice(0,10)+'-'+Math.random().toString(3
 const today=()=>new Date().toLocaleDateString('ru-RU');
 const MOD=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent)?'⌘':'Ctrl+';
 /* ---------- данные ---------- */
+/* База игроков клуба (собирает tools/build_club.py): id лиги, номер, фамилия, имя, амплуа (н / з / в), sub — центр «ц» / край «к», ph — есть фото */
+const CLUB=/*CLUB*/[{"id":40434,"n":12,"name":"Рыков","first":"Александр","pos":"н","sub":"к","ph":1},{"id":20335,"n":14,"name":"Зиновьев","first":"Илья","pos":"н","sub":"к","ph":0},{"id":44554,"n":24,"name":"Ерофеев","first":"Михаил","pos":"н","sub":"ц","ph":0},{"id":16234,"n":29,"name":"Мокин","first":"Михаил","pos":"н","sub":"к","ph":0},{"id":42559,"n":34,"name":"Гусманов","first":"Филат","pos":"н","sub":"к","ph":0},{"id":33773,"n":36,"name":"Кисаков","first":"Александр","pos":"н","sub":"к","ph":1},{"id":34412,"n":37,"name":"Удот","first":"Артём","pos":"н","sub":"к","ph":1},{"id":44552,"n":41,"name":"Еуст","first":"Владислав","pos":"н","sub":"ц","ph":0},{"id":18993,"n":42,"name":"Шаров","first":"Александр","pos":"н","sub":"ц","ph":0},{"id":45250,"n":44,"name":"Кожевников","first":"Роман","pos":"н","sub":"к","ph":0},{"id":34421,"n":46,"name":"Шавеко","first":"Вадим","pos":"н","sub":"цк","ph":0},{"id":41574,"n":50,"name":"Екимов","first":"Никита","pos":"н","sub":"к","ph":0},{"id":40432,"n":57,"name":"Телегин","first":"Никита","pos":"н","sub":"ц","ph":0},{"id":34043,"n":58,"name":"Кондырев","first":"Кирилл","pos":"н","sub":"ц","ph":0},{"id":43634,"n":61,"name":"Козырских","first":"Матвей","pos":"н","sub":"ц","ph":0},{"id":44689,"n":64,"name":"Кулагин","first":"Артемий","pos":"н","sub":"к","ph":0},{"id":42468,"n":67,"name":"Щеколдин","first":"Кирилл","pos":"н","sub":"цк","ph":0},{"id":43487,"n":71,"name":"Киреев","first":"Тимофей","pos":"н","sub":"к","ph":0},{"id":39509,"n":73,"name":"Миць","first":"Захар","pos":"н","sub":"ц","ph":0},{"id":39964,"n":87,"name":"Ануфриенко","first":"Никита","pos":"н","sub":"к","ph":0},{"id":42476,"n":90,"name":"Головнёв","first":"Егор","pos":"н","sub":"цк","ph":0},{"id":44661,"n":91,"name":"Цыплаков","first":"Глеб","pos":"н","sub":"к","ph":0},{"id":40373,"n":95,"name":"Агламзянов","first":"Руслан","pos":"н","sub":"ц","ph":1},{"id":42265,"n":97,"name":"Матюшин","first":"Андрей","pos":"н","sub":"к","ph":1},{"id":42033,"n":98,"name":"Колодий","first":"Леонид","pos":"н","sub":"к","ph":0},{"id":15979,"n":5,"name":"Бородкин","first":"Артём","pos":"з","sub":"","ph":0},{"id":43307,"n":18,"name":"Миканович","first":"Доминик","pos":"з","sub":"","ph":0},{"id":39208,"n":21,"name":"Проничкин","first":"Артём","pos":"з","sub":"","ph":0},{"id":42810,"n":26,"name":"Коваленко","first":"Александр","pos":"з","sub":"","ph":0},{"id":41691,"n":28,"name":"Потапов","first":"Филипп","pos":"з","sub":"","ph":0},{"id":42362,"n":35,"name":"Косачёв","first":"Егор","pos":"з","sub":"","ph":0},{"id":43632,"n":65,"name":"Борбузанов","first":"Герман","pos":"з","sub":"","ph":0},{"id":42465,"n":77,"name":"Родионов","first":"Марк","pos":"з","sub":"","ph":1},{"id":44368,"n":80,"name":"Семенихин","first":"Максим","pos":"з","sub":"","ph":0},{"id":42453,"n":81,"name":"Исаков","first":"Ярослав","pos":"з","sub":"","ph":0},{"id":43213,"n":86,"name":"Сивирчуков","first":"Владимир","pos":"з","sub":"","ph":0},{"id":42814,"n":89,"name":"Федосеев","first":"Ярослав","pos":"з","sub":"","ph":1},{"id":45834,"n":92,"name":"Галлямов","first":"Амин","pos":"з","sub":"","ph":0},{"id":41522,"n":30,"name":"Утенков","first":"Денис","pos":"в","sub":"","ph":1},{"id":42540,"n":31,"name":"Подомацкий","first":"Максим","pos":"в","sub":"","ph":0},{"id":38463,"n":60,"name":"Шерстнев","first":"Савелий","pos":"в","sub":"","ph":0},{"id":40429,"n":93,"name":"Мошаров","first":"Данил","pos":"в","sub":"","ph":0}]/*END*/;
+const PHOTOS=0;   /* 0 — фото не выложены на сайт (подставляется при публикации) */
+/* расстановка с афиши клуба 15.11.2026 — берётся, пока пятёрки ни разу не расставляли */
+const DEFL={90:[1,'lw'],42:[1,'c'],50:[1,'rw'],26:[1,'ld'],80:[1,'rd'],29:[2,'lw'],57:[2,'c'],91:[2,'rw'],77:[2,'ld'],65:[2,'rd'],14:[3,'lw'],95:[3,'c'],12:[3,'rw'],21:[3,'ld'],81:[3,'rd'],34:[4,'lw'],41:[4,'c'],98:[4,'rw'],5:[4,'ld'],58:[4,'rd']};
+const DEFG=[93,31];
+const LSL=['lw','c','rw','ld','rd'], SLN={lw:'Край',c:'Центр',rw:'Край',ld:'Защитник',rd:'Защитник',x1:'Запасной',x2:'Запасной',x3:'Запасной',g:'Вратарь'};
+const LNN=l=>l===5?'запас':l+'-е звено';
+const cById=id=>CLUB.find(c=>c.id===id);
+const avatar=p=>{const c=p&&p.id&&cById(p.id);return `<i class="av">${p?(p.name||'?')[0]:'+'}${PHOTOS&&c&&c.ph?`<img src="photos/${c.id}.jpg" alt="" onerror="this.remove()">`:''}</i>`};
+const rcopy=p=>{const o={n:p.n,name:p.name,pos:p.pos,out:!!p.out};if(p.id)o.id=p.id;if(p.ln&&!p.out){o.ln=p.ln;o.sl=p.sl}return o};
 function seedMatch(){
   const roster=[
     [42,'Шаров','н',1],[90,'Головнёв','н',1],[50,'Екимов','н',1],[80,'Семенихин','з',1],[26,'Коваленко','з',1],
@@ -307,8 +358,8 @@ function seedMatch(){
     savedAt:null};
 }
 
-function emptyMatch(from){const r=(from||seedMatch()).roster.map(p=>({n:p.n,name:p.name,pos:p.pos,out:!!p.out}));
-  return {v:1,id:mkId(),home:from?from.home:'Челмет',away:'Соперник',venue:from?from.venue:'ДОМА',date:today(),roster:r,ev:[],nextId:1,pens:[],pull:{us:false,them:false},cur:1,source:'',sheetP1:''}}
+function emptyMatch(from){const r=(from||seedMatch()).roster.map(rcopy);
+  return {v:1,id:mkId(),home:from?from.home:'Челмет',away:'Соперник',venue:from?from.venue:'ДОМА',date:today(),roster:r,ev:[],nextId:1,pens:[],pull:{us:false,them:false},cur:1,source:'',sheetP1:'',...(from&&from.gk?{gk:from.gk}:{})}}
 function norm(m){ // перенос с прошлых версий и из файлов
   if(!m.id)m.id=mkId(); if(!m.pens)m.pens=[]; if(m.pull==null)m.pull={us:false,them:false}; if(!m.ev)m.ev=[]; if(!m.nextId)m.nextId=1+Math.max(0,...m.ev.map(e=>e.id));
   for(const e of m.ev){ if((e.k==='g'||e.k==='ga')&&!e.sit){
@@ -320,7 +371,7 @@ function norm(m){ // перенос с прошлых версий и из фа�
 let S=null; if(!VIEW){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}}
 if(!S||!S.roster) S=emptyMatch();
 norm(S);
-let UI={tab:VIEW||Q.get('tab')==='sum'?'sum':'input',act:null,pl:null,lastGid:null,sumPer:'all',theme:'light'};
+let UI={tab:VIEW||Q.get('tab')==='sum'?'sum':'input',act:null,pl:null,lastGid:null,sumPer:'all',sumView:'tbl',theme:'light'};
 try{UI.theme=localStorage.getItem('lm_theme')||'light'}catch(e){}
 document.documentElement.dataset.theme=UI.theme;
 
@@ -506,8 +557,19 @@ function renderSum(){
   const pers=[1,2,3,4].filter(p=>p<=S.cur||S.ev.some(e=>e.p===p));const c=(p,k)=>S.ev.filter(e=>e.p===p&&e.k===k).length;
   const cen=all.filter(x=>x.s.fw+x.s.fl).sort((x,y)=>(y.s.fw+y.s.fl)-(x.s.fw+x.s.fl));
   const un=S.ev.some(e=>e.p===0);
-  v.innerHTML=`<div class="sumv"><div class="tbl" style="--rows:${(all.length+1+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small" id="sumPer">${[['all','Весь матч'],[1,'1-й'],[2,'2-й'],[3,'3-й'],[4,'ОТ']].map(([p,t])=>`<button data-sp="${p}" class="${UI.sumPer===p?'on':''}">${t}</button>`).join('')}</div><span class="note">${VIEW?'':'Нажмите на число — откроются эти записи, их можно убрать.'}</span></div>
-    <table><tr><th class="l">Игрок</th>${COLS.map(([,l])=>`<th>${l}</th>`).join('')}</tr>${rows}</table>
+  const lv=UI.sumView==='lines';
+  const pcard=(p,cls)=>{if(!p)return `<div class="pc e${cls||''}"></div>`;const s=st(p.n),z=v=>v?`<b>${v}</b>`:'<b class="z">·</b>';
+    const ex=[s.fw+s.fl?`вбрас. ${s.fw}–${s.fl}`:'',s.bl?`блоки ${s.bl}`:'',s.hit?`силовые ${s.hit}`:'',s.to?`потери ${s.to}`:'',s.pen?`удал. ${s.pen}`:''].filter(Boolean).join(' · ');
+    return `<div class="pc${cls||''}"><div class="ph">${avatar(p)}<div class="pn"><b>${p.n}</b><span>${p.name}</span></div></div>
+      <div class="pv"><div>${s.g||s.a?`<b>${s.g}+${s.a}</b>`:'<b class="z">·</b>'}<small>Очки</small></div><div>${z(s.sh)}<small>Броски</small></div><div>${s.pmc?`<b>${s.pm>0?'+':''}${s.pm}</b>`:'<b class="z">·</b>'}<small>+/−</small></div></div>
+      <div class="px">${ex||'&nbsp;'}</div></div>`};
+  const lat=(l,sl)=>S.roster.find(p=>!p.out&&p.ln===l&&p.sl===sl);
+  const rest=all.filter(x=>!(x.p.ln>=1&&x.p.ln<=4&&!x.p.out)).map(x=>x.p.n+' '+x.p.name);
+  const lvHtml=()=>S.roster.some(p=>p.ln&&!p.out)?`<div class="lv">${[1,2,3,4].map(l=>`<div class="lr"><div class="lt"><b>${l}</b>звено</div>${LSL.map((sl,i)=>pcard(lat(l,sl),i===3?' d1':'')).join('')}</div>`).join('')}
+     <div class="lb">${(S.gk||[]).filter(Boolean).length?`<b>Вратари:</b> ${S.gk.filter(Boolean).map(g=>g.n+' '+g.name).join(', ')}. `:''}${rest.length?`<b>Вне пятёрок:</b> ${rest.join(', ')}.`:''}</div></div>`
+    :`<div class="note" style="padding:14px">Пятёрки ещё не расставлены${VIEW?'.':' — нажмите на название команды вверху или Меню → «Состав на матч».'}</div>`;
+  v.innerHTML=`<div class="sumv"><div class="tbl${lv?' lvw':''}" style="--rows:${(all.length+1+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small" id="sumPer">${[['all','Весь матч'],[1,'1-й'],[2,'2-й'],[3,'3-й'],[4,'ОТ']].map(([p,t])=>`<button data-sp="${p}" class="${UI.sumPer===p?'on':''}">${t}</button>`).join('')}</div><div class="seg small" id="sumView"><button data-sv="tbl" class="${lv?'':'on'}">Таблица</button><button data-sv="lines" class="${lv?'on':''}">Пятёрки</button></div><span class="note">${VIEW||lv?'':'Нажмите на число — откроются эти записи.'}</span></div>
+    ${lv?lvHtml():`<table><tr><th class="l">Игрок</th>${COLS.map(([,l])=>`<th>${l}</th>`).join('')}</tr>${rows}</table>`}
     ${un&&UI.sumPer!=='all'?'<div class="note" style="padding:10px 14px">На бумажном листе блоки, силовые, потери, удаления и плюс-минус за 1–2-й периоды записаны вместе — по периодам их не разделить, они видны в «Весь матч».</div>':''}</div>
    <div class="side"><div class="box"><div class="cap">Голы</div>${glr||'<div class="sub">Голов нет</div>'}</div>
     <div class="box"><div class="cap">По периодам</div><table class="pt"><tr><th class="l"></th><th>Счёт</th><th>Броски</th><th>Вбрасывания</th></tr>${pers.map(p=>`<tr><td>${PN(p)}</td><td>${c(p,'g')}:${c(p,'ga')}</td><td>${c(p,'sh')}</td><td>${c(p,'fw')}–${c(p,'fl')}</td></tr>`).join('')}</table></div>
@@ -660,28 +722,77 @@ function menuSheet(){
 }
 /* Состав на матч: все игроки клуба плитками, нажатие — играет / не играет */
 function rosterSheet(isNew){
-  let touched=false, R=S.roster.map(p=>({n:p.n,name:p.name,pos:p.pos,out:!!p.out})), ven=S.venue, f={h:S.home,a:isNew?'':S.away,d:S.date}, note='', list=false, np='н', busy=false;
+  let touched=false, R=S.roster.map(rcopy), ven=S.venue, f={h:S.home,a:isNew?'':S.away,d:S.date}, note='', list=false, np='н', busy=false, lines=true, sel=null, showAll=false, G=(S.gk||[]).slice(0,2);
   const keep=()=>{for(const [k,id] of [['h','fH'],['a','fA'],['d','fD']]){const el=document.getElementById(id);if(el)f[k]=el.value}};
   const srt=()=>R.sort((a,b)=>(a.pos===b.pos?0:a.pos==='н'?-1:1)||a.n-b.n);
+  /* --- по пятёркам --- */
+  let SUB={};try{SUB=JSON.parse(localStorage.getItem('lm_sub'))||{}}catch(e){}
+  const subOf=c=>[...new Set((c.sub||'')+(SUB[c.id||'n'+c.n]||''))].join('');
+  const attach=()=>R.forEach(p=>{if(!p.id){const c=CLUB.find(c=>c.pos!=='в'&&c.n===p.n&&nearName(c.name,p.name));if(c)p.id=c.id}});
+  const tidy=()=>R.forEach(p=>{if(p.out||!p.ln){delete p.ln;delete p.sl}else p.pos=slotPos(p.sl)||p.pos});
+  const keepSl=old=>{R.forEach(p=>{const o=old.find(x=>x.n===p.n&&nearName(x.name,p.name));if(o){if(o.id)p.id=o.id;if(o.ln&&!p.out){p.ln=o.ln;p.sl=o.sl}}});attach();tidy()};
+  const at=(ln,sl)=>R.find(p=>!p.out&&p.ln===ln&&p.sl===sl);
+  const slotPos=sl=>sl==='ld'||sl==='rd'?'з':sl[0]==='x'?null:'н';
+  attach();R.forEach(p=>{if(p.out||!p.ln){delete p.ln;delete p.sl}});
+  if(!R.some(p=>p.ln)){let k=0;R.forEach(p=>{const d=DEFL[p.n],c=p.id&&cById(p.id);if(d&&c&&!p.out&&!at(d[0],d[1])){p.ln=d[0];p.sl=d[1];k++}});
+    if(k){tidy();note='<b>Пятёрки — как на афише клуба 15.11, поправьте под сегодня.</b>'}}
+  if(!S.gk)G=DEFG.map(n=>{const c=CLUB.find(c=>c.pos==='в'&&c.n===n);return c?{id:c.id,n:c.n,name:c.name}:null});
+  const pool=()=>CLUB.filter(c=>c.pos!=='в').map(c=>({...c,sub:subOf(c)})).concat(R.filter(p=>!p.id).map(p=>({n:p.n,name:p.name,first:'',pos:p.pos,sub:SUB['n'+p.n]||''})));
+  const rOf=c=>R.find(p=>c.id?p.id===c.id:(!p.id&&p.n===c.n));
+  const place=(c,ln,sl)=>{let r=rOf(c);
+    if(!r){const x=R.find(p=>p.n===c.n);
+      if(x){if(!x.out||S.ev.some(e=>e.n===x.n)){snack('Номер '+c.n+' сейчас у игрока '+x.name+' — сначала уберите его из состава','Понятно',()=>{});return}R.splice(R.indexOf(x),1)}
+      r={n:c.n,name:c.name,pos:c.pos,out:true};if(c.id)r.id=c.id;R.push(r)}
+    const o=at(ln,sl);
+    if(o&&o!==r){if(r.ln&&!r.out){o.ln=r.ln;o.sl=r.sl;o.pos=slotPos(o.sl)||o.pos}else{o.out=true}}
+    r.out=false;r.ln=ln;r.sl=sl;r.pos=slotPos(sl)||r.pos;
+    if(showAll&&slotPos(sl)==='н'&&c.pos==='н'){const L=sl==='c'?'ц':'к',k=c.id||'n'+c.n;if(!subOf(c).includes(L)){SUB[k]=(SUB[k]||'')+L;try{localStorage.setItem('lm_sub',JSON.stringify(SUB))}catch(e){}}}
+    tidy()};
+  const slotB=(ln,sl)=>{const p=at(ln,sl),on=sel&&sel.ln===ln&&sel.sl===sl;
+    return `<button class="sl${p?'':' e'}${on?' on':''}" data-s="${ln}|${sl}">${avatar(p)}<span class="st">${p?`<b>${p.n}</b><span>${p.name}</span>`:`<span>${SLN[sl]}</span>`}</span></button>`};
+  const gkB=i=>{const p=G[i],on=sel&&sel.g===i;
+    return `<button class="sl${p?'':' e'}${on?' on':''}" data-g="${i}">${avatar(p)}<span class="st">${p?`<b>${p.n}</b><span>${p.name}</span>`:'<span>Вратарь</span>'}</span></button>`};
+  const linesHtml=()=>{const un=R.filter(p=>!p.out&&!p.ln),pl=R.filter(p=>!p.out).length;
+    return `<div class="lgrid"><span></span><span class="lh">Край</span><span class="lh">Центр</span><span class="lh">Край</span><span class="gp"></span><span class="lh">Защитник</span><span class="lh">Защитник</span>
+     ${[1,2,3,4].map(l=>`<span class="ll">${l}-е звено</span>${slotB(l,'lw')}${slotB(l,'c')}${slotB(l,'rw')}<span class="gp"></span>${slotB(l,'ld')}${slotB(l,'rd')}`).join('')}
+     <span class="ll">Вратари и запас</span>${gkB(0)}${gkB(1)}${slotB(5,'x1')}<span class="gp"></span>${slotB(5,'x2')}${slotB(5,'x3')}</div>
+     <div class="unp"><span>В составе ${pl} полевых.</span>${un.length?`<span>Играют, но не расставлены — нажмите, чтобы убрать из состава:</span>${un.map(p=>`<button data-u="${p.n}">${p.n} ${p.name}</button>`).join('')}`:''}</div>`};
+  const popup=()=>{const old=sh.querySelector('.lpop');if(old)old.remove();if(!sel)return;
+    const isG=sel.g!=null,sl=sel.sl,cur=isG?G[sel.g]:at(sel.ln,sl),want=isG?null:slotPos(sl);
+    let c1=[],c2=[];
+    if(isG)c1=CLUB.filter(c=>c.pos==='в');
+    else if(showAll||!want)c1=pool();
+    else if(want==='з')c1=pool().filter(c=>c.pos==='з');
+    else{const L=sl==='c'?'ц':'к',f=pool().filter(c=>c.pos==='н');c1=f.filter(c=>c.sub.includes(L));c2=f.filter(c=>!c.sub)}
+    const byN=(a,b)=>a.n-b.n;c1.sort(byN);c2.sort(byN);
+    const item=c=>{const r=isG?null:rOf(c),here=isG?G.some(g=>g&&g.id===c.id):!!(r&&!r.out);
+      const where=isG?(here?'в заявке':''):r&&!r.out?(r.ln?(r.ln===5?'запас':r.ln+'-е звено'):'не расставлен'):'';
+      return `<button class="li${here?' in':''}" data-c="${c.id?'i'+c.id:'n'+c.n}"><b>${c.n}</b><span>${c.name}${c.first?' '+c.first:''}</span>${where?`<small>${where}</small>`:''}</button>`};
+    const el=document.createElement('div');el.className='lpop';
+    el.innerHTML=`<div class="lpt">${isG?'Вратарь':SLN[sl]+' · '+LNN(sel.ln)}${showAll&&!isG?' · все игроки':''}</div><div class="lpg">${c1.map(item).join('')}${c2.length?`<div class="lps">Амплуа не размечено</div>${c2.map(item).join('')}`:''}</div>
+      ${cur?'<button class="li wide" data-rm>Убрать с этого места</button>':''}${!isG&&want&&!showAll?'<button class="li wide" data-all>Показать всех игроков</button>':''}`;
+    sh.appendChild(el);const b=sh.querySelector(isG?`[data-g="${sel.g}"]`:`[data-s="${sel.ln}|${sl}"]`).getBoundingClientRect(),w=el.offsetWidth,h=el.offsetHeight;
+    let top=b.bottom+6;if(top+h>innerHeight-8)top=b.top-6-h>=8?b.top-6-h:Math.max(8,innerHeight-8-h);
+    el.style.left=Math.max(8,Math.min(b.left,innerWidth-w-8))+'px';el.style.top=top+'px'};
   const draw=()=>{srt();
     const tile=p=>`<button class="tl${p.out?' off':''}${p.fresh&&!p.out?' nw':''}" data-t="${p.n}">${p.out?'<em>не играет</em>':p.fresh?'<em>новый</em>':''}<b>${p.n}</b><span>${p.name}</span></button>`;
     const grp=(pos,l)=>{const g=R.filter(p=>p.pos===pos);return `<div class="lbl">${l} · играют ${g.filter(p=>!p.out).length} из ${g.length}</div><div class="gtiles">${g.map(tile).join('')}</div>`};
-    sh.innerHTML=`<h2>${isNew?'Новый матч · кто сегодня играет':'Состав на матч'}</h2><p class="sub">Нажмите на игрока — он «играет» или «не играет». Кнопки на экране ввода изменятся сами.${note?' '+note:''}</p>
+    sh.innerHTML=`<h2>${isNew?'Новый матч · кто сегодня играет':'Состав на матч'}</h2><p class="sub">${lines&&!list?'Нажмите на кружок и выберите игрока на это место.':'Нажмите на игрока — он «играет» или «не играет». Кнопки на экране ввода изменятся сами.'}${note?' '+note:''}</p>
      <div class="row" style="margin:12px 0"><input type="text" id="fH" value="${f.h}" style="width:150px"><span class="sub">против</span><input type="text" id="fA" value="${f.a}" placeholder="Соперник" style="width:170px"><input type="text" id="fD" value="${f.d}" style="width:120px"><div class="seg" id="fV"><button class="${ven==='ДОМА'?'on':''}">ДОМА</button><button class="${ven==='ВЫЕЗД'?'on':''}">ВЫЕЗД</button></div></div>
      ${list?`<p class="sub">Одна строка — один игрок: номер, фамилия, «н» (нападающий) или «з» (защитник). Лишнюю строку можно стереть.</p><textarea id="fR" style="min-height:240px">${R.map(p=>`${p.n} ${p.name} ${p.pos}`).join('\n')}</textarea>`
-      :grp('н','Нападающие')+grp('з','Защитники')+`<div class="lbl">Новый игрок, которого нет в списке</div>
+      :lines?linesHtml():grp('н','Нападающие')+grp('з','Защитники')+`<div class="lbl">Новый игрок, которого нет в списке</div>
      <div class="row"><input type="text" id="nN" placeholder="№" style="width:70px" inputmode="numeric"><input type="text" id="nF" placeholder="Фамилия" style="width:200px"><div class="seg" id="nP"><button class="${np==='н'?'on':''}" data-np="н">Нападающий</button><button class="${np==='з'?'on':''}" data-np="з">Защитник</button></div><button class="btn dark" data-add>Добавить</button></div>`}
-     <div class="row foot"><button class="btn" data-list>${list?'Вернуться к плиткам':'Править списком'}</button>${sync.on()?`<button class="btn" data-file${busy?' disabled':''}>${busy?'Читаю заявку…':'Состав из файла'}</button><button class="btn" data-cloud>Состав из таблицы</button>`:''}<span class="sp"></span><button class="btn" data-x>Отмена</button><button class="btn acc" data-ok>${isNew?'Готово, начать матч':'Сохранить'}</button></div>`};
+     <div class="row foot">${list?'':`<button class="btn" data-mode>${lines?'Плитками и списком':'По пятёркам'}</button>`}${lines&&!list?'':`<button class="btn" data-list>${list?'Вернуться к плиткам':'Править списком'}</button>`}${sync.on()?`<button class="btn" data-file${busy?' disabled':''}>${busy?'Читаю заявку…':'Состав из файла'}</button>${lines&&!list?'':'<button class="btn" data-cloud>Состав из таблицы</button>'}`:''}<span class="sp"></span><button class="btn" data-x>Отмена</button><button class="btn acc" data-ok>${isNew?'Готово, начать матч':'Сохранить'}</button></div>`;if(lines&&!list)popup()};
   const fromList=()=>{const el=document.getElementById('fR');if(!el)return;const old=Object.fromEntries(R.map(p=>[p.n,p.out]));
     const r=el.value.split('\n').map(x=>x.trim().split(/\s+/)).filter(a=>a.length>=2&&!isNaN(+a[0])&&a[0]!=='').map(a=>({n:+a[0],name:a[1],pos:a[2]==='з'?'з':'н',out:!!old[+a[0]]}));if(!r.length)return;
     const lost=R.filter(p=>!r.some(x=>x.n===p.n)&&S.ev.some(e=>e.n===p.n));
     if(lost.length){r.push(...lost);snack('У '+lost.map(p=>p.n+' '+p.name).join(', ')+' уже есть записи в этом матче — оставил в списке','Понятно',()=>{})}
-    R=r};
-  const cloud=async quiet=>{try{const r=await api({op:'rosterGet'},6000);if(r.roster&&r.roster.length){if(quiet&&touched){const same=JSON.stringify(r.roster.map(p=>[p.n,p.name,p.pos]).sort())===JSON.stringify(R.map(p=>[p.n,p.name,p.pos]).sort());if(!same){keep();note='<b>В таблице другой список игроков — чтобы взять его, нажмите «Состав из таблицы».</b>';draw()}return}keep();R=r.roster;note='<b>Состав взят из таблицы.</b>';draw()}else if(!quiet)snack('В таблице состава пока нет','Понятно',()=>{})}catch(e){if(!quiet)snack('Нет связи с таблицей — показан состав с этого компьютера','Понятно',()=>{})}};
+    const o=R;R=r;keepSl(o)};
+  const cloud=async quiet=>{try{const r=await api({op:'rosterGet'},6000);if(r.roster&&r.roster.length){if(quiet&&touched){const same=JSON.stringify(r.roster.map(p=>[p.n,p.name,p.pos]).sort())===JSON.stringify(R.map(p=>[p.n,p.name,p.pos]).sort());if(!same){keep();note='<b>В таблице другой список игроков — чтобы взять его, нажмите «Состав из таблицы».</b>';draw()}return}keep();const o=R;R=r.roster;keepSl(o);note='<b>Состав взят из таблицы.</b>';draw()}else if(!quiet)snack('В таблице состава пока нет','Понятно',()=>{})}catch(e){if(!quiet)snack('Нет связи с таблицей — показан состав с этого компьютера','Понятно',()=>{})}};
   const apply=(t,fp,gk)=>{const m=new Map(fp.map(p=>[p.n,p]));let fresh=[];
     R.forEach(x=>{const p=m.get(x.n);x.out=!p;delete x.fresh;if(p){if(!nearName(p.name,x.name)){fresh.push(p.n+' '+p.name+' (в списке был '+x.name+')');x.name=p.name;x.pos=p.pos;x.fresh=true}m.delete(x.n)}});
     for(const p of m.values()){R.push({n:p.n,name:p.name,pos:p.pos,out:false,fresh:true});fresh.push(p.n+' '+p.name)}
-    touched=true;list=false;
+    tidy();touched=true;list=false;
     note=`<b>Из заявки${t.team?' «'+t.team+'»':''}: играют ${fp.length}.</b>${fresh.length?' <b>Новые, проверьте фамилии: '+fresh.join(', ')+'.</b>':''}${gk?' Вратари ('+gk+') в лист не вносятся.':''} Сверьте с заявкой и начинайте.`;draw()};
   const scan=async file=>{if(busy||!file||!sync.on())return;keep();
     const bad=t=>snack(t,'Понятно',()=>{});
@@ -704,7 +815,18 @@ function rosterSheet(isNew){
   const fi=document.createElement('input');fi.type='file';fi.accept='application/pdf,image/*,.pdf,.heic,.heif';fi.onchange=()=>{const f=fi.files[0];fi.value='';scan(f)};
   if(sync.on()){sh.ondragover=e=>{e.preventDefault();sh.classList.add('drag')};sh.ondragleave=e=>{if(!sh.contains(e.relatedTarget))sh.classList.remove('drag')};
     sh.ondrop=e=>{e.preventDefault();sh.classList.remove('drag');scan(e.dataTransfer.files[0])}}
-  sh.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(busy&&!('x' in b.dataset))return;keep();if(b.dataset.t||'add' in b.dataset||'list' in b.dataset)touched=true;
+  sh.onclick=e=>{const b=e.target.closest('button');if(sel&&!e.target.closest('.lpop,[data-s],[data-g]')){keep();sel=null;showAll=false;if(!b){draw();return}}
+    if(!b)return;if(busy&&!('x' in b.dataset))return;keep();if(b.dataset.t||'add' in b.dataset||'list' in b.dataset||b.dataset.c||b.dataset.u||'rm' in b.dataset)touched=true;
+    if(b.dataset.s){const [l,s_]=b.dataset.s.split('|');const same=sel&&sel.ln===+l&&sel.sl===s_;sel=same?null:{ln:+l,sl:s_};showAll=false;draw();return}
+    if(b.dataset.g){const i=+b.dataset.g;sel=sel&&sel.g===i?null:{g:i};showAll=false;draw();return}
+    if('all' in b.dataset){showAll=true;draw();return}
+    if('rm' in b.dataset&&sel){if(sel.g!=null)G[sel.g]=null;else{const p=at(sel.ln,sel.sl);if(p){p.out=true;tidy()}}sel=null;draw();return}
+    if(b.dataset.c&&sel){const k=b.dataset.c;
+      if(sel.g!=null){const c=CLUB.find(c=>'i'+c.id===k);if(c){const j=G.findIndex(g=>g&&g.id===c.id);if(j>=0&&j!==sel.g)G[j]=G[sel.g]||null;G[sel.g]={id:c.id,n:c.n,name:c.name}}}
+      else{const c=pool().find(c=>(c.id?'i'+c.id:'n'+c.n)===k);if(c)place(c,sel.ln,sel.sl)}
+      sel=null;showAll=false;draw();return}
+    if(b.dataset.u){const p=R.find(x=>x.n===+b.dataset.u);if(p){p.out=true;tidy()}draw();return}
+    if('mode' in b.dataset){lines=!lines;sel=null;tidy();draw();return}
     if(b.parentElement.id==='fV'){ven=b.textContent;draw();return}
     if(b.dataset.np){np=b.dataset.np;const n=nN.value,fam=nF.value;draw();nN.value=n;nF.value=fam;return}
     if(b.dataset.t){const p=R.find(x=>x.n===+b.dataset.t);p.out=!p.out;draw();return}
@@ -717,7 +839,7 @@ function rosterSheet(isNew){
     if('file' in b.dataset){fi.click();return}
     if('x' in b.dataset){close_();return}
     if('ok' in b.dataset){if(list)fromList();if(!R.some(p=>!p.out)){snack('Отметьте хотя бы одного игрока','Понятно',()=>{});return}
-      R.forEach(p=>delete p.fresh);Object.assign(S,{roster:srt(),home:f.h.trim()||'Челмет',away:f.a.trim()||'Соперник',date:f.d.trim()||today(),venue:ven});
+      R.forEach(p=>delete p.fresh);tidy();S.gk=G.slice(0,2);Object.assign(S,{roster:srt().map(rcopy),home:f.h.trim()||'Челмет',away:f.a.trim()||'Соперник',date:f.d.trim()||today(),venue:ven});
       sync.flag('lm_rdirty',true);save();close_();render()}};
   draw();open_(); if(isNew&&sync.on()&&!sync.flag('lm_rdirty'))cloud(true);
 }
@@ -760,12 +882,12 @@ function coach(i){document.querySelectorAll('.coach,.ring').forEach(x=>x.remove(
 document.addEventListener('click',e=>{if(!VIEW&&e.target.closest('#home,#away')&&!ov.classList.contains('on')){rosterSheet();return}
   if(UI.pl&&!UI.act&&UI.tab==='input'&&!ov.classList.contains('on')&&!e.target.closest('button,.pop')){UI.pl=null;render();return}
   const b=e.target.closest('button');if(!b||ov.contains(b))return;const d=b.dataset;
-  if(VIEW&&!(d.tab||d.th||d.sp!=null||d.sm||b.id==='menuB'))return;
+  if(VIEW&&!(d.tab||d.th||d.sp!=null||d.sv||d.sm||b.id==='menuB'))return;
   if(d.act){choose(d.act,null);return} if(d.pl){choose(null,+d.pl);return}
   if(d.del){delGroup(+d.del);return} if(b.id==='undoB'){undoLast();return}
   if(d.tab){UI.tab=d.tab;render();if(d.tab==='season')loadSeason();return}
   if(d.sm){SEASON.mode=d.sm;render();return} if(d.th){UI.theme=d.th;document.documentElement.dataset.theme=d.th;try{localStorage.setItem('lm_theme',d.th)}catch(_){}render();return}
-  if(d.sp!=null){UI.sumPer=d.sp==='all'?'all':+d.sp;render();return}
+  if(d.sp!=null){UI.sumPer=d.sp==='all'?'all':+d.sp;render();return} if(d.sv){UI.sumView=d.sv;render();return}
   if(d.pend){endPen(d.pend);return} if('opp' in d){oppPenSheet();return} if(d.pull){S.pull[d.pull]=!S.pull[d.pull];save();render();return}
   if(b.id==='pPrev'){S.cur=Math.max(1,S.cur-1);save();render();return} if(b.id==='pNext'){S.cur=Math.min(4,S.cur+1);save();render();return}
   if(b.id==='menuB'){menuSheet();return}});
