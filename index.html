@@ -518,13 +518,13 @@ function render(flashN){requestAnimationFrame(()=>fit('.tl span,.pc .pn span'));
   if(VIEW){pPrev.style.display=pNext.style.display='none'}
   document.getElementById('theme').innerHTML=[['light','Светлый'],['board','Табло'],['tiles','Плитки']].map(([v,t])=>`<button data-th="${v}" class="${UI.theme===v?'on':''}">${t}</button>`).join('');
   
-  document.getElementById('tabs').innerHTML=[['input','Ввод'],['sum','Итоги'],['season','Сезон']].filter(x=>!VIEW||x[0]!=='input').map(([v,t])=>`<button data-tab="${v}" class="${UI.tab===v?'on':''}">${t}</button>`).join('');
+  document.getElementById('tabs').innerHTML=[['input','Ввод'],['sum','Итоги'],['rep','Отчёт'],['season','Сезон']].filter(x=>!VIEW||x[0]!=='input').map(([v,t])=>`<button data-tab="${v}" class="${UI.tab===v?'on':''}">${t}</button>`).join('');
   // полоса положения
   const s=sit(), st=document.getElementById('strip'); st.className='strip '+s.type;
   const pens=S.pens.map(p=>`<span class="pchip">${p.side==='us'?nm(p.n):S.away}${p.kind==='major'?' · 5 мин':p.kind==='double'?' · 2+2':' · 2 мин'}${VIEW?'':`<button data-pend="${p.id}">Штраф закончился</button>`}</span>`).join('');
   st.innerHTML=`<span class="what">${s.type==='pk'?'<span class="sign"><span>!</span></span>':''}${SITW[s.type]} · <span class="n">${s.us} на ${s.them}</span></span><div class="pens">${pens}</div><span class="sp"></span>${VIEW?'':`
    <button class="chipb" data-opp>Удаление у соперника</button><button class="chipb${S.pull.us?' on':''}" data-pull="us">Наш вратарь снят</button><button class="chipb${S.pull.them?' on':''}" data-pull="them">Их вратарь снят</button>`}`;
-  UI.tab==='input'?renderInput(flashN):UI.tab==='season'?renderSeason():renderSum(); sync.show();
+  UI.tab==='input'?renderInput(flashN):UI.tab==='season'?renderSeason():UI.tab==='rep'?renderRep():renderSum(); sync.show();
 }
 function renderInput(flashN){
   const v=document.getElementById('view');
@@ -643,6 +643,21 @@ function renderSum(){
     ${S.source||S.sheetP1?`<div class="box note">${S.source||''} ${S.sheetP1||''}</div>`:''}</div></div>`;
 }
 
+/* ---------- отчёт о периоде и об игре: отдельная страница otchet.html во вкладке, матч передаётся ей сообщением ---------- */
+function repData(){
+  const sk=S.roster.filter(p=>!p.out||S.ev.some(e=>e.n===p.n)).map(p=>{const c=clubOf(p);return {n:p.n,name:p.name,pos:p.pos,line:!p.out&&p.ln>=1&&p.ln<=4?p.ln:0,ph:PHOTOS&&c&&c.ph?`photos/${c.id}.jpg`:''}});
+  const gk=(S.gk||[]).filter(Boolean).map(g=>{const c=g.id&&cById(g.id);return {n:g.n,name:g.name,ph:PHOTOS&&c&&c.ph?`photos/${c.id}.jpg`:''}});
+  const sitT=e=>{const k=e.sit||'5x5',[a,b]=k.split('x').map(Number);return a>5||b>5||a+b>10?'en':a>b?'pp':a<b?'pk':'eq'};
+  const ev=S.ev.map(e=>{const o={p:e.p,n:e.n,k:e.k};if(e.v!=null)o.v=e.v;if(e.gk!=null)o.gk=e.gk;if(e.k==='pen')o.min=PMIN[e.min]||2;
+    if(e.k==='g'||e.k==='ga'){const t=sitT(e);o.sit=t;if(e.k==='ga'&&t==='pk')o.pk=1} /* состав записан с нашей стороны: pk — мы в меньшинстве */ return o});
+  return {type:'lm-report',id:S.id,home:S.home,away:S.away,date:S.date||'',venue:S.venue||'',cur:S.cur,roster:sk,gk,ev,so:soSt().win};
+}
+function repSend(){const f=document.getElementById('repF');if(f&&f.contentWindow)try{f.contentWindow.postMessage(repData(),'*')}catch(_){}}
+function renderRep(){const v=document.getElementById('view');
+  if(!document.getElementById('repF')){v.innerHTML='<iframe id="repF" src="otchet.html" title="Отчёт" style="width:100%;height:100%;min-height:0;border:0;border-radius:var(--r);background:#000"></iframe>';document.getElementById('repF').addEventListener('load',repSend)}
+  repSend();
+}
+addEventListener('message',e=>{if(e.data&&e.data.type==='lm-report-ready')repSend()});
 /* ---------- сезон: считает приёмник в таблице, здесь только показ ---------- */
 const SEASON={data:null,at:0,busy:false,err:false,mode:'avg'};
 try{const c=JSON.parse(localStorage.getItem('lm_season')||'null');if(c&&c.data){SEASON.data=c.data;SEASON.at=c.at}}catch(e){}

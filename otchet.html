@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Лист матча · отчёт</title>
+<!-- Отчёт о периоде и об игре. Открывается внутри программы (вкладка «Отчёт» в index.html), матч получает сообщением.
+     Оформление — брендбук кабинета («Управление хоккейным бизнесом», tokens_v1.css + components_v1.css), вставлен как есть. -->
+<style>
+/* Брендбук «Трактор · кабинет директора»: tokens_v1.css и components_v1.css вставлены как есть (одна тёмная тема, системный шрифт). */
+/* =====================================================================
+   tokens_v1.css · «Трактор · кабинет директора» · 31.10.2026
+   Одна тёмная тема (канон 16г: тёмная везде, Mac и телефон), системный SF,
+   тревога — графит с оранжевым отсветом + знак «!» + слово; красного, бордо,
+   розового, зелёного и синего нет нигде (канон 26).
+   Имена переменных — те же, что в kabinet.html (блок :root[data-theme="dark"]),
+   плюс новые: --verdict-*, --alert*, --space-*, --fs-*, --mono, --r3.
+
+   ПОДКЛЮЧЕНИЕ: отдельным <style id="tokens-v1"> ПОСЛЕ основного <style>
+   kabinet.html (или <link> после него). Не вклеивать в первый <style>:
+   экспорт карточки игрока берёт document.querySelector('style') и ставит
+   data-theme="light" — бумага должна остаться светлой. Селектор ниже
+   намеренно не срабатывает на [data-theme="light"].
+
+   Контраст — WCAG 2.1 к карточке --surface #1C1C1E (в скобках — к --raised
+   #2C2C2E и к фону #000). AA: текст 4,5:1, крупные цифры ≥ 24 px — 3:1.
+   ===================================================================== */
+:root{
+  color-scheme:dark;
+
+  /* ---------- 1. Плоскости ---------- */
+  --bg:#000000;        /* фон за карточками; body, .top, .side, .tabbar */
+  --bg2:#1C1C1E;       /* вторая плоскость (поля ввода, лист); = surface */
+  --surface:#1C1C1E;   /* карточка, модуль, плитка, лист: .card .dd .mod .tile .sheet */
+  --raised:#2C2C2E;    /* подложка знака, кнопка 2, плитка внутри карточки, .tile старый, .btn.sec */
+  --line:#2E2E31;      /* линия между строками таблиц; карточки рамок не имеют (группы — воздухом) */
+  --line2:#48484A;     /* сильная линия: шкалы, середина .stm-scale, ручка листа */
+  --fill:rgba(118,118,128,.20);   /* подложка чипа, .gt, полос шкал */
+  --fill2:rgba(118,118,128,.36);  /* выбранная строка меню .sb-r[aria-current] */
+  --sel:#3A3A3C;       /* выделение в списках/таблицах */
+  --side:rgba(28,28,30,.86);      /* боковая колонка (Mac) */
+  --bar:rgba(0,0,0,.78);          /* верхняя полоса и нижняя панель (телефон) */
+  --logo-bg:#F2F2F4;   /* светлая подложка логотипов клубов: у многих логотипов тёмные края */
+  --logo-pad:2px;
+
+  /* ---------- 2. Текст ---------- */
+  --text:#F5F5F7;      /* основной текст и значения; 15,6 (12,8 / 19,3) */
+  --muted:#AEAEB2;     /* подписи 13 px; 7,7 (6,3) */
+  --faint:#98989D;     /* источник и время данных 12 px; 5,9 (4,9). Было #8E8E93 — 5,2/4,3, на #2C2C2E не проходило */
+  --deep:#FFFFFF;      /* самый яркий текст (в kabinet не используется, оставлен для совместимости) */
+
+  /* ---------- 3. Нейтральные роли (в тёмной — светлый графит) ---------- */
+  --team:#F5F5F7;      /* «наш»: номер на фото, обводка фокуса; 15,6 */
+  --team-soft:rgba(255,122,47,.20); /* подложка домашнего матча .gt.home — оранжевый отсвет на графите */
+  --team-ink:#1D1D1F;  /* текст на --team; 16,8 */
+  --accent:#F5F5F7;    /* .btn (обычная), выбранный чип, вкладка; НЕ оранжевый — иначе каждая кнопка станет «главной» */
+  --accent-soft:rgba(118,118,128,.24); /* текущий пункт .snav */
+  --accent-ink:#1D1D1F;/* текст на .btn; 16,8 */
+  --ink:#F5F5F7;       /* «хорошо» = светлый графит + вес шрифта */
+  --ink-soft:#2C2C2E;
+  --us:linear-gradient(90deg,#F5F5F7,#AEAEB2); /* полоса «мы» в сравнениях .vs .pbar .capbar */
+
+  /* ---------- 4. Акцент клуба (оранжевый) ---------- */
+  --hl:#FF7A2F;        /* знак «открыть», кольца, точка «лучшее», оранжевая деталь иллюстраций, цифры ≥ 24; 6,5 (5,4) */
+  --hl-soft:rgba(255,122,47,.22);   /* подложка оранжевого знака */
+  --hl-ink:#FFFFFF;    /* стрелка «открыть» при наведении (на оранжевом кружке) */
+  --tint:#FF7A2F;      /* значки меню .sb-r svg, счётчик .sb-r .cnt */
+  --tint-fg:#FF8D4D;   /* оранжевый текст-ссылка «лист матча →», активная вкладка нижней панели; 7,4 (6,1) */
+  --tint-soft:rgba(255,122,47,.22);
+  --hi:#FF7A2F;        /* подсветка (в kabinet не используется) */
+  --gold:#FF7A2F;      /* «лучшее/элита»: .flag.elite, .range .dot, .verdict.gold; золота нет — это оранжевый клуба */
+  --gold-soft:rgba(255,122,47,.20);
+
+  /* ---------- 5. Статусы: без зелёного, синего, красного ---------- */
+  --good:#F5F5F7;      /* «хорошо»: победа .cal .res.w, «в плей-офф», рост; светлый графит + вес; 15,6 */
+  --good-soft:#2C2C2E;
+  --warn:#FF9F5A;      /* «внимание» и «рост» (.sw-t.up, .pill.warn): светлый янтарь, светлее акцента (L* 74 против 66); 8,4 (6,9) */
+  --warn-soft:rgba(255,122,47,.18);
+  --crit:#E9B48C;      /* «плохо»/тревога: поражение, срок контракта истёк, травма, «мимо плей-офф».
+                          БЫЛ КРАСНЫЙ #FF453A. Теперь «пепел с оранжевым отсветом»: тёплый светлый графит, тон 26°
+                          (не розовый, не бордо). 9,2 (7,5). Отличие: от акцента ΔE 48, от «хорошо» ΔE 37 и по светлоте
+                          (L* 77 / 66 / 97) — различим при дейтеранопии и протанопии по светлоте.
+                          Цвет только подкрашивает: тревогу несут знак «!» (--alert) и слово. */
+  --crit-soft:#3A2A21; /* подложка тревоги = графит с оранжевым отсветом (бывшая rgba красного .18);
+                          текст на ней 12,6, оранжевый знак на ней 5,3 */
+  --crit-ink:#1D1D1F;  /* НОВАЯ: текст на заливке --crit (.fr-pill.bad, .fr-s.bad — там сейчас #fff, 2,0 → 9,1) */
+  --info:#D1D1D6;      /* справка: .pill.info; 11,2 */
+  --info-soft:#2C2C2E;
+  --demo:#98989D;      /* метка «демо»; 5,9 */
+  --demo-soft:rgba(142,142,147,.20);
+
+  /* ---------- 6. Тревога (новые) ---------- */
+  --alert:#FF7A2F;     /* цвет знака тревоги: ромб «!» и обводка; на --crit-soft 5,3, на #2C2C2E 5,4 */
+  --alert-soft:#3A2A21;/* подложка знака «!» и строки тревоги (= --crit-soft) */
+  --alert-ink:#F5F5F7; /* слово тревоги рядом со знаком — светлый текст + вес 600 */
+
+  /* ---------- 7. Плашка-вердикт (новые) ---------- */
+  --verdict-grad:radial-gradient(42% 34% at 86% 12%,rgba(255,150,80,.55),rgba(255,150,80,0) 70%),
+                 linear-gradient(180deg,#C94F0E 0%,#D9530C 28%,#A9420C 50%,#4A2412 72%,#1C1C1E 94%);
+                       /* обычная плашка; цифра белая: 4,6 на #C94F0E, 4,0 на #D9530C (крупная, ≥ 3:1);
+                          слово и фраза стоят ниже 72 % — на #4A2412…#1C1C1E: текст 12,4, приглушённый 6,1 */
+  --verdict-alert:radial-gradient(46% 38% at 88% 10%,rgba(255,122,47,.42),rgba(255,122,47,0) 72%),
+                  linear-gradient(180deg,#3A3A3C 0%,#2E2E30 46%,#242426 72%,#1C1C1E 94%);
+                       /* тревожная плашка: графит с оранжевым отсветом справа сверху; белая цифра 11,3–15,6 */
+  --verdict-ink:#FFFFFF;
+  --verdict-band:168px;/* высота цветной части плашки (Mac); телефон — 150 */
+
+  /* ---------- 8. Шкалы и серии ---------- */
+  --s1:#F5F5F7; --s2:#FF7A2F; --s3:#8E8E93; --s4:#FF9F5A;
+  --s5:#E9B48C;        /* была красная #FF453A */
+  --s6:#636366; --prev:#48484A;
+  --sc1:#E9B48C;       /* шкала 1 (хуже всего): была #FF453A */
+  --sc2:#48484A; --sc3:#8E8E93; --sc4:#F5F5F7;
+  --sc5:#FF7A2F;       /* шкала 5 (лучше всего) */
+  --sc1-ink:#1D1D1F;   /* был #FFFFFF: на #E9B48C белый 1,8, графит 9,1 */
+  --sc2-ink:#F5F5F7; --sc3-ink:#1D1D1F; --sc4-ink:#1D1D1F;
+  --sc5-ink:#1D1D1F;   /* был #FFFFFF (2,6); графит на #FF7A2F 6,5 */
+  --t-khl:#FF7A2F; --t-vhl:#F5F5F7; --t-mhl:#636366; /* метки лиг */
+
+  /* ---------- 9. Глубина ---------- */
+  --hero:radial-gradient(60% 90% at 100% 0%,rgba(255,122,47,.24),rgba(255,122,47,0) 62%),linear-gradient(160deg,#2C2C2E,#1C1C1E);
+                       /* .hero и .cc.big (белый текст): графит с отсветом вместо серого градиента */
+  --shadow:0 16px 48px rgba(0,0,0,.6);  /* лист, всплывающее */
+  --shadow-s:0 0 0 rgba(0,0,0,0);       /* карточки теней не имеют */
+
+  /* ---------- 10. Шрифт: системный SF (вариант C) ---------- */
+  --display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace; /* цифры «табло» в модуле и плитке */
+  --fs-hero:64px;      /* цифра плашки-вердикта (телефон 64, Mac 72 — в components) */
+  --fs-verdict:34px;   /* слово-вердикт, заголовок экрана */
+  --fs-num:32px;       /* главная цифра карточки/модуля */
+  --fs-num-xl:44px;    /* одна цифра на всю карточку (без графика) */
+  --fs-h:17px;         /* заголовок карточки, группы */
+  --fs-body:15px;      /* фраза вердикта, текст */
+  --fs-sub:13px;       /* подпись под цифрой */
+  --fs-src:12px;       /* источник, время данных, статус словом */
+  --fs-unit:11px;      /* единица в плитке */
+  --lh-tight:1.05; --lh-text:1.45;
+  --track-num:-.03em; --track-h:-.02em;
+
+  /* ---------- 11. Воздух ---------- */
+  --space-1:4px;   /* цифра → подпись */
+  --space-2:8px;   /* знак → текст; плитка → плитка */
+  --space-3:12px;  /* модуль → модуль (телефон) */
+  --space-4:16px;  /* поле телефона; модуль → модуль (Mac); внутри модуля */
+  --space-5:24px;  /* внутри карточки (Mac), внутри плашки */
+  --space-6:32px;  /* группа → группа (межблочный) */
+  --space-7:48px;  /* раздел → раздел; поле Mac */
+  --space-8:64px;  /* шапка раздела → первый блок на Mac 1600 */
+
+  /* ---------- 12. Скругления ---------- */
+  --r:20px;        /* карточка, модуль */
+  --r2:12px;       /* кнопка, знак-подложка */
+  --r3:24px;       /* плашка-вердикт, шапка раздела */
+}
+
+/* =====================================================================
+   components_v1.css · паттерны брендбука v1 поверх tokens_v1.css · 31.10.2026
+   Подключать ПОСЛЕ tokens_v1.css и после основного <style> kabinet.html.
+   Без зависимостей. Точки: телефон (база, 390–420) · 760 · Mac 1180 · 1600.
+   Паттерны: .verdict (плашка) · .mod (модуль) · .tiles/.tile (плитки) ·
+   .sec-hero (шапка раздела с иллюстрацией) · .fold (закрытый блок) ·
+   .st (статус словом) · .alert-mark (ромб «!») · .open (знак «открыть») ·
+   .btn.go (одна кнопка действия) · воздух (.card, .sec, .stack).
+   Совместимость: в kabinet уже есть .verdict (кольцо в карточке игрока),
+   .tile/.tiles (раздел «Лиги»), .card, details.dd — см. блок 9.
+   ===================================================================== */
+
+/* ---------- 0. Общие знаки ---------- */
+.open{flex:none;width:24px;height:24px;border-radius:50%;background:var(--hl-soft);position:relative;display:inline-block}
+.open::after{content:"";position:absolute;left:8px;top:8px;width:6px;height:6px;border-top:1.75px solid var(--hl);border-right:1.75px solid var(--hl);transform:rotate(45deg)}
+.alert-mark{flex:none;position:relative;display:inline-grid;place-items:center;width:18px;height:18px;vertical-align:-3px}
+.alert-mark::before{content:"";position:absolute;inset:3px;border:1.75px solid var(--alert);background:var(--alert-soft);border-radius:2px;transform:rotate(45deg)}
+.alert-mark::after{content:"!";position:relative;font:700 11px/1 var(--body);color:var(--alert)}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-src);line-height:16px;font-weight:600;color:var(--muted);white-space:nowrap}
+.st::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;box-sizing:border-box}
+.st.best{color:var(--text)}            .st.best::before{background:var(--hl)}
+.st.mid::before{border:1.75px solid var(--muted)}
+.st.early{color:var(--faint)}          .st.early::before{border:1.5px dashed var(--faint)}
+.st.weak{color:var(--alert-ink)}       .st.weak::before{display:none}
+.st.weak .alert-mark{width:16px;height:16px}
+.btn.go,.vd-btn{border:0;border-radius:var(--r2);padding:11px 18px;font:600 15px/20px var(--body);background:var(--hl);color:#1D1D1F;cursor:pointer}  /* графит на оранжевом 6,5 */
+.btn.go2,.vd-btn2{border:0;border-radius:var(--r2);padding:11px 16px;font:600 15px/20px var(--body);background:var(--raised);color:var(--text);cursor:pointer}
+
+/* ---------- 1. Плашка-вердикт ---------- */
+/* <section class="verdict [alert]"><div class="vd-band"><div class="vd-top"><span class="vd-kick">…</span><span class="vd-time">…</span></div>
+   <div class="vd-num">5<small>из 9</small></div></div><div class="vd-body"><div class="vd-word">…</div><p class="vd-phrase">…</p>
+   <div class="vd-act"><button class="vd-btn">…</button><button class="vd-btn2">…</button></div><div class="vd-src">…</div></div></section> */
+.verdict{position:relative;display:block;padding:0;border:0;border-radius:var(--r3);overflow:hidden;background:var(--surface);box-shadow:none;color:var(--text)}
+.verdict .vd-band{position:relative;height:150px;background:var(--verdict-grad)}
+.verdict.alert .vd-band,.verdict.crit:not(:has(>.v-ring)) .vd-band{background:var(--verdict-alert)}
+.verdict .vd-top{position:absolute;left:20px;right:20px;top:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:var(--fs-sub);line-height:18px;color:rgba(255,255,255,.86)}
+.verdict .vd-kick{display:inline-flex;align-items:center;gap:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.verdict .vd-kick svg{width:18px;height:18px;flex:none;color:#fff}
+.verdict .vd-time{font-size:var(--fs-src);padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.16);white-space:nowrap}
+.verdict .vd-num{position:absolute;left:20px;top:46px;font:700 var(--fs-hero)/1 var(--display);letter-spacing:-.045em;color:var(--verdict-ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.verdict .vd-num small{font-size:.42em;font-weight:600;letter-spacing:-.01em;opacity:.72;margin-left:8px}
+.verdict .vd-body{position:relative;margin-top:-30px;padding:0 20px 20px}
+.verdict .vd-word{display:flex;align-items:center;gap:10px;font:700 28px/1.1 var(--display);letter-spacing:-.025em;color:var(--text);text-wrap:balance}
+.verdict .vd-word .alert-mark{width:24px;height:24px}
+.verdict .vd-word .alert-mark::after{font-size:13px}
+.verdict .vd-phrase{margin:var(--space-2) 0 0;font-size:var(--fs-body);line-height:22px;color:var(--muted);max-width:52ch;text-wrap:pretty}
+.verdict .vd-act{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-4)}
+.verdict .vd-src{margin-top:var(--space-3);font-size:var(--fs-src);line-height:16px;color:var(--faint)}
+
+/* ---------- 2. Модуль: знак + подпись + цифра + мини-график + статус ---------- */
+/* <button class="mod"><div class="mod-lab"><span class="mod-ic">svg</span><span class="t">Подпись</span><span class="open"></span></div>
+   <div class="mod-v">51,1<small>%</small></div><svg class="mod-g" viewBox="0 0 132 48">…</svg><span class="st best">сильная сторона · 4-е</span></button> */
+.mods{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-3)}
+.mod{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 1fr auto;column-gap:var(--space-4);min-height:128px;
+  width:100%;text-align:left;font:inherit;color:inherit;border:0;border-radius:var(--r);background:var(--surface);padding:16px 16px 16px 20px;cursor:pointer}
+.mod-lab{grid-column:1/3;display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-sub);line-height:18px;color:var(--muted);min-width:0}
+.mod-lab .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mod-ic{flex:none;width:24px;height:24px;border-radius:7px;background:var(--raised);display:grid;place-items:center;color:var(--text)}
+.mod-ic svg{width:16px;height:16px}
+.mod-v{grid-column:1;align-self:end;margin-top:var(--space-3);font:700 var(--fs-num)/1.1 var(--mono);letter-spacing:-.04em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mod-v small{font:500 15px/1 var(--body);letter-spacing:0;color:var(--muted);margin-left:4px}
+.mod-g{grid-column:2;grid-row:2/4;align-self:end;width:132px;height:48px;overflow:visible;color:var(--muted)}
+.mod-g .ln{fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.mod-g .base{stroke:var(--line2);stroke-width:1;stroke-dasharray:2 3}
+.mod-g .end{fill:var(--hl)}            /* последняя точка повторяет знак статуса */
+.mod-g .end.mid{fill:var(--surface);stroke:var(--muted);stroke-width:1.75}
+.mod-g .end.weak{fill:var(--alert-soft);stroke:var(--alert);stroke-width:1.75}
+.mod-g .us{fill:var(--text)} .mod-g .them{fill:var(--line2)}
+.mod .st{grid-column:1;margin-top:var(--space-1)}
+.mod:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+
+/* ---------- 3. Ряд плиток с единицей ---------- */
+/* <div class="tiles"><div class="tile"><svg>…</svg><b class="v">41<small>гол</small></b><span class="d">забито</span></div>…</div>
+   Совместимо со старой разметкой «Лиг»: .tile > .eyebrow + .v(small) + .d */
+.tiles{display:grid;grid-template-columns:repeat(var(--tn,5),minmax(0,1fr));gap:var(--space-2)}
+.tile{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;text-align:center;background:var(--surface);border:0;border-radius:16px;padding:12px 6px 10px}
+.tile>svg{width:16px;height:16px;color:var(--muted);margin-bottom:4px}
+.tile .v{display:block;font:700 17px/22px var(--mono);letter-spacing:-.03em;white-space:nowrap;color:var(--text)}
+.tile .v small{font:500 var(--fs-unit)/1 var(--body);letter-spacing:0;color:var(--muted);margin-left:2px}
+.tile .d,.tile .eyebrow{display:block;max-width:100%;font-size:var(--fs-unit);line-height:14px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .eyebrow{order:3}
+
+/* ---------- 4. Шапка раздела с иллюстрацией ---------- */
+/* <header class="sec-hero"><div class="sh-art">[svg 120×80]</div><div class="sh-txt"><div class="sh-kick">Подготовка</div>
+   <h1>Соперник</h1><p>Одна строка: что здесь и зачем.</p></div><div class="sh-stamp">данные 31.10, 12:15</div></header> */
+.sec-hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-3);padding:var(--space-4) var(--space-4) var(--space-5);
+  border-radius:var(--r3);background:radial-gradient(70% 90% at 0% 0%,rgba(255,122,47,.10),rgba(255,122,47,0) 60%),var(--surface);overflow:hidden}
+.sh-art{width:132px;height:88px;color:#C7C7CC}     /* штрих иллюстрации — светлый графит, 10,1 к #1C1C1E */
+.sh-art svg{display:block;width:100%;height:100%;overflow:visible}
+.sh-kick{font-size:var(--fs-sub);line-height:18px;color:var(--muted)}
+.sec-hero h1{margin:2px 0 0;font:700 var(--fs-verdict)/40px var(--display);letter-spacing:-.03em;color:var(--text)}
+.sec-hero p{margin:var(--space-2) 0 0;font-size:var(--fs-body);line-height:22px;color:var(--muted);max-width:56ch}
+.sh-stamp{position:absolute;right:var(--space-4);top:var(--space-4);font-size:var(--fs-src);line-height:16px;color:var(--faint);padding:3px 10px;border-radius:999px;background:var(--raised);white-space:nowrap}
+
+/* ---------- 5. Закрытый блок (итог в заголовке) ---------- */
+/* <details class="fold"><summary><span class="fold-ic">svg</span><span class="fold-t"><b>Заголовок</b><span>итог словами</span></span>
+   <span class="fold-n">23<small>строки</small></span><span class="fold-chev"></span></summary><div class="fold-body">…</div></details> */
+.fold{border-radius:var(--r);background:var(--surface);overflow:hidden}
+.fold>summary{list-style:none;display:flex;align-items:center;gap:var(--space-3);min-height:64px;padding:12px 16px 12px 16px;cursor:pointer}
+.fold>summary::-webkit-details-marker{display:none}
+.fold-ic{flex:none;width:32px;height:32px;border-radius:9px;background:var(--raised);display:grid;place-items:center;color:var(--text)}
+.fold-ic svg{width:18px;height:18px}
+.fold-t{flex:1;min-width:0}
+.fold-t b{display:block;font:600 var(--fs-h)/22px var(--display);letter-spacing:-.01em;color:var(--text)}
+.fold-t span{display:block;font-size:var(--fs-sub);line-height:18px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fold-n{flex:none;font:700 17px/22px var(--mono);letter-spacing:-.03em;color:var(--text)}
+.fold-n small{font:500 var(--fs-unit)/1 var(--body);color:var(--muted);margin-left:3px;letter-spacing:0}
+.fold-chev{flex:none;width:24px;height:24px;position:relative}
+.fold-chev::after{content:"";position:absolute;left:7px;top:6px;width:7px;height:7px;border-right:1.75px solid var(--muted);border-bottom:1.75px solid var(--muted);transform:rotate(45deg);transition:transform .2s}
+.fold[open] .fold-chev::after{transform:translate(0,4px) rotate(-135deg)}
+.fold-body{padding:0 16px 16px;border-top:1px solid var(--line)}
+.fold-body>:first-child{margin-top:var(--space-4)}
+
+/* ---------- 6. Карточка-цифра: одна цифра — одна подпись — одна пустая зона ---------- */
+.figure{display:flex;flex-direction:column;justify-content:flex-end;min-height:132px;padding:20px;border-radius:var(--r);background:var(--surface)}
+.figure .fg-v{font:700 var(--fs-num-xl)/1 var(--display);letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.figure .fg-v small{font:600 17px/1 var(--body);color:var(--muted);letter-spacing:0;margin-left:6px}
+.figure .fg-l{margin-top:var(--space-1);font-size:var(--fs-sub);line-height:18px;color:var(--muted)}
+
+/* ---------- 7. Воздух ---------- */
+/* Правило: группы отделяются воздухом, не рамкой. Внутри карточки 20 (телефон) / 24 (Mac); между блоками 32; между разделами 48. */
+.card{background:var(--surface);padding:20px;border:0;border-radius:var(--r);box-shadow:none}
+.card.tight{padding:16px}
+.stack>*+*{margin-top:var(--space-6)}          /* вертикальный поток блоков */
+.stack-s>*+*{margin-top:var(--space-3)}        /* внутри группы */
+.sec+.sec{margin-top:var(--space-6)}
+.grp-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3);margin:0 0 var(--space-3)}
+.grp-h h2{font:600 var(--fs-h)/22px var(--display);letter-spacing:-.01em;margin:0}
+.grp-h .src{font-size:var(--fs-src);color:var(--faint)}
+
+/* ---------- 8. Адаптивность ---------- */
+@media (min-width:760px){
+  .mods{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)}
+  .tiles{--tn:6}
+  .sec-hero{grid-template-columns:200px minmax(0,1fr);align-items:center;gap:var(--space-5);padding:var(--space-5)}
+  .sh-art{width:200px;height:133px}
+  .sh-stamp{right:var(--space-5);top:var(--space-5)}
+}
+@media (min-width:1180px){
+  .card{padding:24px}
+  .verdict .vd-band{height:var(--verdict-band)}
+  .verdict .vd-top{left:28px;right:28px;top:20px}
+  .verdict .vd-num{left:28px;top:52px;font-size:72px}
+  .verdict .vd-body{margin-top:-34px;padding:0 28px 24px}
+  .verdict .vd-word{font-size:var(--fs-verdict)}
+  .mod{padding:20px 20px 18px 24px;min-height:136px}
+  .fold>summary{padding:14px 20px}
+  .fold-body{padding:0 20px 20px}
+  .sec-hero{grid-template-columns:240px minmax(0,1fr);padding:var(--space-5) var(--space-6)}
+  .sh-art{width:240px;height:160px}
+  .sec+.sec{margin-top:var(--space-7)}
+}
+@media (min-width:1600px){
+  .sec-hero{grid-template-columns:270px minmax(0,1fr)}
+  .sh-art{width:270px;height:180px}
+}
+@media (max-width:420px){
+  .tiles{gap:6px;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(62px,1fr);overflow-x:auto;scrollbar-width:none}  /* один ряд; больше 5 — прокрутка вбок */
+  .tile{padding:10px 4px 8px}
+  .tile .d{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:13px}
+  .verdict .vd-word{font-size:26px}
+  .mod-g{width:112px;height:44px}
+  .sh-stamp{position:static;justify-self:start;order:3}
+}
+@media (prefers-reduced-motion:reduce){.fold-chev::after{transition:none}}
+
+/* ---------- 9. Совместимость со старой разметкой kabinet.html (мост на время пересборки) ---------- */
+/* старый вердикт игрока: кольцо + слово в карточке (.verdict > .v-ring) — оставить карточкой, без плашки */
+.verdict:has(>.v-ring){display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--space-4);align-items:center;padding:20px;border-radius:var(--r);background:var(--surface)}
+.verdict.crit:has(>.v-ring),.verdict.gold:has(>.v-ring),.verdict.ink:has(>.v-ring){box-shadow:none}
+.verdict.crit:has(>.v-ring) .v-word::before{content:"!";display:inline-grid;place-items:center;width:20px;height:20px;margin-right:8px;border-radius:5px;
+  background:var(--alert-soft);color:var(--alert);font:700 13px/1 var(--body);vertical-align:3px}
+/* тревожные полосы слева (inset 4px var(--crit)) — убрать: тревога знаком, не полосой */
+.cc.crit,.verdict.crit,details.dd.p1,.wh .row.p1{box-shadow:none}
+/* белый текст на заливке --crit → графит */
+.fr-pill.bad,.fr-s.bad{color:var(--crit-ink)}
+/* старые плитки в «Лигах» стоят парами — дать им ряд */
+.tiles:has(>.tile>.eyebrow){--tn:2}
+@media (min-width:760px){.tiles:has(>.tile>.eyebrow){--tn:4}}
+
+/* ---------- страница отчётов: только раскладка, цвета и размеры — из токенов ---------- */
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font:400 var(--fs-body)/var(--lh-text) var(--body);padding-block:24px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.page{max-width:1120px;margin:0 auto}
+.kick{font:600 var(--fs-sub)/18px var(--body);color:var(--muted);margin:0 0 var(--space-3)}
+.note{font-size:var(--fs-src);line-height:16px;color:var(--faint);margin:var(--space-3) 0 0;max-width:80ch}
+.chips{display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center}
+.chip{border:0;border-radius:999px;min-height:36px;padding:0 16px;font:600 var(--fs-sub)/1 var(--body);background:var(--raised);color:var(--text);cursor:pointer}
+.chip.on{background:var(--accent);color:var(--accent-ink)}
+.chip:focus-visible,.fold>summary:focus-visible,.btn.go:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.blk{margin-top:var(--space-6)}
+.rep{margin-top:var(--space-7)} .rep:first-child{margin-top:0}
+.top-row{display:grid;gap:var(--space-4);grid-template-columns:minmax(0,1fr)}
+.top-row .verdict{display:flex;flex-direction:column}
+.top-row .vd-body{flex:1;display:flex;flex-direction:column}
+.top-row .vd-src{margin-top:auto;padding-top:var(--space-3)}
+.verdict .vd-src{text-wrap:balance}
+.verdict .vd-word{align-items:flex-start}
+.verdict .vd-num small{font-size:.3em}
+.mod{cursor:default}
+.st:not(.weak)::before{margin:0 var(--space-1)}
+.tiles{--tn:2}
+.tile .d{font-size:var(--fs-sub);line-height:18px;color:var(--muted)}
+.fold-n small{font-size:var(--fs-src)}
+body{text-wrap:pretty}
+.mod-lab .t,.tile .d,.tile .x,.dl span,.line .nums span,.sh-stamp,.pcard .ln{white-space:nowrap}
+.kick{text-wrap:balance}
+.mod-x{grid-column:1;margin-top:var(--space-1);font-size:var(--fs-src);line-height:16px;color:var(--faint);white-space:nowrap}
+.tile .x{display:block;font-size:var(--fs-src);line-height:16px;color:var(--faint)}
+.tile .x .demo{margin-left:6px}
+.dl{align-items:center}
+.it b>span{text-wrap:balance}
+.verdict .vd-phrase,.note,.call p{text-wrap:balance}
+/* как это вызывается в программе */
+.call{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3);background:var(--surface);border-radius:var(--r);padding:16px 20px}
+.call p{margin:0;flex:1;min-width:220px;font-size:var(--fs-sub);line-height:18px;color:var(--muted)}
+.call p b{display:block;font:600 var(--fs-h)/22px var(--display);color:var(--text);letter-spacing:-.01em}
+/* «сохранить» и «поменять» */
+.kc{display:grid;gap:var(--space-4);grid-template-columns:minmax(0,1fr)}
+.kcc{background:var(--surface);border-radius:var(--r);padding:16px 20px;min-width:0}
+.kcc h3{margin:0 0 var(--space-1);font:600 var(--fs-h)/22px var(--display);letter-spacing:-.01em;display:flex;align-items:center;gap:var(--space-2)}
+
+.it{padding:12px 0;border-top:1px solid var(--line)}
+.it:first-of-type{border-top:0}
+.it b{display:flex;gap:var(--space-2);align-items:flex-start;font:600 var(--fs-body)/22px var(--body)}
+.it b .alert-mark{margin-top:2px}.it b i.gd{flex:none;width:8px;height:8px;border-radius:50%;background:var(--hl);margin:7px 5px 0}
+.it span{display:block;font-size:var(--fs-sub);line-height:18px;color:var(--muted);margin-top:2px}
+.it small{display:block;font-size:var(--fs-src);line-height:16px;color:var(--faint);margin-top:var(--space-1)}
+.empty{font-size:var(--fs-sub);line-height:18px;color:var(--faint);padding:12px 0 4px}
+.demo{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--demo-soft);color:var(--demo);font:600 12px/16px var(--body);letter-spacing:0;vertical-align:1px;white-space:nowrap}
+.kick.sub{color:var(--faint)}
+.it b>span{min-width:0}
+/* лист для печати: бумага, поэтому цвета заданы прямо — светлая выгрузка брендбука */
+.paper{position:relative;overflow:hidden;border-radius:12px;background:#fff}
+.sheet{width:297mm;height:209mm;break-inside:avoid;break-after:avoid;transform-origin:0 0;background:#fff;color:#1D1D1F;padding:8mm 9mm 6mm;display:flex;flex-direction:column;gap:3mm;font:400 8pt/1.3 var(--body);overflow:hidden}
+.sheet .sh-h{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:.5mm solid #1D1D1F;padding-bottom:2mm}
+.sheet .k{display:block;font-size:7.5pt;color:#5E5E63}
+.sheet h2{margin:0;font:700 20pt/1.1 var(--display);letter-spacing:-.02em}
+.sheet .sc{text-align:right}.sheet .sc b{display:block;font:700 26pt/1 var(--mono);letter-spacing:-.03em}.sheet .sc span{font-size:7.5pt;color:#5E5E63}
+.sheet .sh-b{flex:1;display:grid;grid-template-columns:86mm 74mm minmax(0,1fr);gap:5mm;min-height:0}
+.sheet .col{min-width:0}
+.sheet h3{margin:3mm 0 1mm;font:700 7.5pt/1.2 var(--body);color:#5E5E63}
+.sheet .col>h3:first-child{margin-top:0}
+.sheet p{margin:0;font-size:8pt}
+.sheet .its{margin:0;padding:0;list-style:none}
+.sheet .its li{position:relative;padding:.7mm 0 .7mm 4.5mm;font:600 8.5pt/1.3 var(--body)}
+.sheet .its li::before{content:"";position:absolute;left:.6mm;top:2mm;width:2mm;height:2mm;border-radius:50%;background:#F26A1B}
+.sheet .its li.w::before{content:"!";background:none;border:.35mm solid #1D1D1F;border-radius:.5mm;width:2.6mm;height:2.6mm;left:0;top:1.3mm;font:700 6pt/2.6mm var(--body);text-align:center;color:#1D1D1F}
+.sheet table{width:100%;border-collapse:collapse;font-size:7.5pt}
+.sheet th{font:600 6.5pt/1.2 var(--body);color:#5E5E63;text-align:right;padding:.6mm .8mm;white-space:nowrap}
+.sheet td{padding:.95mm .8mm;border-top:.2mm solid #D2D2D7;text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;color:#1D1D1F}
+.sheet th:first-child,.sheet td:first-child{text-align:left;font-family:var(--body);white-space:normal}
+.sheet td b{font-weight:700}
+.sheet td.pl{text-align:left;font-family:var(--body)}.sheet td.pl b{font-family:var(--mono);display:inline-block;min-width:4.5mm}
+.sheet td.pl img{width:5mm;height:5mm;border-radius:50%;object-fit:cover;object-position:50% 15%;filter:grayscale(1);vertical-align:middle;margin-right:1.2mm}
+.sheet .nm{color:#5E5E63;font-size:7pt}
+.sheet table.team td:first-child,.sheet .col:nth-child(2) td:first-child{white-space:nowrap}
+.sheet .col:nth-child(2) td,.sheet .col:nth-child(2) th{padding-left:.5mm;padding-right:.5mm}
+.sheet .sep{border-left:.2mm solid #D2D2D7}
+.sheet table.big td{padding:.9mm .7mm}
+.sheet table.big tr.first td{border-top:.4mm solid #1D1D1F}
+.sheet table.big td:nth-child(3){font-family:var(--body);color:#5E5E63;text-align:center}
+.sheet .sh-f{font-size:6.5pt;line-height:1.3;color:#5E5E63;border-top:.2mm solid #D2D2D7;padding-top:1.5mm}
+@page{size:A4 landscape;margin:0}
+@media print{
+  html,body{background:#fff!important;padding:0!important;margin:0!important;height:209mm;overflow:hidden}
+  .page{max-width:none}.page>*:not(#printblk){display:none!important}
+  #printblk{margin:0}#printblk>.kick{display:none}
+  .paper{height:auto!important;border-radius:0;overflow:visible}.sheet{transform:none!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+.dec{background:var(--surface);border-radius:var(--r);padding:4px 20px}
+.dr{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-2);padding:12px 0;border-top:1px solid var(--line)}
+.dr:first-child{border-top:0}
+.dl{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3)}
+.dl span{font-size:var(--fs-sub);line-height:18px;color:var(--muted)}
+.dl b{font:700 17px/22px var(--mono);letter-spacing:-.03em;white-space:nowrap}
+.dw{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;min-width:0}
+.wh{display:inline-flex;align-items:baseline;gap:6px;background:var(--raised);border-radius:999px;padding:3px 10px;font-size:var(--fs-sub);line-height:18px;white-space:nowrap}
+.wh b{font:600 12px/1 var(--mono);color:var(--muted)}
+.wh i{font:700 13px/1 var(--body);font-variant-numeric:tabular-nums;font-style:normal;color:var(--text)}
+.dw .none{font-size:var(--fs-sub);color:var(--faint)}
+/* игрок: круглое фото, номер на фото */
+.pp{position:relative;width:var(--s,48px);height:var(--s,48px);border-radius:50%;background:var(--raised);display:inline-grid;place-items:center;font:600 15px/1 var(--body);color:var(--muted);flex:none}
+.pp img{width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:50% 15%;filter:grayscale(1) contrast(1.1);display:block}
+.pp b{position:absolute;right:-4px;bottom:-4px;min-width:22px;height:20px;padding:0 4px;border-radius:10px;background:var(--team);color:var(--team-ink);font:700 12px/20px var(--mono);text-align:center;box-shadow:0 0 0 2px var(--surface)}
+.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3)}
+.pcard{background:var(--surface);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:var(--space-2);min-width:0}
+.pcard .who{display:flex;align-items:center;gap:var(--space-4);min-width:0}
+.pcard .who div{min-width:0}
+.pcard .nm{display:block;font:600 var(--fs-body)/20px var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard .ln{display:block;font-size:var(--fs-src);line-height:16px;color:var(--faint)}
+.pcard .v{font:700 var(--fs-num)/1.1 var(--mono);letter-spacing:-.04em;margin-top:var(--space-2);font-variant-numeric:tabular-nums}
+.pcard .v small{font:500 15px/1 var(--body);letter-spacing:0;color:var(--muted);margin-left:4px}
+.pcard .d{font-size:var(--fs-sub);line-height:18px;color:var(--muted)}
+.pcard .st{margin-top:auto;padding-top:var(--space-1)}
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:var(--space-2)}
+.person{display:flex;align-items:center;gap:var(--space-4);background:var(--surface);border-radius:999px;padding:4px 16px 4px 4px;min-width:0}
+.person>div{min-width:0}
+.person .nm{font:600 var(--fs-sub)/18px var(--body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.person .d{font-size:var(--fs-src);line-height:16px;color:var(--muted)}
+.person .d b{font:700 var(--fs-sub)/1 var(--mono);color:var(--text)}
+.grp+.grp{margin-top:var(--space-5)}
+/* звено */
+.lines{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-3)}
+.line{background:var(--surface);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:var(--space-4);min-width:0}
+.line .lh{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);min-height:22px}
+.line .lh b{font:600 var(--fs-h)/22px var(--display);letter-spacing:-.01em}
+.line .five{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-2)}
+.line .five>div{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);min-width:0}
+.line .five span.n{font-size:var(--fs-src);line-height:16px;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.line .names{display:none;font-size:var(--fs-sub);line-height:18px;color:var(--muted)}
+.line .nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-2);border-top:1px solid var(--line);padding-top:var(--space-3);text-align:center}
+.line .nums b{display:block;font:700 17px/22px var(--mono);letter-spacing:-.03em;white-space:nowrap}
+.line .nums b.nd{font:500 var(--fs-sub)/22px var(--body);letter-spacing:0;color:var(--faint)}
+.line .nums span{display:block;font-size:var(--fs-src);line-height:16px;color:var(--faint)}
+/* «что показал бы отчёт — что вышло» */
+.said{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-3)}
+.said>div{background:var(--surface);border-radius:var(--r);padding:16px 20px}
+.said b{display:block;font:600 var(--fs-body)/22px var(--body)}
+.said span{display:block;font-size:var(--fs-sub);line-height:18px;color:var(--muted);margin-top:2px}
+.said em{display:block;font-style:normal;margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--line);font-size:var(--fs-sub);line-height:18px}
+.said em i{font-style:normal;color:var(--faint);display:block;font-size:var(--fs-src);line-height:16px}
+/* выводы и таблицы внутри закрытых блоков */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:var(--fs-sub)}
+th{font:600 var(--fs-src)/16px var(--body);color:var(--faint);text-align:right;padding:8px;white-space:nowrap}
+td{padding:12px 8px;border-top:1px solid var(--line);text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;font-family:var(--body)}
+td.tx{font-family:var(--body);white-space:normal;text-align:left;color:var(--muted)} th.tx{text-align:left}
+tr.g td{font:600 var(--fs-src)/16px var(--body);color:var(--faint);padding-top:16px}
+.fold-body ul{margin:var(--space-4) 0 0;padding-left:16px;display:flex;flex-direction:column;gap:var(--space-2);color:var(--muted);font-size:var(--fs-sub);line-height:20px;max-width:80ch}
+.fold-body ul b{color:var(--text);font-weight:600}
+.folds{display:grid;gap:var(--space-3)}
+@media (max-width:759px){
+  .mods.four{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-2)}.mods.four .mod{min-height:0;padding:16px;grid-template-columns:minmax(0,1fr)}.mods.four .mod-g{display:none}
+  .line .five span.n{display:none}.line .names{display:block}
+  .line .five{display:flex;justify-content:space-between;padding:0 var(--space-4)}
+  .pcard .who{flex-direction:column;align-items:flex-start;gap:var(--space-2)}.pcard .nm{white-space:normal}
+  .fold-n{display:flex;flex-direction:column;align-items:flex-end}.fold-n small{margin-left:0;line-height:16px}.fold-t span{white-space:normal}
+  .sec-hero{padding-bottom:var(--space-4)}.sh-art{position:absolute;right:16px;top:16px;width:84px;height:56px}.sec-hero h1{padding-right:92px}.sh-kick{padding-right:92px}
+  .chip{min-height:44px}
+}
+@media (max-width:420px){
+  .tiles{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-columns:auto;overflow:visible;gap:var(--space-2)}
+  .tile .d{overflow:visible;display:block;-webkit-line-clamp:none;white-space:nowrap}
+}
+@media (min-width:760px){
+  .dr{grid-template-columns:264px minmax(0,1fr);gap:var(--space-5);align-items:start}
+  .tiles{--tn:4}
+  .kc{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .said{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)}
+}
+@media (min-width:1180px){
+  .top-row{grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:stretch}
+  .mods.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .pgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)}
+  .lines{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)}
+  .mods.four .mod{padding:20px;min-height:128px}
+  .mods.four .mod-g{width:112px}
+
+}
+
+/* ---------- добавлено для программы ---------- */
+html,body{height:auto;margin:0}
+body{padding-block:16px 48px}
+.pp{overflow:visible}.pp em{font-style:normal}.pp img{position:absolute;inset:0}
+.call{position:sticky;top:8px;z-index:5;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.call .btn.go{min-height:36px;padding:8px 16px;margin-left:var(--space-2)}
+.sheet .its li.n{padding-left:0;color:#5E5E63;font-weight:400}.sheet .its li.n::before{display:none}
+.sheet.dense table.big td{padding:.45mm .7mm;font-size:7pt}
+</style></head>
+<body>
+<div class="page">
+<div class="call" id="call"></div>
+<section class="rep" id="rep" style="margin-top:var(--space-4)"></section>
+<section class="rep" id="printblk">
+  <p class="kick">лист для печати · A4 горизонтально</p>
+  <div class="paper" id="paper"></div>
+</section>
+</div>
+<script>
+/* Отчёт «Листа матча»: после периода и за всю игру. Страница живёт во вкладке «Отчёт» программы (index.html)
+   и получает матч сообщением {type:'lm-report', ...}. Сама ничего не хранит и никуда не пишет.
+   Каждая цифра считается из записей матча; чего в записях нет — того нет на экране. */
+let D=null,view=null;
+const esc=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct=(a,b)=>a+b?Math.round(100*a/(a+b)):0;
+const PNAME=p=>p===4?'Овертайм':p+'-й период', PSHORT=p=>p===4?'ОТ':p+'-й';
+const per=e=>e.p===0?2:e.p;                         // записи с бумажного листа без периода (встроенный пример) считаются с начала матча начиная со 2-го периода
+const R=()=>D.roster, pl=n=>D.roster.find(r=>r.n===n), who=n=>pl(n)||D.gk.find(g=>g.n===n)||{n,name:'№'+n,line:0,pos:''};
+const E=(k,f,n)=>D.ev.filter(e=>e.k===k&&f(e)&&(n==null||e.n===n)).length;
+const mins=(f,n)=>D.ev.filter(e=>e.k==='pen'&&f(e)&&(n==null||e.n===n)).reduce((s,e)=>s+(e.min||2),0);
+const inP=p=>e=>e.p===p, upTo=p=>e=>per(e)<=p, ALL=e=>true;
+const cL=(k,l,f)=>D.ev.filter(e=>e.k===k&&f(e)&&pl(e.n)&&pl(e.n).line===l).length;
+const LINES=()=>[1,2,3,4].filter(l=>R().some(r=>r.line===l));
+const CEN=()=>R().filter(r=>E('fw',ALL,r.n)+E('fl',ALL,r.n));
+const pp=(n,s=48)=>{const r=who(n);return `<span class="pp" style="--s:${s}px">${r.ph?`<img src="${esc(r.ph)}" alt="" onerror="this.remove()">`:''}<em>${esc((r.name||'?')[0])}</em><b>${n}</b></span>`};
+const IC={sh:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/>',fo:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16"/>',to:'<path d="M6 9h11l-3-3M18 15H7l3 3"/>',bl:'<path d="M12 4l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V7z"/>',ls:'<path d="M5 7h14M5 12h14M5 17h9"/>',pe:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>',col:'<path d="M5 19V9M12 19V5M19 19v-7"/>'};
+const svg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</svg>`;
+const gBars=a=>{if(a.length<2)return '<svg class="mod-g" viewBox="0 0 132 48"></svg>';const m=Math.max(...a,1),w=24,g=8,x0=132-a.length*w-(a.length-1)*g;return `<svg class="mod-g" viewBox="0 0 132 48" preserveAspectRatio="xMaxYMax meet">${a.map((v,i)=>{const h=Math.max(3,Math.round(40*v/m));return `<rect class="${i===a.length-1?'us':'them'}" x="${x0+i*(w+g)}" y="${48-h}" width="${w}" height="${h}" rx="5"/>`}).join('')}</svg>`};
+const gSplit=q=>`<svg class="mod-g" viewBox="0 0 132 48" preserveAspectRatio="xMaxYMax meet"><rect class="them" x="0" y="30" width="132" height="10" rx="5"/><rect class="us" x="0" y="30" width="${Math.max(6,Math.round(132*q/100))}" height="10" rx="5"/><line class="base" x1="66" y1="22" x2="66" y2="46"/></svg>`;
+const mod=(k,t,v,u,g,x)=>`<div class="mod"><div class="mod-lab"><span class="mod-ic">${svg(k)}</span><span class="t">${t}</span></div><div class="mod-v">${v}${u?`<small>${u}</small>`:''}</div>${g}<span class="mod-x">${x||'&nbsp;'}</span></div>`;
+const tile=(v,d,x)=>`<div class="tile"><b class="v">${v}</b><span class="d">${d}</span><span class="x">${x||'&nbsp;'}</span></div>`;
+const fold=(k,t,sub,n,u,body)=>`<details class="fold"><summary><span class="fold-ic">${svg(k)}</span><span class="fold-t"><b>${t}</b><span>${sub}</span></span><span class="fold-n">${n}<small>${u}</small></span><span class="fold-chev"></span></summary><div class="fold-body">${body}</div></details>`;
+const ART=`<svg viewBox="0 0 240 160" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="14" y="20" width="212" height="120" rx="44"/><path d="M120 20v120M70 20v120M170 20v120" stroke-dasharray="3 6"/><circle cx="120" cy="80" r="24"/><path d="M34 62v36M206 62v36"/><circle cx="120" cy="80" r="4.5" fill="var(--hl)" stroke="none"/></svg>`;
+const TITLE=()=>`${esc(D.home)} – ${esc(D.away)}${D.date?' · '+esc(D.date):''}${D.venue?' · '+esc(D.venue).toLowerCase():''}`;
+const hero=(kick,h)=>`<header class="sec-hero"><div class="sh-art">${ART}</div><div class="sh-txt"><div class="sh-kick">${kick}</div><h1>${h}</h1><p>${TITLE()}</p></div></header>`;
+const verdict=(kick,num,word,phrase)=>`<section class="verdict"><div class="vd-band"><div class="vd-top"><span class="vd-kick">${kick}</span><span class="vd-time">${esc(D.home)} – ${esc(D.away)}</span></div><div class="vd-num">${num}</div></div><div class="vd-body"><div class="vd-word">${word}</div><p class="vd-phrase">${phrase}</p></div></section>`;
+const fo=(r,f)=>({a:E('fw',f,r.n),b:E('fl',f,r.n),get n(){return this.a+this.b},get q(){return pct(this.a,this.b)}});
+const cenRule=x=>x.n>=8&&x.q>=60?'S':x.n>=4&&x.n<=7&&x.q>=75?'S':x.n>=10&&x.q>=50&&x.q<60?'S':x.n>=8&&x.q<=40?'C':x.n>=4&&x.n<=7&&x.q<=25?'Cп':null;
+const SCORE=f=>`${E('g',f)+(f===ALL&&D.so==='us'?1:0)}:${E('ga',f)+(f===ALL&&D.so==='them'?1:0)}`;
+
+/* ---------- когда цифра попадает в итоги (пороги — допущение, Антоном не утверждены) ---------- */
+const RULES=[
+ ['Броски к прошлому периоду','больше на 30 % и минимум на 3; или 10 бросков и больше','точка'],
+ ['Вбрасывания команды за период','от 12 вбрасываний: 60 % и больше или рост на 10 пунктов','точка'],
+ ['Вбрасывания команды за период','от 12 вбрасываний, 40 % и меньше','знак «!»'],
+ ['Не пропустили за период','отдельно — 6 блоков и больше','точка'],
+ ['Центральный с начала матча','от 8 вбрасываний и 60 % и больше; 4–7 и 75 % и больше; от 10 и 50–59 %','точка'],
+ ['Центральный с начала матча','от 8 вбрасываний и 40 % и меньше; 4–7 и 25 % и меньше','знак «!»'],
+ ['Звено: бросков больше всех','с начала матча 5 бросков и больше, отрыв от второго звена 2 и больше','точка'],
+ ['Звено: потери','с начала матча 8 потерь и больше, 30 % потерь команды, 2 потери на бросок','знак «!»'],
+ ['Мало бросков, много потерь','за период меньше 8 бросков; или 15 потерь при 2,5 на бросок','знак «!»'],
+ ['Удаления','с начала матча 3 и больше и пропущено в меньшинстве','знак «!»'],
+ ['Броски от защитников','с начала матча 10 бросков и больше, доля защитников 45 % и больше','знак «!»'],
+ ['Нападающие без броска','нападающий 1–2-го звена без броска после двух периодов','знак «!»'],
+ ['Потери игрока','с начала матча 4 и больше и 10 % потерь команды','знак «!»']];
+function findings(p){   // p — номер периода: итоги по записям этого периода и с начала матча
+  const K=[],C=[],f=inP(p),fm=upTo(p),sh=E('sh',f),ga=E('ga',f),fw=E('fw',f),fl=E('fl',f),bl=E('bl',f),to=E('to',f),prev=p>1;
+  if(!D.ev.some(f))return {K,C};
+  const cen=CEN().map(r=>({r,x:fo(r,fm),rule:cenRule(fo(r,fm))}));
+  const best=cen.filter(z=>z.x.n>=4&&z.x.q>=50).sort((a,b)=>b.x.q-a.x.q)[0];
+  if(prev){const b=E('sh',inP(p-1));if((sh>=b*1.3&&sh-b>=3)||sh>=10)K.push(`Броски: было ${b}, стало ${sh}`)}
+  else if(sh>=10)K.push(`Броски за период: ${sh}`);
+  if(prev){const a0=E('fw',inP(p-1)),n0=a0+E('fl',inP(p-1)),q0=pct(a0,n0-a0),q=pct(fw,fl);
+    if(fw+fl>=12&&(q>=60||(n0>=12&&q-q0>=10)))K.push(`Вбрасывания: было ${a0} из ${n0}, стало ${fw} из ${fw+fl}`)}
+  else if(fw+fl>=12&&pct(fw,fl)>=60)K.push(`Вбрасывания: ${fw} из ${fw+fl}`);
+  if(ga===0)K.push(`Не пропустили${bl>=6?`. Заблокировано бросков: ${bl}`:''}`);
+  for(const z of cen)if(z.rule==='S')K.push(`${esc(z.r.name)} на вбрасываниях: ${z.x.a} из ${z.x.n} с начала матча`);
+  const ls=LINES().map(l=>({l,sh:cL('sh',l,fm),to:cL('to',l,fm)})),bySh=[...ls].sort((a,b)=>b.sh-a.sh);
+  if(bySh.length>1&&bySh[0].sh>=5&&bySh[0].sh-bySh[1].sh>=2)K.push(`${bySh[0].l}-е звено: бросков больше всех, ${bySh[0].sh} из ${E('sh',fm)}`);
+  if(K.length<2&&best&&!K.some(k=>k.includes(esc(best.r.name))))K.push(`Лучший на вбрасываниях: ${esc(best.r.name)}, ${best.x.a} из ${best.x.n}`);
+  const teamLow=fw+fl>=12&&pct(fw,fl)<=40;let low=false;
+  for(const z of cen){const x=z.x;
+    if(z.rule==='C')C.push(`${esc(z.r.name)} на вбрасываниях: ${x.a} из ${x.n} с начала матча`);
+    if(z.rule==='Cп'){C.push(`${teamLow?`Вбрасывания: ${fw} из ${fw+fl}. `:''}${esc(z.r.name)}: ${x.a} из ${x.n}`);low=true}}
+  if(teamLow&&!low)C.push(`Вбрасывания: ${fw} из ${fw+fl}`);
+  const penM=E('pen',fm),pkM=D.ev.filter(e=>e.k==='ga'&&e.pk&&fm(e)).length;
+  if(penM>=3&&pkM)C.push(`Удалений с начала матча: ${penM}, в меньшинстве пропущено: ${pkM}`);
+  const toM=E('to',fm);
+  for(const x of ls)if(x.to>=8&&x.to/toM>=.3&&x.sh&&x.to/x.sh>=2)C.push(`${x.l}-е звено с начала матча: потери ${x.to}, броски ${x.sh}`);
+  if((sh<8&&sh+to>0)||(to>=15&&to/sh>=2.5))C.push(`За период: броски ${sh}, потери ${to}`);
+  const shM=E('sh',fm),dM=D.ev.filter(e=>e.k==='sh'&&fm(e)&&pl(e.n)&&pl(e.n).pos==='з').length;
+  if(shM>=10&&dM/shM>=.45)C.push(`Броски с начала матча: ${shM}, из них от защитников ${dM}`);
+  if(p>=2){const no=R().filter(r=>r.pos==='н'&&r.line>=1&&r.line<=2&&E('sh',fm,r.n)===0);if(no.length)C.push(`Без броска с начала матча: ${no.map(r=>esc(r.name)).join(', ')}`)}
+  const lo=R().map(r=>({r,v:E('to',fm,r.n)})).filter(x=>x.v>=4&&x.v/toM>=.1).sort((a,b)=>b.v-a.v);
+  if(lo.length)C.push(`Потери с начала матча: ${lo.map(x=>`${esc(x.r.name)} ${x.v}`).join(', ')}`);
+  return {K,C};
+}
+const item=(t,good)=>`<div class="it"><b>${good?'<i class="gd"></i>':'<span class="alert-mark"></span>'}<span>${t}</span></b></div>`;
+const sums=(F,title)=>{const L=[...F.K.slice(0,3).map(t=>item(t,1)),...F.C.slice(0,4).map(t=>item(t,0))];return `<div class="kcc"><h3>${title}</h3>${L.join('')||'<div class="empty">записей за период пока нет</div>'}</div>`};
+const LNOTE='Звенья считаются по расстановке на момент отчёта: действие записано на игрока, не на звено. Если игрока переставили в другое звено, его цифры уходят вместе с ним.';
+
+/* расшифровка: по каждому отмечаемому действию — общая цифра и кто именно */
+function decode(f,fm,m,p){
+  const pn=(k,r,g)=>D.ev.filter(e=>e.k===k&&e.n===r.n&&f(e)&&(!g||g(e))).length;
+  const wh=(r,v)=>`<span class="wh"><b>${r.n}</b>${esc(r.name)}<i>${v}</i></span>`;
+  const list=(k,fmt,g)=>R().map(r=>({r,v:pn(k,r,g)})).filter(x=>x.v).sort((a,b)=>b.v-a.v).map(x=>wh(x.r,fmt?fmt(x.r,x.v):x.v)).join('');
+  const fw=E('fw',f),fl=E('fl',f),ga=E('ga',f),g=E('g',f),pen=E('pen',f),sit=k=>['pp','pk','en'].map(s=>D.ev.filter(e=>e.k===k&&f(e)&&e.sit===s).length);
+  const cen=CEN().map(r=>({r,a:pn('fw',r),b:pn('fl',r)})).filter(x=>x.a+x.b).sort((x,y)=>(y.a+y.b)-(x.a+x.b)).map(x=>wh(x.r,`${x.a} из ${x.a+x.b} · ${pct(x.a,x.b)} %`)).join('');
+  const sitRow=(n,[pp_,pk_,en_],lab)=>n?[[`в равных составах`,n-pp_-pk_-en_],[lab[0],pp_],[lab[1],pk_],['пустые ворота',en_]].filter(x=>x[1]).map(x=>`<span class="wh">${x[0]}<i>${x[1]}</i></span>`).join(''):'';
+  const gks=D.gk.map(k=>({k,sv:D.ev.filter(e=>e.k==='sv'&&e.n===k.n&&f(e)).length,ga:D.ev.filter(e=>e.k==='ga'&&e.gk===k.n&&f(e)).length})).filter(x=>x.sv+x.ga);
+  const svAll=E('sv',f),noShot=R().filter(r=>r.pos==='н'&&r.line>=1&&E('sh',fm,r.n)===0);
+  const so=m?D.ev.filter(e=>e.k==='bg'||e.k==='bm'):[],soN=[...new Set(so.map(e=>e.n))];
+  const rows=[
+   ['броски',E('sh',f),list('sh')],
+   ['вбрасывания',`${fw} из ${fw+fl}`,cen],
+   ['блоки',E('bl',f),list('bl')],
+   ['силовые',E('hit',f),list('hit')],
+   ['потери',E('to',f),list('to')],
+   ['удаления',pen?`${pen} · ${mins(f)} мин`:0,list('pen',(r,v)=>mins(f,r.n)+' мин')],
+   ['голы',g,list('g')],
+   ['передачи',E('a',f),list('a')],
+   ['забили',g,sitRow(g,sit('g'),['в большинстве','в меньшинстве'])],
+   ['пропустили',ga,sitRow(ga,sit('ga'),['в большинстве','в меньшинстве'])],
+   ['на льду при забитых',g,list('pm',null,e=>e.v>0)],
+   ['на льду при пропущенных',ga,list('pm',null,e=>e.v<0)],
+   ['вратарь отбил',`${svAll} из ${svAll+ga}`,gks.map(x=>`<span class="wh"><b>${x.k.n}</b>${esc(x.k.name)}<i>отбил ${x.sv} · пропустил ${x.ga}${x.sv+x.ga?' · '+(100*x.sv/(x.sv+x.ga)).toFixed(1).replace('.',',')+' %':''}</i></span>`).join('')],
+   ...(so.length?[['буллиты',`${so.filter(e=>e.k==='bg').length} из ${so.length}`,soN.map(n=>{const a=so.filter(e=>e.n===n);return wh(who(n),`${a.filter(e=>e.k==='bg').length} из ${a.length}`)}).join('')]]:[]),
+   ...(p>=2&&!m&&D.ev.some(fm)?[['без броска с начала матча',noShot.length,noShot.map(r=>wh(r,r.line+'-е звено')).join('')]]:[])];
+  const full=rows.filter(r=>r[2]),zero=rows.filter(r=>!r[2]);
+  return `<div class="dec">${full.map(([t,v,l])=>`<div class="dr"><div class="dl"><span>${t}</span><b>${v}</b></div><div class="dw">${l}</div></div>`).join('')}${zero.length?`<div class="dr"><div class="dl"><span>не было</span><b>0</b></div><div class="dw"><span class="none">${zero.map(r=>r[0]).join(' · ')}</span></div></div>`:''}</div>`;
+}
+const cenCards=(fm,f)=>{const a=CEN();return a.length?`<div class="pgrid">${a.map(r=>{const x=fo(r,fm),y=f?fo(r,f):null;
+  return `<div class="pcard"><div class="who">${pp(r.n,56)}<div><span class="nm">${esc(r.name)}</span><span class="ln">${r.line?r.line+'-е&nbsp;звено':'вне звеньев'}</span></div></div><div class="v">${x.n?x.q:'·'}${x.n?'<small>%</small>':''}</div><div class="d">${x.n?`${f?'с начала матча':'за игру'} ${x.a} из ${x.n}`:'на вбрасывание не вставал'}${y?`<br>в этом периоде ${y.n?`${y.a} из ${y.n}`:'не вставал'}`:''}</div></div>`}).join('')}</div>`:'<div class="empty">вбрасываний пока нет</div>'};
+const lineCards=(fm,f)=>{const L=LINES();return L.length?`<div class="lines">${L.map(l=>{const rs=R().filter(r=>r.line===l);
+  const nums=f?[[cL('sh',l,f),'броски'],[cL('sh',l,fm),'броски, матч'],[cL('to',l,fm),'потери, матч']]:[[cL('sh',l,ALL),'броски'],[cL('g',l,ALL),'голы'],[cL('to',l,ALL),'потери']];
+  return `<div class="line"><div class="lh"><b>${l}-е звено</b></div><div class="five">${rs.map(r=>`<div>${pp(r.n,48)}<span class="n">${esc(r.name)}</span></div>`).join('')}</div><div class="names">${rs.map(r=>esc(r.name)).join(', ')}</div><div class="nums">${nums.map(([v,t])=>`<div><b>${v}</b><span>${t}</span></div>`).join('')}</div></div>`}).join('')}</div><p class="note">${LNOTE}</p>`:'<div class="empty">пятёрки не расставлены — в программе: «Состав на матч»</div>'};
+const GROUPS=()=>[...LINES().map(l=>[l+'-е звено',R().filter(r=>r.line===l)]),['вне звеньев',R().filter(r=>!r.line)]].filter(g=>g[1].length);
+function table(f,full){const z=v=>v||'·',n=(k,r,g)=>D.ev.filter(e=>e.k===k&&e.n===r.n&&f(e)&&(!g||g(e))).length;
+  const head=['игрок','броски','вбрасывания','блоки','силовые','потери','штраф, мин',...(full?['голы','передачи','на льду +','на льду −']:[])];
+  const row=r=>{const a=n('fw',r),b=n('fl',r);return `<tr><td>${r.n} ${esc(r.name)}</td><td>${z(n('sh',r))}</td><td>${a+b?a+'–'+b:'·'}</td><td>${z(n('bl',r))}</td><td>${z(n('hit',r))}</td><td>${z(n('to',r))}</td><td>${z(mins(f,r.n))}</td>${full?`<td>${z(n('g',r))}</td><td>${z(n('a',r))}</td><td>${z(n('pm',r,e=>e.v>0))}</td><td>${z(n('pm',r,e=>e.v<0))}</td>`:''}</tr>`};
+  return `<div class="tw"><table><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${GROUPS().map(([t,rs])=>`<tr class="g"><td colspan="${head.length}">${t}</td></tr>`+rs.map(row).join('')).join('')}</table></div>${full?'<p class="note">На льду + и − — был на площадке, когда забили и когда пропустили.</p>':''}`}
+const gkTile=f=>{const sv=E('sv',f),ga=E('ga',f),g=D.gk.filter(k=>D.ev.some(e=>f(e)&&(e.k==='sv'&&e.n===k.n||e.k==='ga'&&e.gk===k.n)));return tile(`${sv} из ${sv+ga}`,'вратарь отбил',g.map(k=>esc(k.name)).join(', '))};
+
+function body(v){
+  const m=v==='m',p=m?D.maxP:v,f=m?ALL:inP(v),fm=m?ALL:upTo(v),F=findings(p),prev=!m&&v>1,fw=E('fw',f),fl=E('fl',f),fp=pct(fw,fl),P=D.periods;
+  const series=k=>m?P.map(x=>E(k,inP(x))):[...Array(v)].map((_,i)=>E(k,inP(i+1))),x=k=>m?(P.length>1?series(k).join(', '):''):prev?'было '+E(k,inP(v-1)):'';
+  const lump=D.ev.some(e=>e.p===0);
+  return `<div class="top-row">`+
+     verdict(m?'счёт матча':`счёт: ${PNAME(v).toLowerCase()}`,SCORE(f)+(m&&D.so?'<small>Б</small>':''),m?'Вся игра':PNAME(v),m?(P.length>1?'Счёт по периодам: '+P.map(x=>SCORE(inP(x))).join(', ')+'.':''):`Счёт в матче ${SCORE(fm)}.`)+
+     sums(F,m?'итоги игры':'итоги периода')+
+   `</div>`+
+   `<div class="blk"><p class="kick">${m?'общие цифры за игру':'общие цифры за период'}</p><div class="mods four">`+
+     mod('sh','броски',E('sh',f),'',gBars(series('sh')),x('sh'))+
+     mod('fo','вбрасывания',fw+fl?fp:'·',fw+fl?'%':'',fw+fl?gSplit(fp):gBars([]),fw+fl?`${fw} из ${fw+fl}`:'')+
+     mod('to','потери',E('to',f),'',gBars(series('to')),x('to'))+
+     mod('bl','блоки',E('bl',f),'',gBars(series('bl')),x('bl'))+
+   `</div><div class="tiles" style="margin-top:var(--space-4)">${tile(E('hit',f),'силовые',x('hit'))}${tile(E('pen',f),'удаления',mins(f)?mins(f)+' мин'+(prev?` · в матче ${E('pen',fm)}`:''):'')}${tile(D.ev.filter(e=>e.k==='ga'&&f(e)&&e.pk).length,'пропущено','в меньшинстве')}${gkTile(f)}</div></div>`+
+   `<div class="blk"><p class="kick">расшифровка · кто именно</p>${decode(f,fm,m,p)}</div>`+
+   `<div class="blk"><p class="kick">центральные на вбрасываниях</p>${cenCards(fm,m?null:f)}</div>`+
+   `<div class="blk"><p class="kick">звенья</p>${lineCards(fm,m?null:f)}</div>`+
+   `<div class="blk folds">`+fold('pe','Таблица игроков',m?'те же цифры за игру одной таблицей':'те же цифры за период одной таблицей',R().length,'игроков',table(f,m))+
+     (m&&P.length>1?fold('col','По периодам','счёт и общие цифры',P.length,'периода',`<div class="tw"><table><tr><th></th><th>счёт</th><th>броски</th><th>вбрасывания</th><th>блоки</th><th>силовые</th><th>потери</th><th>удаления</th><th>вратарь отбил</th></tr>${P.map(q=>`<tr><td>${PNAME(q)}</td><td>${SCORE(inP(q))}</td><td>${E('sh',inP(q))}</td><td>${E('fw',inP(q))}–${E('fl',inP(q))}</td><td>${E('bl',inP(q))}</td><td>${E('hit',inP(q))}</td><td>${E('to',inP(q))}</td><td>${E('pen',inP(q))}</td><td>${E('sv',inP(q))} из ${E('sv',inP(q))+E('ga',inP(q))}</td></tr>`).join('')}</table></div>`):'')+
+     fold('ls','Пороги итогов','при каком пороге цифра идёт в итоги',RULES.length,'правил',`<div class="tw"><table><tr><th>что смотрим</th><th class="tx">порог</th><th class="tx">знак</th></tr>${RULES.map(([a,b,d])=>`<tr><td>${a}</td><td class="tx">${b}</td><td class="tx">${d}</td></tr>`).join('')}</table></div><p class="note">Оранжевая точка — цифра лучше порога, знак «!» — хуже. Пороги предварительные.</p>`)+
+   `</div>`+(lump&&!m?'<p class="note">В этом матче есть записи с бумажного листа без периода: они учтены в цифрах «с начала матча» со 2-го периода и в отчёте «Вся игра».</p>':'');
+}
+
+/* ---------- лист для печати: A4 горизонтально, один лист на отчёт ---------- */
+function sheet(v){
+  const m=v==='m',p=m?D.maxP:v,f=m?ALL:inP(v),fm=m?ALL:upTo(v),N=(k,ff,g)=>D.ev.filter(e=>e.k===k&&ff(e)&&(!g||g(e))).length,P=D.periods;
+  const cols=m?[...(P.length>1?P.map(x=>[PSHORT(x),inP(x)]):[]),['вся игра',ALL]]:[['за период',f],...(v>1?[['было',inP(v-1)]]:[]),['с начала матча',fm]],main=m?cols.length-1:0;
+  const fo2=ff=>{const a=N('fw',ff),b=N('fl',ff);return a+b?`${a}–${b}`:'·'},fo3=ff=>{const a=N('fw',ff),b=N('fl',ff);return a+b?pct(a,b)+' %':'·'};
+  const gk=ff=>{const s=N('sv',ff),n=s+N('ga',ff);return n?`${s}/${n}`:'·'},gk2=ff=>{const s=N('sv',ff),n=s+N('ga',ff);return n?(100*s/n).toFixed(1).replace('.',',')+' %':'·'};
+  const isF=e=>pl(e.n)&&pl(e.n).pos==='н',isD=e=>pl(e.n)&&pl(e.n).pos==='з';
+  const rows=[['Счёт',ff=>`${N('g',ff)}:${N('ga',ff)}`],['Броски',ff=>N('sh',ff)],['Броски соперника в створ',ff=>N('sv',ff)+N('ga',ff)],['Вбрасывания',fo2],['Вбрасывания, %',fo3],['Блоки',ff=>N('bl',ff)],['Силовые',ff=>N('hit',ff)],['Потери',ff=>N('to',ff)],
+    ['Удаления / минуты',ff=>`${N('pen',ff)}/${mins(ff)}`],['Забили в большинстве',ff=>N('g',ff,e=>e.sit==='pp')],['Пропущено в меньшинстве',ff=>N('ga',ff,e=>e.pk)],['Вратарь: отбил / бросков',gk],['Вратарь, %',gk2],
+    ['Бросков на гол',ff=>N('g',ff)?(N('sh',ff)/N('g',ff)).toFixed(1).replace('.',','):'·'],['Потерь на бросок',ff=>N('sh',ff)?(N('to',ff)/N('sh',ff)).toFixed(1).replace('.',','):'·'],['Броски: нап. / защ.',ff=>`${N('sh',ff,isF)}/${N('sh',ff,isD)}`]];
+  const F=findings(p),its=[...F.K.slice(0,3).map(x=>[1,x]),...F.C.slice(0,4).map(x=>[0,x])];
+  const pn=(k,r,ff,g)=>D.ev.filter(e=>e.k===k&&e.n===r.n&&ff(e)&&(!g||g(e))).length,z=x=>x||'·';
+  const cen=CEN().map(r=>{const a=pn('fw',r,f),b=pn('fl',r,f),A=pn('fw',r,fm),B=pn('fl',r,fm);return `<tr><td class="pl">${r.ph?`<img src="${esc(r.ph)}" alt="" onerror="this.remove()">`:''}<b>${r.n}</b> ${esc(r.name)}</td><td>${r.line||'·'}</td>${m?'':`<td>${a+b?`${a} из ${a+b}`:'·'}</td>`}<td>${A+B?`${A} из ${A+B}`:'·'}</td><td><b>${A+B?pct(A,B)+' %':'·'}</b></td></tr>`}).join('');
+  const lines=LINES().map(l=>{const L=(k,ff)=>cL(k,l,ff),a=L('fw',f),b=L('fl',f),mn=D.ev.filter(e=>e.k==='pen'&&f(e)&&pl(e.n)&&pl(e.n).line===l).reduce((s,e)=>s+(e.min||2),0);
+    return `<tr><td><b>${l}-е звено</b></td><td>${L('sh',f)}</td><td>${a+b?a+'–'+b:'·'}</td><td>${L('bl',f)}</td><td>${L('hit',f)}</td><td>${L('to',f)}</td><td>${z(mn)}</td><td class="sep">${L('sh',fm)}</td><td>${L('to',fm)}</td></tr>`}).join('');
+  const pairs=LINES().map(l=>{const rs=R().filter(r=>r.line===l&&r.pos==='з');if(rs.length<2)return '';const s=k=>rs.reduce((t,r)=>t+pn(k,r,f),0);
+    return `<tr><td><b>${l}-я</b> <span class="nm">${rs.map(r=>esc(r.name)).join(', ')}</span></td><td>${s('sh')}</td><td>${s('bl')}</td><td>${s('hit')}</td><td>${s('to')}</td></tr>`}).join('');
+  const tb=GROUPS().map(([t,rs])=>rs.map((r,i)=>{const a=pn('fw',r,f),b=pn('fl',r,f);
+    return `<tr${i===0?' class="first"':''}><td>${r.line||'–'}</td><td class="pl"><b>${r.n}</b> ${esc(r.name)}</td><td>${r.pos}</td><td>${z(pn('sh',r,f))}</td><td>${a+b?a+'–'+b:'·'}</td><td>${z(pn('bl',r,f))}</td><td>${z(pn('hit',r,f))}</td><td>${z(pn('to',r,f))}</td><td>${z(mins(f,r.n))}</td><td>${z(pn('g',r,f))}</td><td>${z(pn('a',r,f))}</td><td>${z(pn('pm',r,f,e=>e.v>0))}</td><td>${z(pn('pm',r,f,e=>e.v<0))}</td>${m?'':`<td class="sep">${z(pn('sh',r,fm))}</td><td>${z(pn('to',r,fm))}</td>`}</tr>`}).join('')).join('');
+  const noShot=R().filter(r=>r.pos==='н'&&r.line>=1&&pn('sh',r,fm)===0).map(r=>esc(r.name)),dense=R().length>22;
+  return `<div class="sheet${dense?' dense':''}"><div class="sh-h"><div><span class="k">лист матча · ${m?'отчёт об игре':'отчёт о периоде'}</span><h2>${m?'Вся игра':PNAME(v)}</h2><span class="k">${TITLE()}</span></div>
+    <div class="sc"><b>${SCORE(f)}${m&&D.so?' Б':''}</b><span>${m?(P.length>1?'по периодам '+P.map(x=>SCORE(inP(x))).join(' · '):''):`в матче ${SCORE(fm)}`}</span></div></div>
+   <div class="sh-b"><div class="col">
+     <h3>${m?'итоги игры':'итоги периода'}</h3><ul class="its">${its.map(([g,x])=>`<li class="${g?'g':'w'}">${x}</li>`).join('')||'<li class="n">записей пока нет</li>'}</ul>
+     <h3>команда</h3><table class="team"><tr><th></th>${cols.map(x=>`<th>${x[0]}</th>`).join('')}</tr>${rows.map(([t,fn])=>`<tr><td>${t}</td>${cols.map((x,i)=>`<td>${i===main?'<b>':''}${fn(x[1])}${i===main?'</b>':''}</td>`).join('')}</tr>`).join('')}</table>
+   </div><div class="col">
+     <h3>центральные на вбрасываниях</h3><table><tr><th></th><th>звено</th>${m?'':'<th>за период</th>'}<th>${m?'за игру':'Σ'}</th><th>%</th></tr>${cen}</table>
+     <h3>звенья${m?'':' · за период'}</h3><table><tr><th></th><th>бр</th><th>вбр</th><th>бл</th><th>сил</th><th>пот</th><th>штр</th><th class="sep">Σ бр</th><th>Σ пот</th></tr>${lines}</table>
+     <h3>пары защитников${m?'':' · за период'}</h3><table><tr><th></th><th>бр</th><th>бл</th><th>сил</th><th>пот</th></tr>${pairs}</table>
+     <h3>нападающие без броска с начала матча</h3><p>${noShot.length?noShot.join(', '):'бросали все'}</p>
+   </div><div class="col">
+     <h3>игроки${m?' · за игру':' · за период'}</h3><table class="big"><tr><th>зв</th><th></th><th></th><th>бр</th><th>вбр</th><th>бл</th><th>сил</th><th>пот</th><th>штр</th><th>гол</th><th>пер</th><th>+</th><th>−</th>${m?'':'<th class="sep">Σ бр</th><th>Σ пот</th>'}</tr>${tb}</table>
+   </div></div>
+   <div class="sh-f">бр — броски · вбр — вбрасывания, выиграл–проиграл · бл — заблокировал · сил — силовые · пот — потери · штр — штраф, минуты · пер — передачи · + и − — на льду, когда забили и когда пропустили · Σ — с начала матча.</div></div>`;
+}
+function fitPaper(){const w=document.getElementById('paper'),s=w.firstElementChild;if(!s)return;const k=w.clientWidth/s.offsetWidth;s.style.transform=`scale(${k})`;w.style.height=s.offsetHeight*k+'px'}
+addEventListener('resize',fitPaper);
+
+function renderCall(){document.getElementById('call').innerHTML=`<p><b>Отчёт</b>${TITLE()}</p><div class="chips">${[...D.periods.map(p=>[p,PNAME(p)]),['m','Вся игра']].map(([v,t])=>`<button class="chip${v===view?' on':''}" data-p="${v}">${t}</button>`).join('')}<button class="btn go" id="prn">Печать · PDF</button></div>`}
+function show(v){view=v;renderCall();document.getElementById('rep').innerHTML=body(v);document.getElementById('paper').innerHTML=sheet(v);fitPaper()}
+document.getElementById('call').onclick=e=>{if(e.target.closest('#prn')){window.print();return}const b=e.target.closest('.chip');if(b)show(b.dataset.p==='m'?'m':+b.dataset.p)};
+addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='lm-report')return;const keep=D&&D.id===d.id?view:null;D=d;
+  const mx=Math.max(1,d.cur>4?4:d.cur,...d.ev.map(x=>x.p).filter(x=>x>=1&&x<=4));D.maxP=mx;D.periods=[...Array(mx)].map((_,i)=>i+1);
+  show(keep!=null&&(keep==='m'||keep<=mx)?keep:Math.min(d.cur,mx))});
+try{parent.postMessage({type:'lm-report-ready'},'*')}catch(_){}
+</script>
+</body></html>
