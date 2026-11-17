@@ -17,16 +17,16 @@
   --bg:#F5F5F7; --card:#FFFFFF; --tile:#F2F2F4; --tileH:#E8E8EC; --ink:#1D1D1F; --ink2:#5E5E63; --ink3:#AEAEB2; --src:#6E6E73;
   --line:rgba(0,0,0,.08); --acc:#F26A1B; --accT:242,106,27; --btn:#C94F0E; --btnTx:#FFFFFF; --accSoft:#FDEADF;
   --bad:#9B1C3A; --sel:#1D1D1F; --selTx:#FFFFFF; --inv:#FFFFFF; --r:16px; --glow:none;
-  --actH:1fr; --actFs:17px; --tileNum:30px;
+  --actH:1fr; --actFs:17px; --tileNum:30px; --tileD:#DCDCE1; --tileDH:#CFCFD6;
 }
 html[data-theme="board"]{
   --bg:#000000; --card:#141416; --tile:#202023; --tileH:#2C2C2F; --ink:#F5F5F7; --ink2:#A1A1A6; --ink3:#5A5A5E; --src:#98989D;
   --line:rgba(255,255,255,.08); --acc:#FF7A2F; --accT:255,122,47; --btn:#FF7A2F; --btnTx:#1D1D1F; --accSoft:#432B1F;
-  --bad:#EE6F8E; --sel:#FF7A2F; --selTx:#1D1D1F; --inv:#141416; --glow:0 0 18px rgba(255,122,47,.35);
+  --bad:#EE6F8E; --sel:#FF7A2F; --selTx:#1D1D1F; --inv:#141416; --glow:0 0 18px rgba(255,122,47,.35); --tileD:#34343A; --tileDH:#404047;
 }
 html[data-theme="tiles"]{
   --bg:#E6E6EA; --card:transparent; --tile:#FFFFFF; --tileH:#F6F6F8; --ink:#1D1D1F; --ink2:#4A4A4F; --ink3:#9A9AA0;
-  --line:rgba(0,0,0,.10); --r:10px; --actFs:19px; --tileNum:38px;
+  --line:rgba(0,0,0,.10); --r:10px; --actFs:19px; --tileNum:38px; --tileD:#CDCDD4; --tileDH:#C0C0C8;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font:15px/1.25 Onest,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
@@ -124,6 +124,8 @@ html[data-theme="tiles"] .act.ga{background:#fff;color:var(--ink);box-shadow:ins
 .hint b{color:var(--ink)} html[data-theme="board"] .hint b{color:var(--acc)}
 .pgrp{display:flex;flex-direction:column;min-height:0;gap:6px}
 .pgrp.f{flex:2}.pgrp.d{flex:1}
+.pgrp.d .tl:not(.pick){background:var(--tileD)} .pgrp.d .tl:not(.pick):hover{background:var(--tileDH)}
+.pgrp .tl em{font-size:9px;top:5px;letter-spacing:.06em;color:var(--ink2)} .pgrp .tl.pick em{color:inherit;opacity:.7} .pgrp .tl.gkt em,.pgrp .tl.gks em{color:var(--ink2)}
 .tiles{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:1fr;gap:8px;flex:1;min-height:0}
 .tl{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:14px;background:var(--tile);min-height:60px;transition:transform .08s}
 .tl:hover{background:var(--tileH)}
@@ -531,7 +533,7 @@ function renderInput(flashN){
   const a=UI.act, pl=UI.pl;
   const SO=S.cur===5,so=soSt();
   const hint=SO&&!a&&!pl?'Буллит: нажмите игрока или вратаря':a&&!pl?`<b>${AN[a]}</b> — теперь нажмите номер игрока`:pl&&!a?`<b>${nm(pl)}</b> — что сделал?`:'Нажмите игрока, затем что он сделал — или наоборот';
-  const tile=p=>{const c=a?cnt(p.n,a,S.cur):0;return `<button class="tl${pl===p.n?' pick':''}${flashN===p.n?' flash':''}" data-pl="${p.n}"><b>${p.n}</b><span>${p.name}</span>${a&&c?`<i>${c}</i>`:''}</button>`};
+  const tile=p=>{const c=a?cnt(p.n,a,S.cur):0;return `<button class="tl${pl===p.n?' pick':''}${flashN===p.n?' flash':''}" data-pl="${p.n}"><em>${p.pos==='з'?'ЗАЩ':'НАП'}</em><b>${p.n}</b><span>${p.name}</span>${a&&c?`<i>${c}</i>`:''}</button>`};
   const pc=k=>S.ev.filter(e=>e.k===k&&e.p===S.cur).length;
   const fw=pc('fw'),fl=pc('fl');
   const nC=ord().filter(isCen),nF=ord().filter(p=>p.pos==='н'&&!isCen(p)),nD=ord().filter(p=>p.pos==='з');
