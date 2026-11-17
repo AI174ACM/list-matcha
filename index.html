@@ -17,16 +17,16 @@
   --bg:#F5F5F7; --card:#FFFFFF; --tile:#F2F2F4; --tileH:#E8E8EC; --ink:#1D1D1F; --ink2:#5E5E63; --ink3:#AEAEB2; --src:#6E6E73;
   --line:rgba(0,0,0,.08); --acc:#F26A1B; --accT:242,106,27; --btn:#C94F0E; --btnTx:#FFFFFF; --accSoft:#FDEADF;
   --bad:#9B1C3A; --sel:#1D1D1F; --selTx:#FFFFFF; --inv:#FFFFFF; --r:16px; --glow:none;
-  --actH:1fr; --actFs:17px; --tileNum:30px; --tileD:#DCDCE1; --tileDH:#CFCFD6;
+  --actH:1fr; --actFs:17px; --tileNum:30px;
 }
 html[data-theme="board"]{
   --bg:#000000; --card:#141416; --tile:#202023; --tileH:#2C2C2F; --ink:#F5F5F7; --ink2:#A1A1A6; --ink3:#5A5A5E; --src:#98989D;
   --line:rgba(255,255,255,.08); --acc:#FF7A2F; --accT:255,122,47; --btn:#FF7A2F; --btnTx:#1D1D1F; --accSoft:#432B1F;
-  --bad:#EE6F8E; --sel:#FF7A2F; --selTx:#1D1D1F; --inv:#141416; --glow:0 0 18px rgba(255,122,47,.35); --tileD:#34343A; --tileDH:#404047;
+  --bad:#EE6F8E; --sel:#FF7A2F; --selTx:#1D1D1F; --inv:#141416; --glow:0 0 18px rgba(255,122,47,.35);
 }
 html[data-theme="tiles"]{
   --bg:#E6E6EA; --card:transparent; --tile:#FFFFFF; --tileH:#F6F6F8; --ink:#1D1D1F; --ink2:#4A4A4F; --ink3:#9A9AA0;
-  --line:rgba(0,0,0,.10); --r:10px; --actFs:19px; --tileNum:38px; --tileD:#CDCDD4; --tileDH:#C0C0C8;
+  --line:rgba(0,0,0,.10); --r:10px; --actFs:19px; --tileNum:38px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font:15px/1.25 Onest,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
@@ -41,15 +41,15 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;paddin
 .sc .num{font:800 40px/1 var(--num);letter-spacing:-.02em}
 .sc .venue{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--btn);background:var(--accSoft);padding:3px 7px;border-radius:6px}
 html[data-theme="board"] .sc .venue{color:var(--acc)}
-.per{display:flex;align-items:center;background:var(--card);border-radius:12px;height:48px}
-.per button{width:44px;height:48px;font-size:22px;color:var(--ink2)}
+.per{display:flex;align-items:center;background:var(--card);border-radius:12px;height:52px}
+.per button{width:44px;height:52px;font-size:22px;color:var(--ink2)}
 .per b{min-width:118px;text-align:center;font-size:17px}
 .sp{flex:1}
 .seg{display:inline-flex;background:var(--card);border-radius:12px;padding:4px;gap:2px}
 .seg button{padding:0 16px;height:44px;border-radius:9px;font-weight:700;color:var(--ink2);white-space:nowrap}
 .seg button.on{background:var(--sel);color:var(--selTx)}
 .seg.small button{padding:0 11px;font-size:13px}
-.mbtn{height:48px;padding:0 18px;border-radius:12px;background:var(--card);font-weight:700}
+.mbtn{height:52px;padding:0 18px;border-radius:12px;background:var(--card);font-weight:700}
 html[data-theme="tiles"] .per,html[data-theme="tiles"] .seg,html[data-theme="tiles"] .mbtn{background:#fff;box-shadow:inset 0 0 0 2px var(--ink)}
 
 .sync{font-size:13px;color:var(--ink2);white-space:nowrap;display:flex;align-items:center;gap:6px}
@@ -122,10 +122,16 @@ html[data-theme="tiles"] .act.ga{background:#fff;color:var(--ink);box-shadow:ins
 /* игроки */
 .hint{font-size:19px;font-weight:600;padding:4px 6px 2px;min-height:34px;color:var(--ink2)}
 .hint b{color:var(--ink)} html[data-theme="board"] .hint b{color:var(--acc)}
-.pgrp{display:flex;flex-direction:column;min-height:0;gap:6px}
+.pgrp{display:flex;flex-direction:column;min-height:0;gap:4px} .pgrp+.pgrp{margin-top:4px}
 .pgrp.f{flex:2}.pgrp.d{flex:1}
-.pgrp.d .tl:not(.pick){background:var(--tileD)} .pgrp.d .tl:not(.pick):hover{background:var(--tileDH)}
-.pgrp .tl em{font-size:9px;top:5px;letter-spacing:.06em;color:var(--ink2)} .pgrp .tl.pick em{color:inherit;opacity:.7} .pgrp .tl.gkt em,.pgrp .tl.gks em{color:var(--ink2)}
+.pgrp .tl{padding-top:16px;overflow:hidden} .pgrp .tl:not(.gkt):not(.gks)>i{top:23px;right:6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--ink);color:var(--inv);display:grid;place-items:center;font-size:12px;opacity:1}
+/* амплуа — шапка плитки (слова Антона 17.11: серый тон защитников не нравится): нападающий — без заливки, защитник — графит, вратарь — оранжевый клуба */
+.pgrp .tl em{top:0;left:0;right:0;height:17px;font-size:10px;line-height:17px;letter-spacing:.08em;color:var(--ink2);padding:0}
+.pgrp.d .tl em{background:var(--ink);color:var(--inv)}
+.pgrp .tl.gkt em{background:var(--acc);color:#1D1D1F}
+.pgrp .tl.gks em{background:none;color:var(--ink2);top:2px}
+.pgrp .tl.pick em{color:inherit;opacity:.75;background:none} .pgrp.d .tl.pick em{background:rgba(255,255,255,.22);opacity:1}
+html[data-theme="tiles"] .pgrp .tl em{top:2px;left:2px;right:2px;border-radius:6px 6px 0 0} html[data-theme="tiles"] .pgrp .tl.pick em{top:0;left:0;right:0}
 .tiles{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:1fr;gap:8px;flex:1;min-height:0}
 .tl{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:14px;background:var(--tile);min-height:60px;transition:transform .08s}
 .tl:hover{background:var(--tileH)}
@@ -135,8 +141,8 @@ html[data-theme="tiles"] .act.ga{background:#fff;color:var(--ink);box-shadow:ins
 .tl i{position:absolute;top:6px;right:8px;font:800 13px var(--num);font-style:normal;color:var(--ink2)}
 .tl.pick{background:var(--sel);color:var(--selTx)} .tl.pick span,.tl.pick i{color:inherit;opacity:.8}
 .tl.flash{animation:fl .7s}
-.tl.gks{background:none;box-shadow:inset 0 0 0 2px var(--line);color:var(--ink2);margin:14px 0} .tl.gks b{font-size:calc(var(--tileNum)*.6)} .tl.gks span{font-size:11px} .tl.gks em{font-size:10px;top:6px;padding:0 2px;line-height:1.1;white-space:nowrap;color:var(--ink2);letter-spacing:.04em} .tl.gks:hover{background:var(--tile)} .tl.gks i{position:static;background:none;min-width:0;height:auto;padding:0;font:600 10px/1.15 Onest,sans-serif;font-style:normal;color:var(--ink2);white-space:nowrap}
-.tl.gkt{background:none;box-shadow:inset 0 0 0 2px var(--acc)} .tl.gkt:hover{background:var(--accSoft)} .tl.gkt em{color:var(--ink2);font-size:10px;top:6px;letter-spacing:.06em;white-space:nowrap} .tl.gkt{background:var(--accSoft);box-shadow:inset 0 0 0 3px var(--acc);gap:1px;padding-top:12px} .tl.gkt b{font-size:calc(var(--tileNum)*1.1)} .tl.gkt i{position:static;display:flex;flex-direction:column;align-items:center;color:var(--ink2);font:700 11px/1.15 Onest,sans-serif;white-space:nowrap} .tl.gkt i u{text-decoration:none;font:800 14px/1.1 var(--num);color:var(--ink)}
+.tl.gks{background:none;box-shadow:inset 0 0 0 2px var(--line);color:var(--ink2);margin:0} .tl.gks b{font-size:calc(var(--tileNum)*.6)} .tl.gks span{font-size:11px}  .tl.gks:hover{background:var(--tile)} .tl.gks i{position:static;background:none;min-width:0;height:auto;padding:0;font:600 10px/1.15 Onest,sans-serif;font-style:normal;color:var(--ink2);white-space:nowrap}
+.tl.gkt{background:none;box-shadow:inset 0 0 0 2px var(--acc)} .tl.gkt:hover{background:var(--accSoft)}  .tl.gkt{background:var(--accSoft);box-shadow:inset 0 0 0 3px var(--acc);gap:1px} .tl.gkt b{font-size:var(--tileNum)} .tl.gkt i{position:static;display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:clamp(4px,1.3vh,12px);color:var(--ink2);font:600 12px/1.1 Onest,sans-serif;white-space:nowrap} .tl.gkt i u{text-decoration:none;font:800 18px/1 var(--num);letter-spacing:-.04em;color:var(--ink)}
 html[data-theme="board"] .tl.gkt i u{color:#fff}
 @keyframes fl{0%{box-shadow:0 0 0 4px var(--acc)}100%{box-shadow:0 0 0 0 transparent}}
 html[data-theme="board"] .tl b{text-shadow:0 0 14px rgba(255,255,255,.18)}
@@ -219,11 +225,37 @@ html[data-theme="tiles"] .sheet{background:#fff} html[data-theme="tiles"] .row.f
 .slot.f{border:0;background:var(--sel);color:var(--selTx)} .slot.g{background:var(--acc);color:#fff;border:0}
 .gtiles{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:8px}
 .gtiles .tl{min-height:74px}
+@media (max-height:720px){.gtiles .tl{min-height:60px}}
 .tl.sc1{background:var(--acc);color:#fff} .tl.sc1 span,.tl.sc1 i{color:#fff}
 .tl.as1{background:var(--accSoft);box-shadow:inset 0 0 0 3px var(--acc)} .tl.as1 i{color:var(--btn)}
 .tl.on1{background:var(--sel);color:var(--selTx)} .tl.on1 span,.tl.on1 i{color:inherit;opacity:.8}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .btn{height:52px;padding:0 20px;border-radius:12px;background:var(--tile);font-weight:700;font-size:16px}
+/* разбор дизайнера 17.11: оси, одна высота в ряду, подписи в одну строку */
+.main{grid-template-columns:minmax(240px,24.5%) minmax(0,1fr) minmax(260px,25%)}
+.act>span:first-child{white-space:nowrap;min-width:0}
+@media (max-width:1400px){:root{--actFs:16px} .act{padding:0 12px;gap:8px} html[data-theme="tiles"] .act{font-size:14px;letter-spacing:.01em}}
+html[data-theme="tiles"] .act.goal{font-size:24px;letter-spacing:.06em}
+.act.goal .k{right:45px} @media (max-width:1400px){.act.goal .k{right:41px}}
+.strip{padding-left:16px} .hint,.foot{padding-left:4px}
+html[data-theme="tiles"] .top{padding:0 12px} html[data-theme="tiles"] .strip{padding-right:12px}
+html[data-theme="tiles"] .chipb{background:#fff;box-shadow:inset 0 0 0 2px var(--ink)} html[data-theme="tiles"] .chipb.on{background:var(--ink);color:#fff}
+.pb{text-align:center}
+.tl.gkt .gn{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;max-width:100%}
+.tl.gkt.wide{display:grid;grid-template-columns:1fr 1fr;align-items:center;justify-items:center}
+.tl.gkt.wide i{margin:0;gap:6px;align-self:stretch;width:100%;justify-content:center;border-left:2px solid rgba(var(--accT),.35);font-size:12px}
+.tl.gkt.wide i u{font-size:clamp(18px,1.5vw,24px)}
+.tl.gkt:not(.wide){gap:0;padding-bottom:4px} .tl.gkt:not(.wide) i{margin-top:clamp(3px,1vh,12px);gap:3px;font-size:11px;line-height:1}
+@media (max-height:720px){.tl.gkt:not(.wide) b{font-size:calc(var(--tileNum)*.84)}}
+@media (max-height:720px){.pgrp .tl:not(.gkt):not(.gks)>i{top:18px;right:4px;min-width:16px;height:16px;padding:0 4px;font-size:11px}}
+.tl.gkt.pick{background:var(--acc);color:#1D1D1F;box-shadow:none} .tl.gkt.pick span,.tl.gkt.pick i{color:inherit;opacity:.85}
+html[data-theme="board"] .pgrp.d .tl em{background:#3A3A3E;color:#F5F5F7}
+.sheet.narrow{width:min(640px,96vw)} .pkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+html[data-theme="tiles"] .stp:not(.on){background:var(--bg)} html[data-theme="tiles"] .stp:not(.on) em{background:#fff}
+.col.side>.feed{-webkit-mask-image:linear-gradient(#000 calc(100% - 28px),transparent);mask-image:linear-gradient(#000 calc(100% - 28px),transparent)}
+#snackT{text-wrap:balance}
+.lgrid{grid-template-columns:128px repeat(3,minmax(0,1fr)) 6px repeat(2,minmax(0,1fr))} .lgrid .ll{white-space:nowrap}
+#fH,#fA,#fD{height:52px}
 .btn:disabled{opacity:.55;cursor:default}
 .mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px} .mgrid+.lbl{margin-top:18px} .lbl+.mgrid{margin-top:8px} .mgrid .btn{padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 html[data-theme="tiles"] .sheet .btn:not(.acc):not(.dark){background:var(--bg)}
@@ -513,7 +545,7 @@ function cnt(n,k,p){return S.ev.filter(e=>e.n===n&&e.k===k&&(p==null||e.p===p)).
 /* длинная фамилия («Ануфриенко») не обрезается, а ужимается под ширину места */
 function fit(sel,min=9){const rg=document.createRange(),over=el=>{rg.selectNodeContents(el);return rg.getBoundingClientRect().width>el.getBoundingClientRect().width+.5};   // ширина текста с долями точки: целые scrollWidth пропускают обрезку на полточки
   document.querySelectorAll(sel).forEach(el=>{el.style.fontSize='';if(!el.firstChild||!over(el))return;let fs=parseFloat(getComputedStyle(el).fontSize);while(over(el)&&fs>min){fs-=.5;el.style.fontSize=fs+'px'}})}
-function render(flashN){requestAnimationFrame(()=>fit('.tl span,.pc .pn span'));
+function render(flashN){requestAnimationFrame(()=>{fit('.tl span,.pc .pn span');const a=[...document.querySelectorAll('.pgrp .tl:not(.gks) span')];if(a.length){const m=Math.min(...a.map(e=>parseFloat(getComputedStyle(e).fontSize)));a.forEach(e=>e.style.fontSize=m+'px')}});
   const gF=S.ev.filter(e=>e.k==='g').length, gA=S.ev.filter(e=>e.k==='ga').length;
   home.innerHTML=logo(S.home)+esc(S.home); away.innerHTML=esc(S.away)+logo(S.away); const so=soSt();score.textContent=(gF+(so.win==='us'?1:0))+':'+(gA+(so.win==='them'?1:0))+(so.win?' Б':''); venue.textContent=S.venue; pdate.textContent=' '+(S.date||'');
   pName.textContent=PN(S.cur);
@@ -524,7 +556,7 @@ function render(flashN){requestAnimationFrame(()=>fit('.tl span,.pc .pn span'));
   // полоса положения
   const s=sit(), st=document.getElementById('strip'); st.className='strip '+s.type;
   const pens=S.pens.map(p=>`<span class="pchip">${p.side==='us'?nm(p.n):S.away}${p.kind==='major'?' · 5 мин':p.kind==='double'?' · 2+2':' · 2 мин'}${VIEW?'':`<button data-pend="${p.id}">Штраф закончился</button>`}</span>`).join('');
-  st.innerHTML=`<span class="what">${s.type==='pk'?'<span class="sign"><span>!</span></span>':''}${SITW[s.type]} · <span class="n">${s.us} на ${s.them}</span></span><div class="pens">${pens}</div><span class="sp"></span>${VIEW?'':`
+  st.innerHTML=`<span class="what">${s.type==='pk'?'<span class="sign"><span>!</span></span>':''}${SITW[s.type]} · <span class="n">${s.us}</span> на <span class="n">${s.them}</span></span><div class="pens">${pens}</div><span class="sp"></span>${VIEW?'':`
    <button class="chipb" data-opp>Удаление у соперника</button><button class="chipb${S.pull.us?' on':''}" data-pull="us">Наш вратарь снят</button><button class="chipb${S.pull.them?' on':''}" data-pull="them">Их вратарь снят</button>`}`;
   UI.tab==='input'?renderInput(flashN):UI.tab==='season'?renderSeason():UI.tab==='rep'?renderRep():renderSum(); sync.show();
 }
@@ -542,7 +574,8 @@ function renderInput(flashN){
   const cols=n=>Math.max(7,n>10?Math.ceil(n/2):n);let cF=cols(nF.length),cD=cols(nD.length),cC=gk?Math.max(cF,nC.length+(gk2?2:1)):cols(nC.length);
   if(Math.max(nF.length,nD.length,nC.length+(gk?(gk2?2:1):0))<=10)cF=cD=cC=Math.max(cF,cD,cC);   // три ряда — одна сетка, плитки одна под другой
   const soG=g=>{const f=k=>S.ev.filter(e=>e.k===k&&e.gk===g.n).length;return `<em>ВРТ</em><b>${g.n}</b><span>${g.name}</span><i title="отбил буллитов из всех">${f('bsv')} из ${f('bsv')+f('bga')}</i>`};
-  const gkTile=SO&&gk?`<button class="tl gkt${UI.sog===gk.n?' pick':''}" data-sog="${gk.n}" style="grid-column:${gk2?cC-1:cC};grid-row:1">${soG(gk)}</button>`:gk?`<button class="tl gkt${flashN===gk.n?' flash':''}" data-gk="${gk.n}" style="grid-column:${gk2?cC-1:cC};grid-row:1"><em>ВРТ</em><b>${gk.n}</b><span>${gk.name}</span><i title="отбил бросков из всех по воротам">${sv} из ${sv+gaN}${sv+gaN?`<u>${(100*sv/(sv+gaN)).toFixed(1).replace('.',',')} %</u>`:''}</i></button>`:'';
+  const wideGk=!SO&&gk&&nC.length+(gk2?3:2)<=cC;
+  const gkTile=SO&&gk?`<button class="tl gkt${UI.sog===gk.n?' pick':''}" data-sog="${gk.n}" style="grid-column:${gk2?cC-1:cC};grid-row:1">${soG(gk)}</button>`:gk?`<button class="tl gkt${wideGk?' wide':''}${flashN===gk.n?' flash':''}" data-gk="${gk.n}" style="grid-column:${wideGk?(gk2?cC-2:cC-1)+' / span 2':(gk2?cC-1:cC)};grid-row:1"><em>ВРТ</em><div class="gn"><b>${gk.n}</b><span>${gk.name}</span></div><i title="отбил бросков из всех по воротам">${sv} из ${sv+gaN}${sv+gaN?`<u>${sv===sv+gaN?'100':(100*sv/(sv+gaN)).toFixed(1).replace('.',',')}%</u>`:''}</i></button>`:'';
   const gkSwap=SO&&gk2?`<button class="tl gkt${UI.sog===gk2.n?' pick':''}" data-sog="${gk2.n}" style="grid-column:${cC};grid-row:1">${soG(gk2)}</button>`:gk2?`<button class="tl gks" data-gkswap style="grid-column:${cC};grid-row:1"><em>ВРТ</em><b>${gk2.n}</b><span>${gk2.name}</span><i>замена</i></button>`:'';
   // лента
   const groups=[];const seen=new Set();
@@ -588,12 +621,12 @@ function renderInput(flashN){
     const fit=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));let left,top,side;
     if(innerWidth>820&&r.right+G+w<=c.right-4){left=r.right+G;side='r'}
     else if(innerWidth>820&&r.left-G-w>=c.left+4){left=r.left-G-w;side='l'}
-    if(side){top=fit(r.top+r.height/2-h/2,Math.max(8,c.top+8),Math.min(innerHeight,c.bottom)-h-8)}
+    if(side){top=fit(r.top+r.height/2-h/2,Math.max(8,(v.querySelector('.pgrp')||tl).getBoundingClientRect().top),Math.min(innerHeight,c.bottom)-h-8)}
     else{side=r.bottom+G+h<=innerHeight-8?'b':'t';top=fit(side==='b'?r.bottom+G:r.top-G-h,8,innerHeight-h-8);left=fit(r.left+r.width/2-w/2,8,innerWidth-w-8)}
     el.classList.add(side);el.style.left=left+'px';el.style.top=top+'px';
     el.style.setProperty('--ax',fit(r.left+r.width/2-left,18,w-18)+'px');el.style.setProperty('--ay',fit(r.top+r.height/2-top,18,h-18)+'px')}
 }
-const COLS=[['fo','Вбрасывания'],['sh','Броски'],['g','Голы'],['a','Передачи'],['bl','Заблоки­ровал'],['hit','Силовые приёмы'],['to','Потери шайбы'],['pen','Штраф, минуты'],['pm','Плюсы и минусы']];
+const COLS=[['fo','Вбрасывания'],['sh','Броски'],['g','Голы'],['a','Передачи'],['bl','Блоки'],['hit','Силовые приёмы'],['to','Потери шайбы'],['pen','Штраф, минуты'],['pm','Плюсы и минусы']];
 const PMIN={minor:2,double:4,major:5,misc:10};
 function st(n){const f=e=>e.n===n&&(UI.sumPer==='all'||e.p===UI.sumPer);const r={};for(const k of ['fw','fl','sh','g','a','bl','hit','to','pen'])r[k]=S.ev.filter(e=>f(e)&&e.k===k).length;
   r.pen=S.ev.filter(e=>f(e)&&e.k==='pen').reduce((s,e)=>s+(PMIN[e.min]||2),0);   // удаления — в минутах штрафа (слова Антона 16.11); запись без вида штрафа считается малым, 2 минуты
@@ -635,7 +668,7 @@ function renderSum(){
   const lvHtml=()=>S.roster.some(p=>p.ln&&!p.out)?`<div class="lv">${[1,2,3,4].map(l=>`<div class="lr"><div class="lt"><b>${l}</b>звено</div>${LSL.map((sl,i)=>pcard(lat(l,sl),i===3?' d1':'')).join('')}</div>`).join('')}
      <div class="lb">${(S.gk||[]).filter(Boolean).length?`<b>Вратари:</b> ${S.gk.filter(Boolean).map(g=>g.n+' '+g.name).join(', ')}. `:''}${rest.length?`<b>Вне пятёрок:</b> ${rest.join(', ')}.`:''}</div></div>`
     :`<div class="note" style="padding:14px">Пятёрки ещё не расставлены${VIEW?'.':' — нажмите на название команды вверху или Меню → «Состав на матч».'}</div>`;
-  v.innerHTML=`<div class="sumv"><div class="tbl${lv?' lvw':''}" style="--rows:${(all.length+1+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small" id="sumPer">${[['all','Весь матч'],[1,'1-й'],[2,'2-й'],[3,'3-й'],[4,'ОТ']].map(([p,t])=>`<button data-sp="${p}" class="${UI.sumPer===p?'on':''}">${t}</button>`).join('')}</div><div class="seg small" id="sumView"><button data-sv="tbl" class="${lv?'':'on'}">Таблица</button><button data-sv="lines" class="${lv?'on':''}">Пятёрки</button></div><span class="note" style="flex:1;min-width:0">${VIEW||lv?'':'Нажмите на число — откроются эти записи.'}</span><button class="btn acc" data-print style="height:44px;padding:0 18px;flex:none" title="Напечатать то, что на экране, или сохранить как PDF">Печать · PDF</button></div>
+  v.innerHTML=`<div class="sumv"><div class="tbl${lv?' lvw':''}" style="--rows:${(all.length+1+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small" id="sumPer">${[['all','Весь матч'],[1,'1-й'],[2,'2-й'],[3,'3-й'],[4,'ОТ']].map(([p,t])=>`<button data-sp="${p}" class="${UI.sumPer===p?'on':''}">${t}</button>`).join('')}</div><div class="seg small" id="sumView"><button data-sv="tbl" class="${lv?'':'on'}">Таблица</button><button data-sv="lines" class="${lv?'on':''}">Пятёрки</button></div><span class="note" style="flex:1;min-width:0">${VIEW||lv?'':'Нажмите на число — откроются эти записи.'}</span><button class="btn acc" data-print style="height:52px;padding:0 18px;flex:none" title="Напечатать то, что на экране, или сохранить как PDF">Печать · PDF</button></div>
     ${lv?lvHtml():`<table><tr><th class="l">Игрок</th>${COLS.map(([,l])=>`<th>${l}</th>`).join('')}</tr>${rows}</table>`}
     ${un&&UI.sumPer!=='all'?'<div class="note" style="padding:10px 14px">На бумажном листе блоки, силовые, потери, удаления и плюс-минус за 1–2-й периоды записаны вместе — по периодам их не разделить, они видны в «Весь матч».</div>':''}</div>
    <div class="side"><div class="box"><div class="cap">Голы</div>${glr||'<div class="sub">Голов нет</div>'}</div>
@@ -703,11 +736,12 @@ function seasonList(D){return D.matches.map(m=>`<div class="sm${m.why?' off':''}
 
 /* ---------- листы ---------- */
 const ov=document.getElementById('ov'),sh=document.getElementById('sheet');
-function open_(){ov.classList.add('on')} function close_(){ov.classList.remove('on');sh.onkey=null;sh.oninput=null;sh.ondrop=sh.ondragover=sh.ondragleave=null;sh.classList.remove('drag')}
+function open_(){ov.classList.add('on')} function close_(){ov.classList.remove('on');sh.classList.remove('narrow');sh.onkey=null;sh.oninput=null;sh.ondrop=sh.ondragover=sh.ondragleave=null;sh.classList.remove('drag')}
 addEventListener('dragover',e=>e.preventDefault());addEventListener('drop',e=>e.preventDefault());
 function penSheet(n){
   sh.innerHTML=`<h2>Удаление · ${nm(n)}</h2><p class="sub">Какой штраф? Состав на льду изменится сам.</p>
-   <div class="row" style="margin-top:14px"><button class="btn dark" data-pk="minor">2 минуты</button><button class="btn dark" data-pk="double">2 + 2 минуты</button><button class="btn dark" data-pk="major">5 минут</button><button class="btn" data-pk="misc">10 минут (состав не меняется)</button><span class="sp"></span><button class="btn" data-x>Отмена</button></div>`;
+   <div class="pkgrid"><button class="btn dark" data-pk="minor">2 минуты</button><button class="btn dark" data-pk="double">2 + 2 минуты</button><button class="btn dark" data-pk="major">5 минут</button></div>
+   <div class="row" style="margin-top:10px"><button class="btn" data-pk="misc">10 минут (состав не меняется)</button><span class="sp"></span><button class="btn" data-x>Отмена</button></div>`;sh.classList.add('narrow');
   sh.onclick=e=>{const b=e.target.closest('button');if(!b)return;if('x' in b.dataset){UI.act=null;UI.pl=null;close_();render();return}
     const kind=b.dataset.pk;if(!kind)return;const gid=S.nextId;push(gid,n,'pen',{min:kind});
     if(kind!=='misc')S.pens.push({id:gid,gid,side:'us',n,kind});
@@ -717,7 +751,8 @@ function penSheet(n){
 }
 function oppPenSheet(){
   sh.innerHTML=`<h2>Удаление у соперника</h2><p class="sub">Состав на льду изменится сам.</p>
-   <div class="row" style="margin-top:14px"><button class="btn dark" data-pk="minor">2 минуты</button><button class="btn dark" data-pk="double">2 + 2 минуты</button><button class="btn dark" data-pk="major">5 минут</button><span class="sp"></span><button class="btn" data-x>Отмена</button></div>`;
+   <div class="pkgrid"><button class="btn dark" data-pk="minor">2 минуты</button><button class="btn dark" data-pk="double">2 + 2 минуты</button><button class="btn dark" data-pk="major">5 минут</button></div>
+   <div class="row" style="margin-top:10px"><span class="sp"></span><button class="btn" data-x>Отмена</button></div>`;sh.classList.add('narrow');
   sh.onclick=e=>{const b=e.target.closest('button');if(!b)return;if('x' in b.dataset){close_();return}
     const kind=b.dataset.pk;if(!kind)return;const id=S.nextId++;S.pens.push({id,side:'them',kind});save();close_();render();
     snack(`Соперник удалён · ${SITW[sit().type].toLowerCase()} ${sit().us} на ${sit().them}`,'Отменить',()=>{S.pens=S.pens.filter(p=>p.id!==id);save();render()})};
@@ -729,7 +764,7 @@ function endPen(id){const p=S.pens.find(x=>x.id==id);if(!p)return;
 function goalEndsPen(side){ // гол в большинстве снимает один малый штраф проигравшей стороны
   const i=S.pens.findIndex(p=>p.side===side&&(p.kind==='minor'||p.kind==='double'));if(i<0)return null;
   const p=S.pens[i];if(p.kind==='double'){p.kind='minor';return 'осталось 2 минуты штрафа'}S.pens.splice(i,1);return 'штраф закончился'}
-function goalSheet(ours,sc0){
+function goalSheet(ours,sc0){sh.classList.remove('narrow');
   const s0=sit();
   const pre=ours&&sc0!=null&&!!P(sc0);
   const g={step:ours?(pre?2:1):3,sc:pre?sc0:null,as:[],on:new Set(pre?[sc0]:[]),key:s0.key,t:''};
@@ -739,7 +774,7 @@ function goalSheet(ours,sc0){
     const slots=[...g.on];const sl=[];for(let i=0;i<Math.max(need(),slots.length);i++){const n=slots[i];sl.push(`<span class="slot${n!=null?(n===g.sc?' g':' f'):''}">${n!=null?n:''}</span>`)}
     const tile=p=>{const c=g.sc===p.n?'sc1':g.as.includes(p.n)?'as1':g.on.has(p.n)?'on1':'';const tg=c==='sc1'?'ГОЛ':c==='as1'?'ПАС':'';
       return `<button class="tl ${c}" data-t="${p.n}"><b>${p.n}</b><span>${p.name}</span>${tg?`<i>${tg}</i>`:''}</button>`};
-    sh.innerHTML=`<div class="row"><h2>${ours?'Гол':'Гол в наши ворота'}</h2><span class="sub">${PN(S.cur)} · ${SITW[sitOf(g.key)]} ${g.key.replace('x',' на ')}</span><button class="btn" style="height:36px;font-size:13px" data-chs>изменить</button><span class="sp"></span><label class="sub">Время гола (можно пропустить) <input type="text" id="gT" value="${g.t}" placeholder="мм:сс" style="width:90px"></label></div>
+    sh.innerHTML=`<div class="row"><h2>${ours?'Гол':'Гол в наши ворота'}</h2><span class="sub">${PN(S.cur)} · ${SITW[sitOf(g.key)]} ${g.key.replace('x',' на ')}</span><button class="btn" style="height:44px;font-size:14px" data-chs>Изменить</button><span class="sp"></span><label class="sub">Время гола (можно пропустить) <input type="text" id="gT" value="${g.t}" placeholder="мм:сс" style="width:90px"></label></div>
      <div id="chs" style="display:none" class="row">${['5x5','4x4','3x3','5x4','5x3','4x3','4x5','3x5','3x4','6x5','5x6'].map(k=>`<button class="chipb${k===g.key?' on':''}" data-key="${k}">${k.replace('x',' на ')}</button>`).join('')}</div>
      ${ours?`<div class="steps">${[[1,'Кто забил',g.sc?nm(g.sc):'—'],[2,'Передачи',g.as.length?g.as.join(', '):'—'],[3,'На льду',g.on.size+' из '+need()]].map(([n,a,b])=>`<button class="stp${g.step===n?' on':''}${g.step>n?' done':''}" data-step="${n}"><em>${g.step>n?'✓':n}</em><span>${a}<b>${b}</b></span></button>`).join('')}</div>`:'<div style="height:14px"></div>'}
      <div class="q">${q}</div>
@@ -773,7 +808,7 @@ function goalSheet(ours,sc0){
   sh.onkey=e=>{if(e.key==='Enter'&&e.target.id!=='gT')ok()};
   draw();open_();
 }
-function cellSheet(n,k){
+function cellSheet(n,k){sh.classList.remove('narrow');
   const kinds=k==='fw'?['fw','fl']:[k];
   const draw=()=>{const evs=S.ev.filter(e=>e.n===n&&kinds.includes(e.k)&&(UI.sumPer==='all'||e.p===UI.sumPer));
     sh.innerHTML=`<h2>${nm(n)} · ${k==='fw'?'Вбрасывания':AN[k]}</h2><p class="sub">${evs.length} ${evs.length===1?'запись':'записей'}. Лишнюю уберите крестиком.</p>
@@ -783,14 +818,14 @@ function cellSheet(n,k){
     if(b.dataset.rm){const id=+b.dataset.rm;const ev=S.ev.find(x=>x.id===id);S.ev=S.ev.filter(x=>x.id!==id);save();draw();render();snack('Убрано: '+AN[ev.k].toLowerCase()+' · '+nm(n),'Вернуть',()=>{S.ev.push(ev);S.ev.sort((a,b)=>a.id-b.id);save();render()})}};
   draw();open_();
 }
-function menuSheet(){
+function menuSheet(){sh.classList.remove('narrow');
   /* меню — ровная сетка: кнопки одной ширины, подписи в одну строку (просьба Антона 17.11) */
   sh.innerHTML=`<h2>Меню</h2>
    <div class="lbl">Матч</div><div class="mgrid">${VIEW?'':'<button class="btn acc" data-m="new">Новый матч</button><button class="btn" data-m="roster">Состав и соперник</button>'}<button class="btn" data-m="past">Прошлые матчи</button>${VIEW?'':'<button class="btn" data-m="wipe">Очистить матч</button>'}</div>
    <div class="lbl">Файлы</div><div class="mgrid"><button class="btn" data-m="print">Напечатать итоги</button><button class="btn" data-m="csv">Таблица для Excel</button><button class="btn" data-m="save">Сохранить в файл</button>${VIEW?'':'<button class="btn" data-m="open">Открыть из файла</button>'}</div>
-   ${VIEW?'':'<div class="lbl">Помощь</div><div class="mgrid"><button class="btn" data-m="hints">Подсказки</button><button class="btn" data-m="keys">Клавиши</button><button class="btn" data-m="demo">Пример матча</button></div>'}
-   <div class="mgrid" style="margin-top:22px"><button class="btn dark" data-x style="grid-column:-2">Закрыть</button></div><input type="file" id="fileIn" accept=".json" hidden>`;
-  sh.onclick=e=>{const b=e.target.closest('button');if(!b)return;if('x' in b.dataset){close_();return}const m=b.dataset.m;
+   ${VIEW?'':'<div class="lbl">Помощь</div><div class="mgrid"><button class="btn" data-m="hints">Подсказки</button><button class="btn" data-m="keys">Клавиши</button><button class="btn" data-m="demo">Пример матча</button><button class="btn dark" data-x>Закрыть</button></div>'}
+   ${VIEW?'<div class="mgrid" style="margin-top:22px"><button class="btn dark" data-x style="grid-column:-2">Закрыть</button></div>':''}<input type="file" id="fileIn" accept=".json" hidden>`;
+  sh.onclick=e=>{const b=e.target.closest('button');if(!b)return;if('x' in b.dataset){close_();return}const m=b.dataset.m;if(['wipe','new','keys'].includes(m))sh.classList.add('narrow');
     if(m==='roster')rosterSheet();
     if(m==='past')pastSheet();
     if(m==='wipe'){sh.innerHTML=`<h2>Очистить матч</h2><p class="sub">Все записи этого матча сотрутся — здесь и в таблице. Состав и пятёрки останутся. Подходит после репетиции: завтра начнёте с чистого листа.</p><div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn" data-x>Отмена</button><button class="btn acc" data-m="wipeok">Очистить матч</button></div>`}
@@ -808,7 +843,7 @@ function menuSheet(){
   open_();
 }
 /* Состав на матч: все игроки клуба плитками, нажатие — играет / не играет */
-function rosterSheet(isNew){
+function rosterSheet(isNew){sh.classList.remove('narrow');
   let touched=false, R=S.roster.map(rcopy), ven=S.venue, f={h:S.home,a:isNew||S.away==='Соперник'?'':S.away,d:S.date}, note='', list=false, np='н', busy=false, lines=true, sel=null, showAll=false, G=(S.gk||[]).slice(0,2);
   const keep=()=>{for(const [k,id] of [['h','fH'],['a','fA'],['d','fD']]){const el=document.getElementById(id);if(el)f[k]=el.value}};
   const srt=()=>R.sort((a,b)=>(a.pos===b.pos?0:a.pos==='н'?-1:1)||a.n-b.n);
@@ -944,7 +979,7 @@ function rosterSheet(isNew){
       sync.flag('lm_rdirty',true);save();close_();render()}};
   draw();open_(); if(isNew&&sync.on()&&!sync.flag('lm_rdirty'))cloud(true);
 }
-function pastSheet(){
+function pastSheet(){sh.classList.remove('narrow');
   let rows=archList().map(m=>({id:m.id,date:m.date,home:m.home,away:m.away,score:scoreOf(m),local:m}));
   const draw=msg=>{sh.innerHTML=`<h2>Прошлые матчи</h2><p class="sub">${msg||'Нажмите на матч, чтобы открыть его.'}</p>
     <div class="mlist">${rows.filter(r=>r.id!==S.id).map(r=>`<button class="mrow" data-id="${r.id}"><span>${r.date||''}</span><span>${r.home} – ${r.away}</span><span class="n">${r.score||''}</span></button>`).join('')||'<div class="sub">Других матчей пока нет</div>'}</div>
