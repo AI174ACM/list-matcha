@@ -602,6 +602,8 @@ body{font-variant-numeric:tabular-nums}
 .sheet table.big th.sep,.sheet table.big th.sep+th{width:8mm}
 .sheet table.big td{padding:1.1mm .7mm}
 .sheet.dense table.big td{padding:.7mm .7mm;font-size:7.5pt}
+.sheet td.pl{display:table-cell;min-height:0;height:auto;font-size:inherit;color:inherit}.sheet td.pl b{color:#1D1D1F;font-size:inherit;line-height:inherit;text-align:left} /* у экранного .pl b цвет текста тёмной темы — белый, на листе номер пропадал */ /* класс pl занят строкой игрока экранного отчёта (сетка, высота 32) — в листе это обычная ячейка */
+.sheet table.big.fit td{padding-top:var(--bp);padding-bottom:var(--bp);font-size:var(--bf)}.sheet table.big.fit td.pl img{width:var(--bi);height:var(--bi)} /* много игроков — таблица ужимается, чтобы лист оставался одним */
 .sheet .its li{text-wrap:balance}
 .sheet th,.sheet .sh-f{font-size:7pt}
 @media print{#printblk{display:block!important}}
@@ -810,9 +812,13 @@ function sheet(v){
    </div><div class="col">
      <h3>игроки${m?' · за игру':' · за период'}</h3><table class="big${hasL?'':' nol'}"><tr>${hasL?'<th>зв</th>':''}<th></th><th></th><th>бр</th><th>вбр</th><th>бл</th><th>сил</th><th>пот</th><th>штр</th><th>гол</th><th>пер</th><th>+</th><th>−</th>${m?'':'<th class="sep">Σ бр</th><th>Σ пот</th>'}</tr>${tb}</table>
    </div></div>
-   <div class="sh-f">бр — броски · вбр — вбрасывания, выиграл–проиграл · бл — заблокировал · сил — силовые · пот — потери · штр — штраф, минуты · пер — передачи · + и − — на льду, когда забили и когда пропустили · Σ — с начала матча.</div></div>`;
+   </div>`;
 }
-function fitPaper(){const w=document.getElementById('paper'),s=w.firstElementChild;if(!s)return;const k=w.clientWidth/s.offsetWidth;s.style.transform=`scale(${k})`;w.style.height=s.offsetHeight*k+'px'}
+function fitSheet(s){const t=s.querySelector('table.big');if(!t)return;t.classList.remove('fit');
+  const over=()=>{const b=s.getBoundingClientRect().bottom-parseFloat(getComputedStyle(s).paddingBottom)*(s.getBoundingClientRect().height/s.offsetHeight);return [...s.querySelectorAll('.col')].some(c=>c.lastElementChild&&c.lastElementChild.getBoundingClientRect().bottom>b+.5)};
+  if(!over())return;t.classList.add('fit');
+  for(let i=0;i<=12;i++){const k=i/12;t.style.setProperty('--bp',(1.1-.9*k).toFixed(2)+'mm');t.style.setProperty('--bf',(7.5-1.3*k).toFixed(2)+'pt');t.style.setProperty('--bi',(5-1.5*k).toFixed(2)+'mm');if(!over())return}}
+function fitPaper(){const w=document.getElementById('paper'),s=w.firstElementChild;if(!s)return;fitSheet(s);const k=w.clientWidth/s.offsetWidth;s.style.transform=`scale(${k})`;w.style.height=s.offsetHeight*k+'px'}
 addEventListener('resize',fitPaper);
 
 function renderCall(){document.getElementById('call').innerHTML=`<p><b>Отчёт</b><span>${TITLE()}</span></p><div class="chips">${[...D.periods.map(p=>[p,PNAME(p)]),['m','Вся игра']].map(([v,t])=>`<button class="chip${v===view?' on':''}" data-p="${v}">${t}</button>`).join('')}<button class="btn go" id="prn"><span>Печать · </span>PDF</button></div>`}
