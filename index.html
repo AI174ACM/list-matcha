@@ -433,7 +433,28 @@ function norm(m){ // перенос с прошлых версий и из фа�
     if(e.k==='g'&&e.src==='лист'&&!e.asst)e.asst={80:[34,26],95:[14]}[e.n]; }
   if(m.gk===undefined&&(m.home||'Челмет')==='Челмет'&&!m.ev.some(e=>e.src==='лист'))m.gk=DEFG.map(n=>{const c=CLUB.find(c=>c.pos==='в'&&c.n===n);return c?{id:c.id,n:c.n,name:c.name}:null});
   if(!m.cur) m.cur=m.ev.some(e=>e.src==='лист')?3:1;
+  fix1119(m); fixSkip(m);
   return m}
+/* Пропущенный период: период пуст, а в следующих записи есть — значит, стрелку нажали лишний раз. Записи сдвигаются на своё место. Буллиты (5) не трогаются. */
+function fixSkip(m){ if(m.ev.some(e=>e.src==='лист'))return;
+  const has=p=>m.ev.some(e=>e.p===p);
+  for(let q=1;q<=3;q++){ let g=0; while(!has(q)&&[2,3,4].some(p=>p>q&&has(p))&&g++<4){ m.ev.forEach(e=>{if(e.p>q&&e.p<=4)e.p--}); if(m.cur>q&&m.cur<=4)m.cur-- } } }
+/* Разовая правка матча с «Дизелем» 19.11.2026 (слова Антона во время игры): второй период писался как третий — вернуть во второй;
+   к первому голу передача Зиновьева (14), к третьему — Цыплакова (91). После матча убрать. */
+function fix1119(m){ if(m.id!=='2026-11-18-6bqy')return;
+  const T3=Date.UTC(2026,10,19,15,0,0);   // 20:00 по Челябинску: третий период раньше начаться не мог (второй начался в 19:18)
+  m.ev.forEach(e=>{if(e.p===3&&e.ts<T3)e.p=2}); if(m.cur===3&&Date.now()<T3)m.cur=2;
+  [[65,14],[117,91]].forEach(([gid,n])=>{ const gl=m.ev.find(e=>e.gid===gid&&e.k==='g'); if(!gl||m.ev.some(e=>e.gid===gid&&e.k==='a'&&e.n===n))return;
+    let i=-1; m.ev.forEach((e,j)=>{if(e.gid===gid&&(e.k==='a'||e.k==='g'))i=j});
+    m.ev.splice(i+1,0,{id:m.nextId++,gid,p:gl.p,n,k:'a',src:'ввод',ts:gl.ts}) }) }
+/* Переход на следующий период: только когда в текущем есть записи — случайное второе нажатие период не перескочит. */
+function perNext(){ if(S.cur>=5)return;
+  if(S.cur<=3&&!S.ev.some(e=>e.p===S.cur)){snack(`${PN(S.cur)}: записей ещё нет — ${PN(S.cur+1).toLowerCase()} откроется после первой записи`,'Понятно',()=>{});return}
+  S.cur++;save();render() }
+/* Отчёт за текущий период выгружен (печать · PDF) — программа сама встаёт на следующий период. */
+function perAfterExport(p){ if(VIEW||p!==S.cur||S.cur>2||!S.ev.some(e=>e.p===S.cur))return;
+  const was=S.cur;S.cur++;save();render();
+  snack(`Отчёт за ${PN(was).toLowerCase()} выгружен · открыт ${PN(S.cur).toLowerCase()}`,'Вернуть',()=>{if(!S.ev.some(e=>e.p>was)){S.cur=was;save();render()}}) }
 let S=null; if(!VIEW){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}}
 if(!S||!S.roster) S=emptyMatch();
 norm(S);
@@ -696,7 +717,7 @@ function renderRep(){const v=document.getElementById('view');
   if(!document.getElementById('repF')){v.innerHTML='<iframe id="repF" src="otchet.html" title="Отчёт" style="width:100%;height:100%;min-height:0;border:0;border-radius:var(--r);background:#000"></iframe>';document.getElementById('repF').addEventListener('load',repSend)}
   repSend();
 }
-addEventListener('message',e=>{if(e.data&&e.data.type==='lm-report-ready')repSend()});
+addEventListener('message',e=>{if(!e.data)return;if(e.data.type==='lm-report-ready')repSend();if(e.data.type==='lm-report-printed')perAfterExport(e.data.p)});
 /* ---------- сезон: считает приёмник в таблице, здесь только показ ---------- */
 const SEASON={data:null,at:0,busy:false,err:false,mode:'avg'};
 try{const c=JSON.parse(localStorage.getItem('lm_season')||'null');if(c&&c.data){SEASON.data=c.data;SEASON.at=c.at}}catch(e){}
@@ -1045,7 +1066,7 @@ document.addEventListener('click',e=>{if(!VIEW&&e.target.closest('#home,#away')&
   if(d.sm){SEASON.mode=d.sm;render();return} if(d.th){UI.theme=d.th;document.documentElement.dataset.theme=d.th;try{localStorage.setItem('lm_theme',d.th)}catch(_){}render();return}
   if(d.sp!=null){UI.sumPer=d.sp==='all'?'all':+d.sp;render();return} if(d.sv){UI.sumView=d.sv;render();return} if('print' in d){window.print();return}
   if(d.pend){endPen(d.pend);return} if('opp' in d){oppPenSheet();return} if(d.pull){S.pull[d.pull]=!S.pull[d.pull];save();render();return}
-  if(b.id==='pPrev'){S.cur=Math.max(1,S.cur-1);save();render();return} if(b.id==='pNext'){S.cur=Math.min(5,S.cur+1);save();render();return}
+  if(b.id==='pPrev'){S.cur=Math.max(1,S.cur-1);save();render();return} if(b.id==='pNext'){perNext();return}
   if(b.id==='menuB'){menuSheet();return}});
 document.addEventListener('click',e=>{const td=e.target.closest('td[data-c]');if(!td||VIEW)return;const [n,k]=td.dataset.c.split('|');cellSheet(+n,k)});
 ov.addEventListener('click',e=>{if(e.target===ov)close_()});
@@ -1055,7 +1076,7 @@ document.addEventListener('keydown',e=>{
   if(/INPUT|TEXTAREA/.test(e.target.tagName)||VIEW)return;
   if((e.metaKey||e.ctrlKey)&&e.code==='KeyZ'){e.preventDefault();undoLast();return} if(e.metaKey||e.ctrlKey)return;
   if(e.key==='Escape'){UI.act=null;UI.pl=null;UI.sog=null;buf='';render();return}
-  if(e.key==='ArrowLeft'){S.cur=Math.max(1,S.cur-1);save();render();return} if(e.key==='ArrowRight'){S.cur=Math.min(5,S.cur+1);save();render();return}
+  if(e.key==='ArrowLeft'){S.cur=Math.max(1,S.cur-1);save();render();return} if(e.key==='ArrowRight'){perNext();return}
   if(e.code==='KeyG'){if(S.cur!==5)goalSheet(!e.shiftKey);return}
   if(KM[e.code]&&UI.tab==='input'){choose(KM[e.code],null);return}
   if(/^Digit\d$/.test(e.code)&&UI.tab==='input'){buf+=e.code.slice(5);clearTimeout(bufT);
@@ -1066,7 +1087,7 @@ document.addEventListener('keydown',e=>{
 addEventListener('resize',()=>{if(document.querySelector('.coach'))coach(+((document.querySelector('.coach small')||{}).textContent||'1').match(/\d/)[0]-1)});
 let thKeep=null;
 addEventListener('beforeprint',()=>{thKeep=[UI.tab,document.documentElement.dataset.theme];UI.tab='sum';document.documentElement.dataset.theme='light';render()});
-addEventListener('afterprint',()=>{if(!thKeep)return;UI.tab=VIEW?'sum':thKeep[0];document.documentElement.dataset.theme=thKeep[1];thKeep=null;render()});
+addEventListener('afterprint',()=>{if(!thKeep)return;UI.tab=VIEW?'sum':thKeep[0];document.documentElement.dataset.theme=thKeep[1];const pp=UI.sumPer;thKeep=null;render();perAfterExport(pp)});
 render();
 let seenHints=false;try{seenHints=localStorage.getItem('lm_hints')==='1'}catch(_){}
 if(!seenHints&&!VIEW)setTimeout(()=>coach(0),400);

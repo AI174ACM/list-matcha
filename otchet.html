@@ -827,6 +827,7 @@ document.getElementById('call').onclick=e=>{if(e.target.closest('#prn')){window.
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='lm-report')return;const keep=D&&D.id===d.id?view:null;D=d;
   const mx=Math.max(1,d.cur>4?4:d.cur,...d.ev.map(x=>x.p).filter(x=>x>=1&&x<=4));D.maxP=mx;D.periods=[...Array(mx)].map((_,i)=>i+1);
   show(keep!=null&&(keep==='m'||keep<=mx)?keep:Math.min(d.cur,mx))});
+addEventListener('afterprint',()=>{try{parent.postMessage({type:'lm-report-printed',p:view},'*')}catch(_){}});
 try{parent.postMessage({type:'lm-report-ready'},'*')}catch(_){}
 </script>
 </body></html>
