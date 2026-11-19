@@ -600,6 +600,9 @@ body{font-variant-numeric:tabular-nums}
 .sheet table.big.nol th:nth-child(1){width:auto}.sheet table.big.nol th:nth-child(2){width:4mm}.sheet table.big.nol th:nth-child(n+3){width:5.5mm}.sheet table.big.nol th:nth-child(4){width:9mm}
 .sheet table.big th{padding-left:.3mm;padding-right:.3mm;overflow:hidden}.sheet table.big td{overflow:hidden}
 .sheet table.big th.sep,.sheet table.big th.sep+th{width:8mm}
+.sheet.vp .sh-b{grid-template-columns:70mm 73mm minmax(0,1fr)}   /* есть время и смены из протокола лиги — таблице игроков нужно место под два столбца */
+.sheet table.big th.sep.vp{width:10.5mm}.sheet table.big th.sep+th.vs{width:6mm}.sheet table.big th.s2{width:8mm}.sheet table.big td.vp{white-space:nowrap;padding-left:1.2mm}
+.sheet .vpn{margin-top:1.2mm;font-size:6.5pt}
 .sheet table.big td{padding:1.1mm .7mm}
 .sheet.dense table.big td{padding:.7mm .7mm;font-size:7.5pt}
 .sheet td.pl{display:table-cell;min-height:0;height:auto;font-size:inherit;color:inherit}.sheet td.pl b{color:#1D1D1F;font-size:inherit;line-height:inherit;text-align:left} /* у экранного .pl b цвет текста тёмной темы — белый, на листе номер пропадал */ /* класс pl занят строкой игрока экранного отчёта (сетка, высота 32) — в листе это обычная ячейка */
@@ -750,10 +753,10 @@ const lineCards=(fm,f)=>{const L=LINES();return L.length?`<div class="lines">${L
   const nums=f?[[cL('sh',l,f),'броски'],[cL('sh',l,fm),'броски с начала'],[cL('to',l,fm),'потери с начала']]:[[cL('sh',l,ALL),'броски'],[cL('g',l,ALL),'голы'],[cL('to',l,ALL),'потери']];
   return `<div class="line"><div class="lh"><b>${l}-е звено</b></div><div class="five">${rs.map(r=>`<div>${pp(r.n,48)}<span class="n">${esc(r.name)}</span></div>`).join('')}</div><div class="names">${rs.map(r=>esc(r.name)).join(', ')}</div><div class="nums">${nums.map(([v,t])=>`<div><b>${v}</b><span>${t}</span></div>`).join('')}</div></div>`}).join('')}</div><p class="note">${LNOTE}</p>`:'<div class="empty">пятёрки не расставлены — в программе: «Состав на матч»</div>'};
 const GROUPS=()=>[...LINES().map(l=>[l+'-е звено',R().filter(r=>r.line===l)]),['вне звеньев',R().filter(r=>!r.line)]].filter(g=>g[1].length);
-function table(f,full){const z=v=>v||'·',n=(k,r,g)=>D.ev.filter(e=>e.k===k&&e.n===r.n&&f(e)&&(!g||g(e))).length;
-  const head=['игрок','броски','вбрасывания','блоки','силовые','потери','штраф, мин',...(full?['голы','передачи','на льду +','на льду −']:[])];
-  const row=r=>{const a=n('fw',r),b=n('fl',r);return `<tr><td><i>${r.n}</i>${esc(r.name)}</td><td>${z(n('sh',r))}</td><td>${a+b?a+'–'+b:'·'}</td><td>${z(n('bl',r))}</td><td>${z(n('hit',r))}</td><td>${z(n('to',r))}</td><td>${z(mins(f,r.n))}</td>${full?`<td>${z(n('g',r))}</td><td>${z(n('a',r))}</td><td>${z(n('pm',r,e=>e.v>0))}</td><td>${z(n('pm',r,e=>e.v<0))}</td>`:''}</tr>`};
-  return `<div class="tw"><table><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${GROUPS().map(([t,rs])=>`<tr class="g"><td colspan="${head.length}">${t}</td></tr>`+rs.map(row).join('')).join('')}</table></div>${full?'<p class="note">На льду + и − — был на площадке, когда забили и когда пропустили.</p>':''}`}
+function table(f,full,v){const T=vpHas(v),z=v=>v||'·',n=(k,r,g)=>D.ev.filter(e=>e.k===k&&e.n===r.n&&f(e)&&(!g||g(e))).length;
+  const head=['игрок','броски','вбрасывания','блоки','силовые','потери','штраф, мин',...(full?['голы','передачи','на льду +','на льду −']:[]),...(T?['время','смены']:[])];
+  const row=r=>{const a=n('fw',r),b=n('fl',r);return `<tr><td><i>${r.n}</i>${esc(r.name)}</td><td>${z(n('sh',r))}</td><td>${a+b?a+'–'+b:'·'}</td><td>${z(n('bl',r))}</td><td>${z(n('hit',r))}</td><td>${z(n('to',r))}</td><td>${z(mins(f,r.n))}</td>${full?`<td>${z(n('g',r))}</td><td>${z(n('a',r))}</td><td>${z(n('pm',r,e=>e.v>0))}</td><td>${z(n('pm',r,e=>e.v<0))}</td>`:''}${T?(x=>`<td>${x?x[0]:'·'}</td><td>${x?x[1]:'·'}</td>`)(vpOf(v,r.n)):''}</tr>`};
+  return `<div class="tw"><table><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${GROUPS().map(([t,rs])=>`<tr class="g"><td colspan="${head.length}">${t}</td></tr>`+rs.map(row).join('')).join('')}</table></div>${full?'<p class="note">На льду + и − — был на площадке, когда забили и когда пропустили.</p>':''}${T?`<p class="note">${vpNote(v)}.</p>`:''}`}
 const gkTile=f=>{const sv=E('sv',f),ga=E('ga',f),g=D.gk.filter(k=>D.ev.some(e=>f(e)&&(e.k==='sv'&&e.n===k.n||e.k==='ga'&&e.gk===k.n)));return tile(`${sv}<small>из ${sv+ga}</small>`,'вратарь отбил',g.map(k=>esc(k.name)).join(', ')||(sv+ga?'':'бросков не было'))};
 
 function body(v){
@@ -773,7 +776,7 @@ function body(v){
    `<div class="blk"><p class="kick">расшифровка · кто именно</p>${decode(f,fm,m,p)}</div>`+
    `<div class="blk"><p class="kick">центральные на вбрасываниях</p>${cenCards(fm,m?null:f)}</div>`+
    `<div class="blk"><p class="kick">звенья</p>${lineCards(fm,m?null:f)}</div>`+
-   `<div class="blk folds">`+fold('pe','Таблица игроков',m?'те же цифры за игру одной таблицей':'те же цифры за период одной таблицей',R().length,'игроков',table(f,m))+
+   `<div class="blk folds">`+fold('pe','Таблица игроков',m?'те же цифры за игру одной таблицей':'те же цифры за период одной таблицей',R().length,'игроков',table(f,m,v))+
      (m&&P.length>1?fold('col','По периодам','счёт и общие цифры',P.length,'периода',`<div class="tw"><table><tr><th></th><th>счёт</th><th>броски</th><th>вбрасывания</th><th>блоки</th><th>силовые</th><th>потери</th><th>удаления</th><th>вратарь отбил</th></tr>${P.map(q=>`<tr><td>${PNAME(q)}</td><td>${SCORE(inP(q))}</td><td>${E('sh',inP(q))}</td><td>${E('fw',inP(q))}–${E('fl',inP(q))}</td><td>${E('bl',inP(q))}</td><td>${E('hit',inP(q))}</td><td>${E('to',inP(q))}</td><td>${E('pen',inP(q))}</td><td>${E('sv',inP(q))} из ${E('sv',inP(q))+E('ga',inP(q))}</td></tr>`).join('')}</table></div>`):'')+
      fold('ls','Пороги итогов','при каком пороге цифра идёт в итоги',RULES.length,'правил',`<div class="tw"><table><tr><th>что смотрим</th><th class="tx">порог</th><th class="tx">знак</th></tr>${RULES.map(([a,b,d])=>`<tr><td>${a}</td><td class="tx">${b}</td><td class="tx">${d}</td></tr>`).join('')}</table></div><p class="note">Оранжевая точка — цифра лучше порога, знак «!» — хуже. Пороги предварительные.</p>`)+
    `</div>`+(lump&&!m?'<p class="note">В этом матче есть записи с бумажного листа без периода: они учтены в цифрах «с начала матча» со 2-го периода и в отчёте «Вся игра».</p>':'');
@@ -796,10 +799,11 @@ function sheet(v){
     return `<tr><td><b>${l}-е звено</b></td><td>${L('sh',f)}</td><td>${a+b?a+'–'+b:'·'}</td><td>${L('bl',f)}</td><td>${L('hit',f)}</td><td>${L('to',f)}</td><td>${z(mn)}</td><td class="sep">${L('sh',fm)}</td><td>${L('to',fm)}</td></tr>`}).join('');
   const pairs=LINES().map(l=>{const rs=R().filter(r=>r.line===l&&r.pos==='з');if(rs.length<2)return '';const s=k=>rs.reduce((t,r)=>t+pn(k,r,f),0);
     return `<tr><td><b>${l}-я</b> <span class="nm">${rs.map(r=>esc(r.name)).join(', ')}</span></td><td>${s('sh')}</td><td>${s('bl')}</td><td>${s('hit')}</td><td>${s('to')}</td></tr>`}).join('');
-  const tb=GROUPS().map(([t,rs])=>rs.map((r,i)=>{const a=pn('fw',r,f),b=pn('fl',r,f);
-    return `<tr${i===0?' class="first"':''}>${hasL?`<td>${r.line||'–'}</td>`:''}<td class="pl"><b>${r.n}</b> ${esc(r.name)}</td><td>${r.pos}</td><td>${z(pn('sh',r,f))}</td><td>${a+b?a+'–'+b:'·'}</td><td>${z(pn('bl',r,f))}</td><td>${z(pn('hit',r,f))}</td><td>${z(pn('to',r,f))}</td><td>${z(mins(f,r.n))}</td><td>${z(pn('g',r,f))}</td><td>${z(pn('a',r,f))}</td><td>${z(pn('pm',r,f,e=>e.v>0))}</td><td>${z(pn('pm',r,f,e=>e.v<0))}</td>${m?'':`<td class="sep">${z(pn('sh',r,fm))}</td><td>${z(pn('to',r,fm))}</td>`}</tr>`}).join('')).join('');
+  const T=vpHas(v);
+  const tb=GROUPS().map(([t,rs])=>rs.map((r,i)=>{const a=pn('fw',r,f),b=pn('fl',r,f),vp=T&&vpOf(v,r.n);
+    return `<tr${i===0?' class="first"':''}>${hasL?`<td>${r.line||'–'}</td>`:''}<td class="pl"><b>${r.n}</b> ${esc(r.name)}</td><td>${r.pos}</td><td>${z(pn('sh',r,f))}</td><td>${a+b?a+'–'+b:'·'}</td><td>${z(pn('bl',r,f))}</td><td>${z(pn('hit',r,f))}</td><td>${z(pn('to',r,f))}</td><td>${z(mins(f,r.n))}</td><td>${z(pn('g',r,f))}</td><td>${z(pn('a',r,f))}</td><td>${z(pn('pm',r,f,e=>e.v>0))}</td><td>${z(pn('pm',r,f,e=>e.v<0))}</td>${T?`<td class="sep vp">${vp?vp[0]:'·'}</td><td>${vp?vp[1]:'·'}</td>`:''}${m?'':`<td${T?'':' class="sep"'}>${z(pn('sh',r,fm))}</td><td>${z(pn('to',r,fm))}</td>`}</tr>`}).join('')).join('');
   const noShot=R().filter(r=>r.pos==='н'&&r.line>=1&&pn('sh',r,fm)===0).map(r=>esc(r.name)),dense=R().length>24;
-  return `<div class="sheet${dense?' dense':''}"><div class="sh-h"><div><span class="k">лист матча · ${m?'отчёт об игре':'отчёт о периоде'}</span><h2>${m?'Вся игра':PNAME(v)}</h2><span class="k">${TITLE()}</span></div>
+  return `<div class="sheet${dense?' dense':''}${T?' vp':''}"><div class="sh-h"><div><span class="k">лист матча · ${m?'отчёт об игре':'отчёт о периоде'}</span><h2>${m?'Вся игра':PNAME(v)}</h2><span class="k">${TITLE()}</span></div>
     <div class="sc"><b>${SCORE(f)}${m&&D.so?' Б':''}</b><span>${m?(P.length>1?'по периодам '+P.map(x=>SCORE(inP(x))).join(' · '):''):`в матче ${SCORE(fm)}`}</span></div></div>
    <div class="sh-b"><div class="col">
      <h3>${m?'итоги игры':'итоги периода'}</h3><ul class="its">${its.map(([g,x])=>`<li class="${g?'g':'w'}">${x}</li>`).join('')||'<li class="n">записей пока нет</li>'}</ul>
@@ -810,7 +814,7 @@ function sheet(v){
      <h3>пары защитников${m?'':' · за период'}</h3><table><tr><th></th><th>бр</th><th>бл</th><th>сил</th><th>пот</th></tr>${pairs}</table>`:'<h3>звенья и пары защитников</h3><p class="nd">пятёрки не расставлены</p>'}
      <h3>нападающие без броска с начала матча</h3><p>${noShot.length?noShot.join(', '):'бросали все'}</p>
    </div><div class="col">
-     <h3>игроки${m?' · за игру':' · за период'}</h3><table class="big${hasL?'':' nol'}"><tr>${hasL?'<th>зв</th>':''}<th></th><th></th><th>бр</th><th>вбр</th><th>бл</th><th>сил</th><th>пот</th><th>штр</th><th>гол</th><th>пер</th><th>+</th><th>−</th>${m?'':'<th class="sep">Σ бр</th><th>Σ пот</th>'}</tr>${tb}</table>
+     <h3>игроки${m?' · за игру':' · за период'}</h3><table class="big${hasL?'':' nol'}"><tr>${hasL?'<th>зв</th>':''}<th></th><th></th><th>бр</th><th>вбр</th><th>бл</th><th>сил</th><th>пот</th><th>штр</th><th>гол</th><th>пер</th><th>+</th><th>−</th>${T?'<th class="sep vp">время</th><th class="vs">см</th>':''}${m?'':`<th class="${T?'s2':'sep'}">Σ бр</th><th class="s2">Σ пот</th>`}</tr>${tb}</table>${T?`<p class="nd vpn">${vpNote(v)}</p>`:''}
    </div></div>
    </div>`;
 }
@@ -821,12 +825,39 @@ function fitSheet(s){const t=s.querySelector('table.big');if(!t)return;t.classLi
 function fitPaper(){const w=document.getElementById('paper'),s=w.firstElementChild;if(!s)return;fitSheet(s);const k=w.clientWidth/s.offsetWidth;s.style.transform=`scale(${k})`;w.style.height=s.offsetHeight*k+'px'}
 addEventListener('resize',fitPaper);
 
+/* ---------- игровое время и смены: онлайн-протокол ВХЛ, столбец «ВП(См)» — по периодам и за матч ----------
+   Страница лиги отдаётся с разрешением на запрос с других сайтов. Номер матча в лиге — по дате (матчи «Челмета», data/leagues.json большого проекта).
+   Цифры берутся как есть; свою команду находим по совпадению номеров и фамилий с составом. Нет ответа лиги — столбцов нет. */
+const LIGA={"15.11.2026":904334,"17.11.2026":904348,"19.11.2026":904358,"21.11.2026":904367,"27.11.2026":904391,"29.11.2026":904405,"01.12.2026":904416,"03.12.2026":904424,"08.12.2026":904438,"11.12.2026":904452,"19.12.2026":904488,"21.12.2026":904496,"23.12.2026":904509,"25.12.2026":904520,"09.01.2027":904544,"11.01.2027":904553,"13.01.2027":904563,"22.01.2027":904601,"24.01.2027":904614,"26.01.2027":904626,"31.01.2027":904647,"02.02.2027":904654,"04.02.2027":904663,"07.02.2027":904681,"13.02.2027":904706,"15.02.2027":904716,"17.02.2027":904730,"19.02.2027":904741,"24.02.2027":904759,"26.02.2027":904769,"28.02.2027":904777,"02.03.2027":904793,"07.03.2027":904808,"09.03.2027":904813,"12.03.2027":904828,"14.03.2027":904841,"18.03.2027":904860};
+let VP=null,vpAt=0,vpBusy=null;
+const vpId=()=>D&&LIGA[D.date]||0, vpK=v=>v==='m'?'m':String(v);
+const vpHas=v=>!!(VP&&VP.id===vpId()&&VP.per[vpK(v)]&&Object.keys(VP.per[vpK(v)]).length);
+/* в отчёте о периоде время и смены — с начала матча (слова Антона 19.11: «по-общему, кто сколько сыграл; время за второй период не важно»): сумма таблиц лиги за периоды 1…v */
+const vpOf=(v,n)=>{if(!vpHas(v))return null;if(v==='m')return VP.per.m[n]||null;let s=0,c=0,ok=false;
+  for(let i=1;i<=v;i++){const x=VP.per[i]&&VP.per[i][n];if(x){const a=x[0].split(':');s+=a[0]*60+ +a[1];c+=x[1];ok=true}}
+  return ok?[Math.floor(s/60)+':'+String(s%60).padStart(2,'0'),c]:null};
+const vpNote=v=>`Время на площадке и смены${v==='m'?'':' — с начала матча'} · онлайн-протокол ВХЛ на ${String(VP.at.getHours()).padStart(2,'0')}:${String(VP.at.getMinutes()).padStart(2,'0')}`;
+function vpParse(html){const doc=new DOMParser().parseFromString(html,'text/html'),teams=[];let cur=null;
+  doc.querySelectorAll('.game__content_tabs__item[data-tab]').forEach(el=>{const t=el.dataset.tab;
+    if(t==='stat-teamA'||t==='stat-teamB'){cur={};teams.push(cur);return} if(t==='stat-teams'){cur=null;return}
+    const k=/^stats-teams-(match|period-(\d))$/.exec(t);if(!cur||!k)return;const o={};
+    el.querySelectorAll('tbody tr').forEach(tr=>{const td=tr.children;if(td.length<3)return;const mm=/^(\d+:\d\d)\((\d+)\)$/.exec(td[td.length-1].textContent.trim());
+      if(mm)o[+td[0].textContent]=[mm[1],+mm[2],td[1].textContent.trim()]});
+    cur[k[2]||'m']=o});
+  const z=x=>String(x).toLowerCase().replace(/ё/g,'е'),hit=t=>R().filter(r=>t.m&&t.m[r.n]&&z(t.m[r.n][2]).startsWith(z(r.name))).length;
+  const best=teams.sort((a,b)=>hit(b)-hit(a))[0];return best&&hit(best)>=5?best:null}
+function vpLoad(force){const id=vpId();if(!id)return Promise.resolve();if(vpBusy)return vpBusy;if(!force&&Date.now()-vpAt<45000)return Promise.resolve();vpAt=Date.now();
+  return vpBusy=(async()=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);
+    try{const r=await fetch(`https://online.vhlru.ru/online/${id}.html`,{cache:'no-store',signal:c.signal});if(!r.ok)throw 0;const per=vpParse(await r.text());
+      if(per){const was=VP&&VP.id===id?JSON.stringify(VP.per):'';VP={id,per,at:new Date()};if(view!=null&&D&&vpId()===id&&JSON.stringify(per)!==was)show(view)}}catch(_){}
+    clearTimeout(t);vpBusy=null})()}
+
 function renderCall(){document.getElementById('call').innerHTML=`<p><b>Отчёт</b><span>${TITLE()}</span></p><div class="chips">${[...D.periods.map(p=>[p,PNAME(p)]),['m','Вся игра']].map(([v,t])=>`<button class="chip${v===view?' on':''}" data-p="${v}">${t}</button>`).join('')}<button class="btn go" id="prn"><span>Печать · </span>PDF</button></div>`}
 function show(v){view=v;renderCall();document.getElementById('rep').innerHTML=body(v);document.getElementById('paper').innerHTML=sheet(v);fitPaper()}
-document.getElementById('call').onclick=e=>{if(e.target.closest('#prn')){window.print();return}const b=e.target.closest('.chip');if(b)show(b.dataset.p==='m'?'m':+b.dataset.p)};
+document.getElementById('call').onclick=e=>{if(e.target.closest('#prn')){vpLoad(true).then(()=>window.print());return}const b=e.target.closest('.chip');if(b)show(b.dataset.p==='m'?'m':+b.dataset.p)};
 addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='lm-report')return;const keep=D&&D.id===d.id?view:null;D=d;
   const mx=Math.max(1,d.cur>4?4:d.cur,...d.ev.map(x=>x.p).filter(x=>x>=1&&x<=4));D.maxP=mx;D.periods=[...Array(mx)].map((_,i)=>i+1);
-  show(keep!=null&&(keep==='m'||keep<=mx)?keep:Math.min(d.cur,mx))});
+  show(keep!=null&&(keep==='m'||keep<=mx)?keep:Math.min(d.cur,mx));vpLoad()});
 addEventListener('afterprint',()=>{try{parent.postMessage({type:'lm-report-printed',p:view},'*')}catch(_){}});
 try{parent.postMessage({type:'lm-report-ready'},'*')}catch(_){}
 </script>
