@@ -332,6 +332,8 @@ html[data-theme="tiles"] .pc{background:#fff;box-shadow:inset 0 0 0 2px var(--in
 @page{size:A4 landscape;margin:0} /* поля 0 — браузер не печатает адрес страницы и дату; поля листа даёт .app */
 @media print{html,body{overflow:visible;height:auto;background:#fff}.app{height:auto;display:block;padding:9mm}#pName{display:none}#pPrint{display:block!important}.top .seg,.mbtn,.strip,.per button,.sync,.snack,.coach,.ring,.ov,.noprint{display:none!important}.top{margin-bottom:5mm}.per{background:none}.pdate{display:inline;font-size:14px;color:#444}
  .sumv{display:grid;grid-template-columns:1.5fr 1fr;gap:5mm;align-items:start}#view{display:block!important}.gl .w{white-space:normal}.box.note{font-size:10px}.gl{padding:3px 0}.pt td{height:22px;font-size:14px}.bar{margin:3px 0}.side{gap:3mm}.tbl,.side{overflow:visible}.tbl{container-type:normal;--rh:min(6.4mm,calc(160mm/var(--rows,25)))}.tbl table{min-width:0}.box,.tbl{border:1px solid #bbb;border-radius:8px}.side{gap:3mm}.box{break-inside:avoid;padding:6px 12px}th{position:static}}
+/* 19.11 (Денис Мошаров: «центр съезжает, не влазит на один лист»): при 7 голах колонка справа уходила на второй лист — в печати гол в одну строку, блоки плотнее */
+@media print{.gl{grid-template-columns:auto auto minmax(0,1fr) auto;padding:1px 0;gap:6px}.gl .t{font-size:10px}.gl .s{font-size:14px}.gl .w{white-space:nowrap;font-size:13px}.gl .w small{font-size:9.5px}.gl .tag{grid-column:auto;grid-row:auto;font-size:9px;padding:1px 5px}.side .box{padding:4px 10px}.pt td{height:19px;font-size:13px}.pt th{height:16px}.bar{margin:2px 0}.bar .v{font-size:13px}.side{gap:2mm}}
 </style>
 </head>
 <body>
