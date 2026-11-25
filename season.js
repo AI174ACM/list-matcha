@@ -1,7 +1,9 @@
 /* Статистика ВХЛ собрана по уникальным протоколам. Журнал оператора имеет собственный расчёт. */
 const seasonScreen = (() => {
   const pages = {overview:'Обзор', players:'Игроки', matches:'Матчи', operator:'Данные оператора'};
-  const state = {page:'overview', group:'skaters', sort:'pts', descending:true, offset:0, query:''};
+  const groups = {forwards:{label:'Нападающие',pos:'н'},defenders:{label:'Защитники',pos:'з'},goalies:{label:'Вратари',pos:'в'}};
+  const section = new URLSearchParams(location.search).get('section');
+  const state = {page:Object.hasOwn(pages,section)?section:'overview', group:'forwards', sort:'pts', descending:true, offset:0, query:''};
   const history = () => window.SEASON_HISTORY;
   const date = (iso, month='long') => new Intl.DateTimeFormat('ru-RU',{day:'numeric',month,timeZone:'UTC'}).format(new Date(iso+'T12:00:00Z'));
   const countWord = (n, forms) => forms[n%10===1&&n%100!==11?0:n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?1:2];
@@ -24,11 +26,16 @@ const seasonScreen = (() => {
   function matchRow(m, full=false) {
     const won = m.goalsFor > m.goalsAgainst;
     const shortDate = m.date.slice(8)+'.'+m.date.slice(5,7);
+    const description = esc(m.opponent)+' · '+date(m.date);
+    const protocol = full && m.protocolUrl ? `<div class="sz-protocols">
+      <a data-season-protocol href="${esc(m.protocolUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Протокол ВХЛ: ${description} (в новой вкладке)">Протокол ВХЛ</a>
+      <a data-season-attachment href="protocols/${m.id}.html" download="Челмет — ${esc(m.opponent)} — ${m.date}.html" aria-label="Скачать копию протокола: ${description}">Скачать копию</a>
+    </div>` : '';
     return `<div class="sz-match">
       <time datetime="${m.date}">${full?date(m.date):shortDate}</time>
       <span class="sz-opponent">${esc(m.opponent)}<small>${m.home?'Дома':'В гостях'}</small></span>
       <span class="sz-score" aria-label="Счёт Челмета ${m.goalsFor}:${m.goalsAgainst}">${m.goalsFor}:${m.goalsAgainst}</span>
-      <span class="sz-outcome ${won?'sz-win':''}">${won?'Победа':'Поражение'}${m.finish?' · '+esc(m.finish):''}</span>
+      <span class="sz-outcome ${won?'sz-win':''}">${won?'Победа':'Поражение'}${m.finish?' · '+esc(m.finish):''}</span>${protocol}
     </div>`;
   }
   function resultsChart(matches) {
@@ -73,13 +80,14 @@ const seasonScreen = (() => {
   }
   function players(h) {
     const goalies=state.group==='goalies', cols=goalies?goalieCols:skaterCols;
-    const rows=(goalies?h.goalies:h.players).filter(p=>tz(p.name).includes(tz(state.query))).sort((a,b)=>{
+    const role=groups[state.group].pos, query=tz(state.query);
+    const rows=(goalies?h.goalies:h.players).filter(p=>p.pos===role&&tz(p.name).includes(query)).sort((a,b)=>{
       const av=readValue(a,state.sort),bv=readValue(b,state.sort);
       if(av==null||bv==null)return (av==null)-(bv==null);
       return (state.descending?bv-av:av-bv)||a.name.localeCompare(b.name,'ru');
     });
     const {visible,pager}=pageSlice(rows);
-    return `<section class="sz-directory sz-card"><div class="sz-tools"><div class="sz-group">${[['skaters','Полевые'],['goalies','Вратари']].map(([key,label])=>`<button data-season-group="${key}" aria-pressed="${state.group===key}">${label}</button>`).join('')}</div>
+    return `<section class="sz-directory sz-card"><div class="sz-tools"><div class="sz-group" role="group" aria-label="Амплуа">${Object.entries(groups).map(([key,g])=>`<button data-season-group="${key}" aria-pressed="${state.group===key}">${g.label}</button>`).join('')}</div>
       <input type="search" aria-label="Найти игрока по фамилии" placeholder="Найти игрока" value="${esc(state.query)}" id="seasonSearch"></div>
       <div class="sz-table-wrap"><table class="sz-table"><thead><tr><th scope="col">Игрок</th>${cols.map(([key,label])=>`<th scope="col" ${key===state.sort?'aria-sort="'+(state.descending?'descending':'ascending')+'"':''}><button data-season-sort="${key}">${label}${key===state.sort?(state.descending?' ↓':' ↑'):''}</button></th>`).join('')}</tr></thead>
       <tbody>${visible.map(p=>`<tr><td><button data-season-player="${p.id}"><span class="sz-number">№ ${p.n}</span><b>${esc(p.name)}</b></button></td>${cols.map(([key])=>`<td class="${state.sort===key?'sz-ranked':''}">${key==='pct'?percent(p.sv,p.shots):key==='pm'?signed(p.pm):p[key]}</td>`).join('')}</tr>`).join('')}</tbody></table></div>

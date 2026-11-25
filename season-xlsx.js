@@ -77,6 +77,7 @@ globalThis.seasonXlsxBlob = (() => {
   }
   function worksheet(sheet) {
     const {columns,rows}=sheet;
+    const links=[];
     if (!columns.length || columns.length > 16384 || rows.length > 1048573)
       throw new RangeError('Размер листа превышает возможности Excel.');
     const letters=columns.map((_,i)=>columnName(i)), lastCol=letters[letters.length-1];
@@ -89,33 +90,43 @@ globalThis.seasonXlsxBlob = (() => {
     const merged=columns.length===1?'':'<mergeCells count="2"><mergeCell ref="A1:'+lastCol+'1"/><mergeCell ref="A2:'+lastCol+'2"/></mergeCells>';
     const body=rows.map((row,i)=>{
       if(row.length>columns.length) throw new RangeError('Лишние значения в строке '+(i+4));
-      const n=i+4, content=row.map((v,j)=>cell(letters[j]+n,formats[columns[j].format]||0,v)).join('');
+      const n=i+4, content=row.map((v,j)=>{
+        const ref=letters[j]+n;
+        if(v && typeof v.hyperlink==='string' && typeof v.text==='string'){
+          if(!/^https:\/\//.test(v.hyperlink)) throw new TypeError('Неверный адрес ссылки в '+ref);
+          links.push({ref,target:v.hyperlink,id:'rId'+(links.length+1)});
+          return cell(ref,8,v.text);
+        }
+        return cell(ref,formats[columns[j].format]||0,v);
+      }).join('');
       return '<row r="'+n+'">'+content+'</row>';
     }).join('');
-    return '<worksheet xmlns="'+spreadsheet+'"><sheetPr><tabColor rgb="FFFF781C"/></sheetPr>'+
+    const hyperlinks=links.length?'<hyperlinks>'+links.map(l=>'<hyperlink ref="'+l.ref+'" r:id="'+l.id+'"/>').join('')+'</hyperlinks>':'';
+    const xml='<worksheet xmlns="'+spreadsheet+'" xmlns:r="'+relationships+'"><sheetPr><tabColor rgb="FFFF781C"/></sheetPr>'+
       '<dimension ref="A1:'+lastCol+lastRow+'"/><sheetViews><sheetView workbookViewId="0" showGridLines="0">'+
       '<pane ySplit="3" topLeftCell="A4" activePane="bottomLeft" state="frozen"/>'+
       '<selection pane="bottomLeft" activeCell="A4" sqref="A4"/></sheetView></sheetViews>'+
       '<sheetFormatPr defaultRowHeight="18"/><cols>'+cols+'</cols><sheetData>'+
       heading(1,32,cell('A1',1,sheet.title||sheet.name))+heading(2,32,cell('A2',2,sheet.subtitle||''))+
       heading(3,35,columns.map((c,j)=>cell(letters[j]+'3',3,c.label)).join(''))+body+
-      '</sheetData><autoFilter ref="A3:'+lastCol+lastRow+'"/>'+merged+'</worksheet>';
+      '</sheetData><autoFilter ref="A3:'+lastCol+lastRow+'"/>'+merged+hyperlinks+'</worksheet>';
+    return {xml,links};
   }
   function styles() {
-    const font=(size,color,bold)=>'<font>'+(bold?'<b/>':'')+'<sz val="'+size+'"/><color rgb="'+color+'"/><name val="Onest"/></font>';
+    const font=(size,color,bold,underline=false)=>'<font>'+(bold?'<b/>':'')+(underline?'<u/>':'')+'<sz val="'+size+'"/><color rgb="'+color+'"/><name val="Onest"/></font>';
     const fill=color=>'<fill><patternFill patternType="solid"><fgColor rgb="'+color+'"/><bgColor indexed="64"/></patternFill></fill>';
     const xf=(fontId,fillId,borderId,numFmtId,align='')=>'<xf xfId="0" fontId="'+fontId+'" fillId="'+fillId+'" borderId="'+borderId+'" numFmtId="'+numFmtId+'" applyFont="1" applyFill="1" applyBorder="1" applyNumberFormat="1" applyAlignment="1"><alignment vertical="center" '+align+'/></xf>';
     return '<styleSheet xmlns="'+spreadsheet+'"><numFmts count="4">'+
       [[164,'dd.mm.yyyy'],[165,'[m]:ss'],[166,'0.0%'],[167,'0.0']].map(([id,fmt])=>'<numFmt numFmtId="'+id+'" formatCode="'+fmt+'"/>').join('')+
-      '</numFmts><fonts count="4">'+font(11,'FF24262B',false)+font(17,'FFFFFFFF',true)+font(10,'FFDADDE1',false)+font(11,'FFFFFFFF',true)+'</fonts>'+
+      '</numFmts><fonts count="5">'+font(11,'FF24262B',false)+font(17,'FFFFFFFF',true)+font(10,'FFDADDE1',false)+font(11,'FFFFFFFF',true)+font(11,'FF99440C',false,true)+'</fonts>'+
       '<fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'+fill('FF27292E')+fill('FF35383D')+'</fills>'+
       '<borders count="2"><border/><border><bottom style="medium"><color rgb="FFFF781C"/></bottom></border></borders>'+
       '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'+
-      '<cellXfs count="8">'+xf(0,0,0,0)+xf(1,2,0,0)+xf(2,2,0,0,'wrapText="1"')+xf(3,3,1,0,'wrapText="1"')+
-      [164,165,166,167].map(id=>xf(0,0,0,id)).join('')+'</cellXfs>'+
+      '<cellXfs count="9">'+xf(0,0,0,0)+xf(1,2,0,0)+xf(2,2,0,0,'wrapText="1"')+xf(3,3,1,0,'wrapText="1"')+
+      [164,165,166,167].map(id=>xf(0,0,0,id)).join('')+xf(4,0,0,0)+'</cellXfs>'+
       '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
   }
-  const rel=(id,type,target)=>'<Relationship Id="'+id+'" Type="'+type+'" Target="'+target+'"/>';
+  const rel=(id,type,target,external=false)=>'<Relationship Id="'+id+'" Type="'+type+'" Target="'+escape(target)+'"'+(external?' TargetMode="External"':'')+'/>';
   const rels=entries=>'<Relationships xmlns="'+packageRels+'">'+entries.join('')+'</Relationships>';
   return function seasonXlsxBlob(sheets) {
     if (!Array.isArray(sheets)||!sheets.length) throw new TypeError('Нужен хотя бы один лист.');
@@ -144,7 +155,13 @@ globalThis.seasonXlsxBlob = (() => {
       ['docProps/core.xml',metadata],['xl/workbook.xml',book],['xl/styles.xml',styles()],
       ['xl/_rels/workbook.xml.rels',rels([...sheets.map((_,i)=>rel('rId'+(i+1),relationships+'/worksheet','worksheets/sheet'+(i+1)+'.xml')),rel('rIdStyles',relationships+'/styles','styles.xml')])]
     ];
-    sheets.forEach((sheet,i)=>parts.push(['xl/worksheets/sheet'+(i+1)+'.xml',worksheet(sheet)]));
+    sheets.forEach((sheet,i)=>{
+      const {xml,links}=worksheet(sheet);
+      const filename='sheet'+(i+1)+'.xml';
+      parts.push(['xl/worksheets/'+filename,xml]);
+      if(links.length) parts.push(['xl/worksheets/_rels/'+filename+'.rels',
+        rels(links.map(l=>rel(l.id,relationships+'/hyperlink',l.target,true)))]);
+    });
     return archive(parts);
   };
 })();

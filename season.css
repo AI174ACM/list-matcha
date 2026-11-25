@@ -92,8 +92,12 @@ html[data-theme="board"] .sz-link { color:#ff9a60 }
 .sz-pager button:disabled { opacity:.4; cursor:default }
 .sz-secondary { color:var(--ink2); font-size:14px }
 .sz-match-list { min-height:0; overflow:auto }
-.sz-match-list .sz-match { grid-template-columns:minmax(105px,.65fr) minmax(150px,2fr) minmax(70px,.4fr) minmax(95px,.6fr); min-height:44px; padding:5px 0 }
+.sz-match-list .sz-match { grid-template-columns:minmax(100px,.65fr) minmax(150px,2fr) minmax(65px,.4fr) minmax(95px,.6fr) auto; min-height:48px; padding:1px 0 }
 .sz-match-list time { font:500 14px Onest,sans-serif }
+.sz-protocols { display:flex; gap:12px; align-items:center; margin-left:8px }
+.sz-protocols a { display:inline-flex; align-items:center; min-height:44px; padding:0 4px; color:var(--btn); font-size:14px; font-weight:650; text-decoration:underline; text-underline-offset:3px; white-space:nowrap; border-radius:4px }
+.sz-protocols a[download] { color:var(--ink2); font-weight:500 }
+.sz-protocols a:focus-visible { outline:2px solid var(--btn) }
 .sz-empty { padding:16px; color:var(--ink2) }
 .sz-profile .sz-person { display:flex; gap:16px; align-items:center }
 .sz-person .sz-portrait { width:72px; height:72px; font-size:19px }
@@ -146,7 +150,9 @@ html[data-theme="board"] .sz-link { color:#ff9a60 }
   .sz-winners { gap:4px 12px }
   .sz-card-heading { gap:8px }
   .sz-match { gap:8px; grid-template-columns:40px minmax(0,1fr) auto minmax(67px,auto) }
-  .sz-match-list .sz-match { grid-template-columns:60px minmax(0,1fr) auto minmax(64px,auto) }
+  .sz-match-list .sz-match { grid-template-columns:60px minmax(0,1fr) auto minmax(64px,auto); gap:0 8px; padding:8px 0 0 }
+  .sz-protocols { grid-column:2/-1; gap:12px; margin:0 }
+  .sz-protocols a { padding:0; font-size:13px }
   .sz-match-list time, .sz-outcome { font-size:11px }
   .sz-directory { height:auto; max-height:none }
   .sz-table { min-width:580px }
@@ -157,6 +163,8 @@ html[data-theme="board"] .sz-link { color:#ff9a60 }
 .sz-operator-panel .tbl .sz-pager { padding:4px 12px }
 @media (max-width:520px) {
   .sz-tools { flex-wrap:wrap; gap:8px }
+  .sz-group { width:100%; gap:2px }
+  .sz-group button { flex:auto; padding:0 5px; font-size:14px }
   #seasonSearch { flex:1 0 100%; width:100% }
   .sz-tally .sz-goals span { max-width:84px; font-size:12px }
 }

@@ -12,7 +12,8 @@ window.SEASON_HISTORY = {
       "opponent": "Южный Урал",
       "goalsFor": 2,
       "goalsAgainst": 1,
-      "finish": "Б"
+      "finish": "Б",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904013"
     },
     {
       "id": 904023,
@@ -21,7 +22,8 @@ window.SEASON_HISTORY = {
       "opponent": "Магнитка",
       "goalsFor": 0,
       "goalsAgainst": 5,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904023"
     },
     {
       "id": 904035,
@@ -30,7 +32,8 @@ window.SEASON_HISTORY = {
       "opponent": "Горняк-УГМК",
       "goalsFor": 0,
       "goalsAgainst": 5,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904035"
     },
     {
       "id": 904068,
@@ -39,7 +42,8 @@ window.SEASON_HISTORY = {
       "opponent": "СКА-ВМФ",
       "goalsFor": 2,
       "goalsAgainst": 3,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904068"
     },
     {
       "id": 904076,
@@ -48,7 +52,8 @@ window.SEASON_HISTORY = {
       "opponent": "Динамо СПб",
       "goalsFor": 3,
       "goalsAgainst": 4,
-      "finish": "Б"
+      "finish": "Б",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904076"
     },
     {
       "id": 904089,
@@ -57,7 +62,8 @@ window.SEASON_HISTORY = {
       "opponent": "Звезда",
       "goalsFor": 2,
       "goalsAgainst": 1,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904089"
     },
     {
       "id": 904097,
@@ -66,7 +72,8 @@ window.SEASON_HISTORY = {
       "opponent": "Химик",
       "goalsFor": 0,
       "goalsAgainst": 6,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904097"
     },
     {
       "id": 904123,
@@ -75,7 +82,8 @@ window.SEASON_HISTORY = {
       "opponent": "ЦСК ВВС",
       "goalsFor": 4,
       "goalsAgainst": 5,
-      "finish": "ОТ"
+      "finish": "ОТ",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904123"
     },
     {
       "id": 904137,
@@ -84,7 +92,8 @@ window.SEASON_HISTORY = {
       "opponent": "Нефтяник",
       "goalsFor": 4,
       "goalsAgainst": 2,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904137"
     },
     {
       "id": 904148,
@@ -93,7 +102,8 @@ window.SEASON_HISTORY = {
       "opponent": "Барс",
       "goalsFor": 3,
       "goalsAgainst": 4,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904148"
     },
     {
       "id": 904184,
@@ -102,7 +112,8 @@ window.SEASON_HISTORY = {
       "opponent": "Рязань-ВДВ",
       "goalsFor": 0,
       "goalsAgainst": 8,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904184"
     },
     {
       "id": 904195,
@@ -111,7 +122,8 @@ window.SEASON_HISTORY = {
       "opponent": "АКМ",
       "goalsFor": 2,
       "goalsAgainst": 4,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904195"
     },
     {
       "id": 904203,
@@ -120,7 +132,8 @@ window.SEASON_HISTORY = {
       "opponent": "ХК Калуга",
       "goalsFor": 1,
       "goalsAgainst": 5,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904203"
     },
     {
       "id": 904232,
@@ -129,7 +142,8 @@ window.SEASON_HISTORY = {
       "opponent": "ХК Норильск",
       "goalsFor": 1,
       "goalsAgainst": 2,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904232"
     },
     {
       "id": 904246,
@@ -138,7 +152,8 @@ window.SEASON_HISTORY = {
       "opponent": "Сокол Кр",
       "goalsFor": 2,
       "goalsAgainst": 3,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904246"
     },
     {
       "id": 904256,
@@ -147,7 +162,8 @@ window.SEASON_HISTORY = {
       "opponent": "Металлург Нк",
       "goalsFor": 1,
       "goalsAgainst": 3,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904256"
     },
     {
       "id": 904262,
@@ -156,7 +172,8 @@ window.SEASON_HISTORY = {
       "opponent": "Динамо-Алтай",
       "goalsFor": 3,
       "goalsAgainst": 1,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904262"
     },
     {
       "id": 904284,
@@ -165,7 +182,8 @@ window.SEASON_HISTORY = {
       "opponent": "Омские Крылья",
       "goalsFor": 1,
       "goalsAgainst": 2,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904284"
     },
     {
       "id": 904296,
@@ -174,7 +192,8 @@ window.SEASON_HISTORY = {
       "opponent": "Зауралье",
       "goalsFor": 5,
       "goalsAgainst": 3,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904296"
     },
     {
       "id": 904308,
@@ -183,7 +202,8 @@ window.SEASON_HISTORY = {
       "opponent": "Рубин",
       "goalsFor": 4,
       "goalsAgainst": 1,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904308"
     },
     {
       "id": 904315,
@@ -192,7 +212,8 @@ window.SEASON_HISTORY = {
       "opponent": "Югра",
       "goalsFor": 1,
       "goalsAgainst": 3,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904315"
     },
     {
       "id": 904334,
@@ -201,7 +222,8 @@ window.SEASON_HISTORY = {
       "opponent": "Буран",
       "goalsFor": 2,
       "goalsAgainst": 5,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904334"
     },
     {
       "id": 904348,
@@ -210,7 +232,8 @@ window.SEASON_HISTORY = {
       "opponent": "ХК Тамбов",
       "goalsFor": 4,
       "goalsAgainst": 0,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904348"
     },
     {
       "id": 904358,
@@ -219,7 +242,8 @@ window.SEASON_HISTORY = {
       "opponent": "Дизель",
       "goalsFor": 5,
       "goalsAgainst": 4,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904358"
     },
     {
       "id": 904367,
@@ -228,7 +252,8 @@ window.SEASON_HISTORY = {
       "opponent": "ХК Кристалл С",
       "goalsFor": 1,
       "goalsAgainst": 5,
-      "finish": ""
+      "finish": "",
+      "protocolUrl": "https://www.vhlru.ru/report/1430/?idgame=904367"
     }
   ],
   "players": [

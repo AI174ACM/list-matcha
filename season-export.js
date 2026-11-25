@@ -6,11 +6,19 @@ function seasonExportSheets(history, operator, at) {
 
   const col = (label, width, format) => ({label, width, ...(format ? {format} : {})});
   const position = {н:'Нападающий', з:'Защитник', в:'Вратарь'};
+  const skaterGroups = official ? [
+    ['Нападающие',history.players.filter(p => p.pos === 'н')],
+    ['Защитники',history.players.filter(p => p.pos === 'з')]
+  ] : [];
   const day = 86400000;
   const duration = seconds => Number.isFinite(seconds) ? seconds / 86400 : null;
   const ratio = (n, d) => Number.isFinite(n) && Number.isFinite(d) && d > 0 ? n / d : null;
   const formula = (expression, value) => Number.isFinite(value) ? {formula:expression, value} : null;
   const sheet = (name, title, subtitle, columns, rows) => sheets.push({name, title, subtitle, columns, rows});
+  function protocolLink(match) {
+    const id = /^https:\/\/www\.vhlru\.ru\/report\/[1-9]\d*\/\?idgame=([1-9]\d*)$/.exec(match.protocolUrl)?.[1];
+    return id && id === String(match.id) ? {text:'Открыть протокол ВХЛ',hyperlink:match.protocolUrl} : null;
+  }
   function excelDate(value) {
     const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
     const ru = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(value);
@@ -35,6 +43,7 @@ function seasonExportSheets(history, operator, at) {
       ['Заброшено шайб',total('goalsFor'),'По итоговым счетам, включая решающий буллит'],
       ['Пропущено шайб',total('goalsAgainst'),'По итоговым счетам, включая решающий буллит'],
       ['Полевые игроки',history.players.length,'Выходили на лёд за «Челмет»'],
+      ...skaterGroups.map(([name,players]) => [name,players.length,'Амплуа по последнему сыгранному матчу']),
       ['Вратари',history.goalies.length,'Выходили на лёд за «Челмет»']);
     for (const [key,label] of [['pts','Лидеры по очкам'],['g','Лидеры по голам'],['a','Лидеры по передачам']]) {
       const best = Math.max(...history.players.map(p => p[key]));
@@ -53,22 +62,25 @@ function seasonExportSheets(history, operator, at) {
   if (official) {
     sheet('Матчи','Челмет · матчи сезона',leagueSource + ' · счёт со стороны «Челмета»',
       [col('Дата',15,'date'),col('Соперник',27),col('Площадка',17),col('Заброшено',15),
-       col('Пропущено',15),col('Результат',18),col('Решение матча',24),col('ID протокола ВХЛ',21)],
+       col('Пропущено',15),col('Результат',18),col('Решение матча',24),col('ID протокола ВХЛ',21),
+       col('Протокол ВХЛ',27)],
       history.matches.map(m => [excelDate(m.date),m.opponent,m.home ? 'Дома' : 'В гостях',m.goalsFor,m.goalsAgainst,
         m.goalsFor > m.goalsAgainst ? 'Победа' : 'Поражение',
-        ({'':'Основное время','Б':'Буллиты','ОТ':'Овертайм'})[m.finish] ?? m.finish,m.id]));
+        ({'':'Основное время','Б':'Буллиты','ОТ':'Овертайм'})[m.finish] ?? m.finish,m.id,protocolLink(m)]));
 
-    sheet('Полевые','Челмет · полевые игроки',leagueSource + ' · номер по последнему сыгранному матчу',
-      [col('Игрок',30),col('№',9),col('Амплуа',18),col('Матчи',12),col('Голы',12),col('Передачи',14),
+    const skaterColumns = [col('Игрок',30),col('№',9),col('Амплуа',18),col('Матчи',12),col('Голы',12),col('Передачи',14),
        col('Очки',12),col('Плюс-минус',15),col('Броски в створ',19),col('Штраф, мин',16),col('Силовые приёмы',21),
        col('Блоки',12),col('Вбрасывания',17),col('Выиграно вбрасываний',25),col('Доля выигранных',22,'percent'),
-       col('Смены',12),col('Время на льду',20,'duration'),col('Время за матч',20,'duration'),col('ID игрока ВХЛ',18)],
-      history.players.map((p,i) => {
+       col('Смены',12),col('Время на льду',20,'duration'),col('Время за матч',20,'duration'),col('ID игрока ВХЛ',18)];
+    for (const [name,players] of skaterGroups) {
+      const rows = players.map((p,i) => {
         const r=i+4;
         return [p.name,p.n,position[p.pos],p.gp,p.g,p.a,formula('E'+r+'+F'+r,p.pts),p.pm,p.sog,p.pim,p.hit,p.bl,
           p.fo,p.fow,formula('IFERROR(N'+r+'/M'+r+',"")',ratio(p.fow,p.fo)),p.shifts,duration(p.toi),
           formula('IFERROR(Q'+r+'/D'+r+',"")',ratio(duration(p.toi),p.gp)),p.id];
-      }));
+      });
+      sheet(name,'Челмет · ' + name.toLowerCase(),leagueSource + ' · номер по последнему сыгранному матчу',skaterColumns,rows);
+    }
     sheet('Вратари','Челмет · вратари',leagueSource + ' · номер по последнему сыгранному матчу',
       [col('Вратарь',30),col('№',9),col('Матчи',12),col('Броски в створ',19),col('Пропущено',16),
        col('Отражено',15),col('Доля отражённых',22,'percent'),col('Время на льду',20,'duration'),
