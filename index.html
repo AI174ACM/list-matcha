@@ -335,10 +335,12 @@ html[data-theme="tiles"] .pc{background:#fff;box-shadow:inset 0 0 0 2px var(--in
 /* 19.11 (Денис Мошаров: «центр съезжает, не влазит на один лист»): при 7 голах колонка справа уходила на второй лист — в печати гол в одну строку, блоки плотнее */
 @media print{.gl{grid-template-columns:auto auto minmax(0,1fr) auto;padding:1px 0;gap:6px}.gl .t{font-size:10px}.gl .s{font-size:14px}.gl .w{white-space:nowrap;font-size:13px}.gl .w small{font-size:9.5px}.gl .tag{grid-column:auto;grid-row:auto;font-size:9px;padding:1px 5px}.side .box{padding:4px 10px}.pt td{height:19px;font-size:13px}.pt th{height:16px}.bar{margin:2px 0}.bar .v{font-size:13px}.side{gap:2mm}}
 </style>
+<link rel="stylesheet" href="season.css">
 </head>
 <body>
 <div class="app">
   <div class="top">
+    <div class="season-brand"><img src="logos/382.png" alt="">Лист матча</div>
     <div class="sc"><span class="tm" id="home"></span><span class="num" id="score"></span><span class="tm" id="away"></span><span class="venue" id="venue"></span><span class="pdate" id="pdate"></span></div>
     <div class="per"><button id="pPrev" title="Предыдущий период (←)">‹</button><b id="pName"></b><b id="pPrint" style="display:none"></b><button id="pNext" title="Следующий период (→)">›</button></div>
     <div class="sp"></div>
@@ -353,12 +355,16 @@ html[data-theme="tiles"] .pc{background:#fff;box-shadow:inset 0 0 0 2px var(--in
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
 <div class="snack" id="snack"><span id="snackT"></span><button id="snackB"></button></div>
 
+<script src="season-history.js"></script>
+<script src="season-xlsx.js"></script>
+<script src="season-export.js"></script>
+<script src="season.js"></script>
 <script>
 const KEY='list_matcha_v1';
 const API='https://script.google.com/macros/s/AKfycbz2jG-gntMFAdd0OaCrxcGIgImqLvjk0F4jXOk5a-tm4qpTRv9HgwIqZuthMZthKaFJWg/exec';   /* адрес приёмника в Google Таблице; подставляется при публикации */
 const Q=new URLSearchParams(location.search);
 const VIEW=Q.get('view')||'';                 // ключ чтения → режим «Просмотр»
-if(Q.get('k')){try{localStorage.setItem('lm_key',Q.get('k'))}catch(e){} history.replaceState(null,'',location.pathname)}
+if(Q.get('k')){try{localStorage.setItem('lm_key',Q.get('k'))}catch(e){} history.replaceState(null,'',location.pathname+(Q.get('tab')==='season'?'?tab=season':''))}
 let WKEY='';try{WKEY=localStorage.getItem('lm_key')||''}catch(e){}
 const mkId=()=>new Date().toISOString().slice(0,10)+'-'+Math.random().toString(36).slice(2,6);
 const today=()=>new Date().toLocaleDateString('ru-RU');
@@ -460,7 +466,7 @@ function perAfterExport(p){ if(VIEW||p!==S.cur||S.cur>2||!S.ev.some(e=>e.p===S.c
 let S=null; if(!VIEW){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}}
 if(!S||!S.roster) S=emptyMatch();
 norm(S);
-let UI={tab:VIEW||Q.get('tab')==='sum'?'sum':'input',act:null,pl:null,lastGid:null,sumPer:'all',sumView:'tbl',theme:'light'};
+let UI={tab:Q.get('tab')==='season'?'season':VIEW||Q.get('tab')==='sum'?'sum':'input',act:null,pl:null,lastGid:null,sumPer:'all',sumView:'tbl',theme:'light'};
 try{UI.theme=localStorage.getItem('lm_theme')||'light'}catch(e){}
 document.documentElement.dataset.theme=UI.theme;
 
@@ -573,6 +579,8 @@ function cnt(n,k,p){return S.ev.filter(e=>e.n===n&&e.k===k&&(p==null||e.p===p)).
 function fit(sel,min=9){const rg=document.createRange(),over=el=>{rg.selectNodeContents(el);return rg.getBoundingClientRect().width>el.getBoundingClientRect().width+.5};   // ширина текста с долями точки: целые scrollWidth пропускают обрезку на полточки
   document.querySelectorAll(sel).forEach(el=>{el.style.fontSize='';if(!el.firstChild||!over(el))return;let fs=parseFloat(getComputedStyle(el).fontSize);while(over(el)&&fs>min){fs-=.5;el.style.fontSize=fs+'px'}})}
 function render(flashN){requestAnimationFrame(()=>{fit('.tl span,.pc .pn span');fit('.it .tx .as',9);const a=[...document.querySelectorAll('.pgrp .tl:not(.gks) span')];if(a.length){const m=Math.min(...a.map(e=>parseFloat(getComputedStyle(e).fontSize)));a.forEach(e=>e.style.fontSize=m+'px')}});
+  document.querySelector('.app').classList.toggle('season-active',UI.tab==='season');
+  document.title=UI.tab==='season'?'Итоги сезона · Челмет':'Лист матча';
   const gF=S.ev.filter(e=>e.k==='g').length, gA=S.ev.filter(e=>e.k==='ga').length;
   home.innerHTML=logo(S.home)+esc(S.home); away.innerHTML=esc(S.away)+logo(S.away); const so=soSt();score.textContent=(gF+(so.win==='us'?1:0))+':'+(gA+(so.win==='them'?1:0))+(so.win?' Б':''); venue.textContent=S.venue; pdate.textContent=' '+(S.date||'');document.getElementById('pPrint').textContent=UI.sumPer==='all'?'Весь матч':PN(UI.sumPer);
   pName.textContent=PN(S.cur);
@@ -720,7 +728,7 @@ function renderRep(){const v=document.getElementById('view');
   repSend();
 }
 addEventListener('message',e=>{if(!e.data)return;if(e.data.type==='lm-report-ready')repSend();if(e.data.type==='lm-report-printed')perAfterExport(e.data.p)});
-/* ---------- сезон: считает приёмник в таблице, здесь только показ ---------- */
+/* ---------- записи оператора за сезон из приёмника ---------- */
 const SEASON={data:null,at:0,busy:false,err:false,mode:'avg'};
 try{const c=JSON.parse(localStorage.getItem('lm_season')||'null');if(c&&c.data){SEASON.data=c.data;SEASON.at=c.at}}catch(e){}
 async function loadSeason(){if(!API||!(WKEY||VIEW)||SEASON.busy||(SEASON.data&&Date.now()-SEASON.at<20000&&!SEASON.err))return;
@@ -728,15 +736,16 @@ async function loadSeason(){if(!API||!(WKEY||VIEW)||SEASON.busy||(SEASON.data&&D
   try{const r=await api({op:'season'},30000);SEASON.data=r.season;SEASON.at=Date.now();SEASON.err=false;try{localStorage.setItem('lm_season',JSON.stringify({data:SEASON.data,at:SEASON.at}))}catch(e){}}
   catch(e){SEASON.err=true}
   SEASON.busy=false;if(UI.tab==='season'&&!ov.classList.contains('on'))render()}
-function renderSeason(){
-  const v=document.getElementById('view'),D=SEASON.data,can=API&&(WKEY||VIEW);
+function renderOperatorSeason(coverage){
+  const v=document.getElementById('seasonPanel'),D=SEASON.data,can=API&&(WKEY||VIEW);
   const state=SEASON.busy?'Считаю по таблице…':SEASON.err?'Нет связи с таблицей'+(D?' — показан расчёт от '+hm(new Date(SEASON.at)):''):D?'По таблице на '+hm(new Date(SEASON.at)):'';
   if(!D||!D.n){
     const ml=D&&D.matches.length?`<div class="box"><div class="cap">Матчи в таблице</div>${seasonList(D)}</div>`:'';
-    v.innerHTML=`<div class="sumv"><div class="box empty"><h2>Сезон</h2><p class="sub">${!can?'Сезон считается по всем матчам в таблице. Откройте программу по ссылке оператора или по ссылке просмотра — здесь появятся средние по игрокам и команде.':SEASON.busy&&!D?'Считаю по таблице…':SEASON.err&&!D?'Нет связи с таблицей. Сезон появится, когда связь вернётся.':'В расчёте пока нет ни одного матча. Матч попадает в сезон, когда в программе введены все три периода.'}</p></div><div class="side">${ml}</div></div>`;return}
+    v.innerHTML=`<div class="sumv"><div class="box empty"><h2>Записи оператора</h2><p class="sub">${!can?'Откройте ссылку просмотра или оператора, чтобы увидеть игровые журналы, суммы и средние по игрокам.':SEASON.busy&&!D?'Считаю по таблице…':SEASON.err&&!D?'Нет связи с таблицей оператора. Откройте этот раздел ещё раз после подключения.':'В журнале оператора пока нет матчей с записями во всех трёх периодах.'}</p></div><div class="side">${ml}</div></div>`;return}
   const last=SEASON.mode==='last'&&D.n>5, avg=SEASON.mode!=='sum';
   const fx=x=>(Math.round(x*10)/10).toFixed(1).replace('.',',').replace('-','−');
   const KS=['sh','g','a','bl','hit','to','pen'];
+  const cols=COLS.filter(([k])=>k==='fo'||k==='pm'||KS.includes(k));
   const all=D.players.map(p=>({p,gp:last?p.gp5:p.gp,t:last?p.t5:p.t})).filter(x=>x.gp>0).sort((a,b)=>(a.p.pos===b.p.pos?0:a.p.pos==='н'?-1:1)||a.p.n-b.p.n);
   const val=(x,k)=>avg?x.t[k]/x.gp:x.t[k];
   const mx={};for(const k of KS){mx[k]=Math.max(0,...all.map(x=>val(x,k)));mx[k+'c']=all.filter(x=>val(x,k)===mx[k]).length}
@@ -746,20 +755,23 @@ function renderSeason(){
     if(k==='pm'){if(!t.pmc)return '<td class="z">·</td>';const pl=(t.pmc+t.pm)/2,mi=(t.pmc-t.pm)/2;return `<td style="white-space:nowrap">${avg?`+${fx(pl/x.gp)} −${fx(mi/x.gp)}`:pmTxt(pl,mi)}</td>`}
     if(!t[k])return '<td class="z">·</td>';const q=val(x,k),lead=mx[k]===q&&mx[k+'c']===1&&all.length>1;
     return `<td>${avg?fx(q):q}${trend(x,k)}${lead&&['sh','a','bl','hit'].includes(k)?'<span class="dot" title="больше всех"></span>':''}${lead&&['to','pen'].includes(k)?'<span class="warn" title="больше всех">!</span>':''}</td>`};
-  let rows='';for(const [g,l] of [['н','Нападающие'],['з','Защитники']]){rows+=`<tr class="g"><td colspan="11">${l}</td></tr>`;
-    for(const x of all.filter(x=>x.p.pos===g))rows+=`<tr><td class="l"><span class="no">${x.p.n}</span>${x.p.name}</td><td class="gp">${x.gp}</td>${COLS.map(([k])=>cell(x,k)).join('')}</tr>`}
+  const {visible,pager}=seasonScreen.pageSlice(all);
+  let rows='';for(const [g,l] of [['н','Нападающие'],['з','Защитники']]){
+    const group=visible.filter(x=>x.p.pos===g);if(!group.length)continue;
+    rows+=`<tr class="g"><td colspan="${cols.length+2}">${l}</td></tr>`;
+    for(const x of group)rows+=`<tr><td class="l"><span class="no">${esc(x.p.n)}</span>${esc(x.p.name)}</td><td class="gp">${x.gp}</td>${cols.map(([k])=>cell(x,k)).join('')}</tr>`}
   const T=D.team,N=D.n,tv=(o,k)=>avg?fx(o[k]/N):o[k],fo=o=>o.fw+o.fl?(avg?Math.round(100*o.fw/(o.fw+o.fl))+'<small>%</small>':o.fw+'–'+o.fl):'·';
   if(!last)rows+=`<tr class="t"><td class="l">Команда</td><td class="gp">${N}</td><td>${fo(T.t)}</td>${KS.map(k=>`<td>${tv(T.t,k)}</td>`).join('')}<td></td></tr>`;
   const pr=[[1,'1-й период'],[2,'2-й период'],[3,'3-й период']].map(([p,l])=>{const o=T.per[p];return `<tr><td>${l}</td><td>${fx(o.g/N)} : ${fx(o.ga/N)}</td><td>${fx(o.sh/N)}</td><td>${o.fw+o.fl?Math.round(100*o.fw/(o.fw+o.fl))+'%':'·'}</td><td>${fx(o.to/N)}</td><td>${fx(o.pen/N)}</td></tr>`}).join('')
     +`<tr class="sumr"><td>Весь матч</td><td>${fx(T.t.g/N)} : ${fx(T.t.ga/N)}</td><td>${fx(T.t.sh/N)}</td><td>${T.t.fw+T.t.fl?Math.round(100*T.t.fw/(T.t.fw+T.t.fl))+'%':'·'}</td><td>${fx(T.t.to/N)}</td><td>${fx(T.t.pen/N)}</td></tr>`;
-  const modes=[['avg','В среднем за матч'],['sum','Всего'],...(D.n>5?[['last','Последние 5 матчей']]:[])];
-  v.innerHTML=`<div class="sumv"><div class="tbl" style="--rows:${(all.length+(last?0:1)+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small">${modes.map(([m,t])=>`<button data-sm="${m}" class="${(last?'last':avg?'avg':'sum')===m?'on':''}">${t}</button>`).join('')}</div><span class="note">${last?'▲ ▼ — выше или ниже своего среднего за сезон':'Матчей в расчёте: '+N}</span></div>
-    <table><tr><th class="l">Игрок</th><th>Матчи</th>${COLS.map(([k,l])=>`<th>${k==='fo'&&avg?'Выиграно вбрасываний':l}</th>`).join('')}</tr>${rows}</table></div>
-   <div class="side"><div class="box"><div class="cap">Команда в среднем за матч</div><table class="pt"><tr><th class="l"></th><th>Шайбы</th><th>Броски</th><th>Вбрас.</th><th>Потери</th><th>Удал.</th></tr>${pr}</table></div>
-    <div class="box"><div class="cap">Матчи сезона</div>${seasonList(D)}</div>
-    <div class="box note">${state}${state?'. ':''}В сезон идут матчи, введённые в программе целиком: с записями во всех трёх периодах. Среднее игрока считается на сыгранный им матч.</div></div></div>`;
+  const modes=[['avg','В среднем за матч'],['sum','Сумма'],...(D.n>5?[['last','Последние 5 матчей']]:[])];
+  v.innerHTML=`<div class="sumv"><div class="tbl" style="--rows:${(all.length+(last?0:1)+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small">${modes.map(([m,t])=>`<button data-sm="${m}" class="${(last?'last':avg?'avg':'sum')===m?'on':''}">${t}</button>`).join('')}</div><span class="note">${esc(coverage)}</span></div>
+    <table><tr><th class="l">Игрок</th><th>Матчи</th>${cols.map(([k,l])=>`<th>${k==='fo'&&avg?'Выиграно вбрасываний':l}</th>`).join('')}</tr>${rows}</table>${pager}</div>
+   <div class="side"><div class="box"><div class="cap">Команда в среднем за матч</div><table class="pt"><tr><th class="l"></th><th>Шайбы</th><th>Броски</th><th>Вбрас.</th><th>Потери</th><th>Штр. мин</th></tr>${pr}</table></div>
+    <div class="box"><div class="cap">Матчи оператора</div>${seasonList(D)}</div>
+    <div class="box note">${state}${state?'. ':''}В расчёт оператора входят матчи с записями во всех трёх периодах. Среднее игрока считается на сыгранный им матч.${last?' ▲ ▼ показывают отклонение от среднего игрока за все матчи журнала.':''}</div></div></div>`;
 }
-function seasonList(D){return D.matches.map(m=>`<div class="sm${m.why?' off':''}"><span class="d">${(m.date||'').slice(0,5)}</span><span class="w">${m.away||'Соперник'}${m.venue?` <small>${m.venue==='ВЫЕЗД'?'в гостях':'дома'}</small>`:''}${m.why?`<small class="y">не в расчёте: ${m.why}</small>`:''}</span><span class="s">${m.score}</span></div>`).join('')}
+function seasonList(D){return D.matches.map(m=>`<div class="sm${m.why?' off':''}"><span class="d">${esc((m.date||'').slice(0,5))}</span><span class="w">${esc(m.away||'Соперник')}${m.venue?` <small>${m.venue==='ВЫЕЗД'?'в гостях':'дома'}</small>`:''}${m.why?`<small class="y">не в расчёте: ${esc(m.why)}</small>`:''}</span><span class="s">${esc(m.score)}</span></div>`).join('')}
 
 /* ---------- листы ---------- */
 const ov=document.getElementById('ov'),sh=document.getElementById('sheet');
@@ -1031,7 +1043,12 @@ function pastSheet(){sh.classList.remove('narrow');
   draw();open_();
   if(API&&(WKEY||VIEW))api({op:'list'},8000).then(r=>{const have=new Set(rows.map(x=>x.id));for(const m of r.list)if(!have.has(m.id))rows.push(m);rows.sort((a,b)=>(b.id>a.id?1:-1));if(ov.classList.contains('on')&&sh.querySelector('.mlist'))draw()}).catch(()=>{});
 }
-function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click()}
+function dl(name,content,type){
+  const file=content instanceof Blob?content:new Blob([content],{type});
+  const url=URL.createObjectURL(file), link=document.createElement('a');
+  link.href=url;link.download=name;link.hidden=true;document.body.append(link);
+  try{link.click()}finally{link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
+}
 const fname=()=>(S.date||'').split('.').reverse().join('-')+'_'+S.home+'_'+S.away;
 function csv(){const keep=UI.sumPer,out=[];
   for(const [p,l] of [['all','Матч'],[0,'1–2 пер. (не разделено)'],[1,'1 период'],[2,'2 период'],[3,'3 период'],[4,'ОТ']]){if(p!=='all'&&!S.ev.some(e=>e.p===p))continue;UI.sumPer=p;
@@ -1065,7 +1082,7 @@ document.addEventListener('click',e=>{if(!VIEW&&e.target.closest('#home,#away')&
   if(d.act){choose(d.act,null);return} if(d.pl){choose(null,+d.pl);return}
   if(d.del){delGroup(+d.del);return} if(d.eg){const gid=+d.eg,e=S.ev.find(x=>x.gid===gid&&(x.k==='g'||x.k==='ga'));if(e)goalSheet(e.k==='g',null,gid);return} if(b.id==='undoB'){undoLast();return}
   if(d.tab){UI.tab=d.tab;render();if(d.tab==='season')loadSeason();return}
-  if(d.sm){SEASON.mode=d.sm;render();return} if(d.th){UI.theme=d.th;document.documentElement.dataset.theme=d.th;try{localStorage.setItem('lm_theme',d.th)}catch(_){}render();return}
+  if(d.sm){SEASON.mode=d.sm;seasonScreen.firstPage();render();return} if(d.th){UI.theme=d.th;document.documentElement.dataset.theme=d.th;try{localStorage.setItem('lm_theme',d.th)}catch(_){}render();return}
   if(d.sp!=null){UI.sumPer=d.sp==='all'?'all':+d.sp;render();return} if(d.sv){UI.sumView=d.sv;render();return} if('print' in d){window.print();return}
   if(d.pend){endPen(d.pend);return} if('opp' in d){oppPenSheet();return} if(d.pull){S.pull[d.pull]=!S.pull[d.pull];save();render();return}
   if(b.id==='pPrev'){S.cur=Math.max(1,S.cur-1);save();render();return} if(b.id==='pNext'){perNext();return}
@@ -1075,7 +1092,7 @@ ov.addEventListener('click',e=>{if(e.target===ov)close_()});
 const KM={KeyS:'sh',KeyQ:'fw',KeyW:'fl',KeyB:'bl',KeyH:'hit',KeyL:'to',KeyP:'pen'};let buf='',bufT;
 document.addEventListener('keydown',e=>{
   if(ov.classList.contains('on')){if(e.key==='Escape')close_();else if(sh.onkey)sh.onkey(e);return}
-  if(/INPUT|TEXTAREA/.test(e.target.tagName)||VIEW)return;
+  if(/INPUT|TEXTAREA/.test(e.target.tagName)||VIEW||UI.tab==='season')return;
   if((e.metaKey||e.ctrlKey)&&e.code==='KeyZ'){e.preventDefault();undoLast();return} if(e.metaKey||e.ctrlKey)return;
   if(e.key==='Escape'){UI.act=null;UI.pl=null;UI.sog=null;buf='';render();return}
   if(e.key==='ArrowLeft'){S.cur=Math.max(1,S.cur-1);save();render();return} if(e.key==='ArrowRight'){perNext();return}
@@ -1088,11 +1105,12 @@ document.addEventListener('keydown',e=>{
 });
 addEventListener('resize',()=>{if(document.querySelector('.coach'))coach(+((document.querySelector('.coach small')||{}).textContent||'1').match(/\d/)[0]-1)});
 let thKeep=null;
-addEventListener('beforeprint',()=>{thKeep=[UI.tab,document.documentElement.dataset.theme];UI.tab='sum';document.documentElement.dataset.theme='light';render()});
+addEventListener('beforeprint',()=>{if(UI.tab==='season')return;thKeep=[UI.tab,document.documentElement.dataset.theme];UI.tab='sum';document.documentElement.dataset.theme='light';render()});
 addEventListener('afterprint',()=>{if(!thKeep)return;UI.tab=VIEW?'sum':thKeep[0];document.documentElement.dataset.theme=thKeep[1];const pp=UI.sumPer;thKeep=null;render();perAfterExport(pp)});
 render();
 let seenHints=false;try{seenHints=localStorage.getItem('lm_hints')==='1'}catch(_){}
-if(!seenHints&&!VIEW)setTimeout(()=>coach(0),400);
+if(!seenHints&&!VIEW)setTimeout(()=>{if(UI.tab==='input')coach(0)},400);
+if(UI.tab==='season')loadSeason();
 if(VIEW){pull();setInterval(pull,15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()})} else {sync.soon(800);setInterval(()=>sync.push(),30000)}
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
