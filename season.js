@@ -46,7 +46,8 @@ const seasonScreen = (() => {
     }).join('')}</div><div class="sz-axis"><span>${date(matches[0].date)}</span><span>${date(matches[matches.length-1].date)}</span></div></figure>`;
   }
   function leaderCard(label,key) {
-    const players = history().players;
+    const h = history();
+    const players = key==='a' ? [...h.players,...h.goalies.filter(p=>Number.isFinite(p.a))] : h.players;
     const best = Math.max(...players.map(p=>p[key]));
     const leaders = players.filter(p=>p[key]===best && best>0);
     const titles = {pts:['очко','очка','очков'],g:['гол','гола','голов'],a:['передача','передачи','передач']};
@@ -60,7 +61,7 @@ const seasonScreen = (() => {
       <div class="sz-record-head"><h2>${gameCount(games.length)} ВХЛ</h2>${Number.isInteger(SEASON.data?.n)?`<span>Журнал оператора — ${gameCount(SEASON.data.n)}</span>`:''}</div>
       <div class="sz-tally"><div><strong>${wins}</strong><span>${countWord(wins,['победа','победы','побед'])}</span></div>
       <div><strong>${games.length-wins}</strong><span>${countWord(games.length-wins,['поражение','поражения','поражений'])}</span></div>
-      <div class="sz-goals"><b>${goals[0]}:${goals[1]}</b><span>шайбы за и против</span></div></div>
+      <div class="sz-goals"><b>${goals[0]}:${goals[1]}</b><span>шайбы с учётом буллитов</span></div></div>
       ${resultsChart(games)}</section>
       <section class="sz-recent sz-card"><div class="sz-card-heading"><h2>Последние матчи</h2><button class="sz-link" data-season-page="matches">Все матчи <span aria-hidden="true">›</span></button></div>
       <div class="sz-recent-list">${games.slice(-3).reverse().map(m=>matchRow(m)).join('')}</div></section>
@@ -69,7 +70,7 @@ const seasonScreen = (() => {
   }
 
   const skaterCols = [['gp','Игры'],['g','Голы'],['a','Передачи'],['pts','Очки'],['sog','Броски в створ'],['pm','Плюс-минус']];
-  const goalieCols = [['gp','Игры'],['shots','Броски в створ'],['ga','Пропущено'],['sv','Отражено'],['pct','% отражённых']];
+  const goalieCols = [['gp','Игры'],['shots','Броски по воротам'],['ga','Пропущено'],['sv','Отражено'],['pct','% отражённых']];
   const readValue = (p,key) => key==='pct'?shotsSaved(p):p[key];
   function pageSlice(rows) {
     const size=pageSize(), last=Math.max(0,Math.ceil(rows.length/size)-1);
@@ -101,7 +102,7 @@ const seasonScreen = (() => {
   function profile(id) {
     const h=history(),p=[...h.players,...h.goalies].find(p=>p.id===id);
     if(!p)return;
-    const stats=p.pos==='в'?[['Игры',p.gp],['Броски в створ',p.shots],['Пропущено',p.ga],['Отражено',p.sv],['Процент отражённых',percent(p.sv,p.shots)],['Время на льду, мин:с',clock(p.toi)]]:
+    const stats=p.pos==='в'?[['Игры',p.gp],['Броски по воротам',p.shots],['Пропущено',p.ga],['Отражено',p.sv],['Процент отражённых',percent(p.sv,p.shots)],['Передачи',p.a??'Нет данных'],['Штраф, мин',p.pim??'Нет данных'],['Время на льду, мин:с',clock(p.toi)]]:
       [['Игры',p.gp],['Голы',p.g],['Передачи',p.a],['Очки',p.pts],['Броски в створ',p.sog],['Плюс-минус',signed(p.pm)],['Силовые приёмы',p.hit],['Блоки',p.bl],['Штраф, мин',p.pim],['Вбрасывания выиграны',p.fow+' из '+p.fo],['Смены',p.shifts],['Время на льду, мин:с',clock(p.toi)]];
     sh.classList.add('narrow');
     sh.innerHTML=`<div class="sz-profile" role="dialog" aria-modal="true" aria-labelledby="seasonPlayerName"><div class="sz-person">${portrait(p)}<div><span class="sz-secondary">${position[p.pos]} · № ${p.n}</span><h2 id="seasonPlayerName">${showName(p)}</h2></div></div>

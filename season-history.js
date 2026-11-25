@@ -399,7 +399,7 @@ window.SEASON_HISTORY = {
       "g": 6,
       "a": 5,
       "pts": 11,
-      "pm": -3,
+      "pm": -2,
       "pim": 10,
       "sog": 49,
       "fo": 1,
@@ -627,7 +627,7 @@ window.SEASON_HISTORY = {
       "g": 1,
       "a": 0,
       "pts": 1,
-      "pm": -1,
+      "pm": -2,
       "pim": 2,
       "sog": 8,
       "fo": 48,
@@ -1009,7 +1009,9 @@ window.SEASON_HISTORY = {
       "shots": 340,
       "ga": 41,
       "sv": 299,
-      "toi": 43990
+      "toi": 43990,
+      "a": 0,
+      "pim": 0
     },
     {
       "id": 42540,
@@ -1020,7 +1022,9 @@ window.SEASON_HISTORY = {
       "shots": 41,
       "ga": 4,
       "sv": 37,
-      "toi": 3600
+      "toi": 3600,
+      "a": 0,
+      "pim": 0
     },
     {
       "id": 41522,
@@ -1031,7 +1035,9 @@ window.SEASON_HISTORY = {
       "shots": 215,
       "ga": 24,
       "sv": 191,
-      "toi": 29203
+      "toi": 29203,
+      "a": 1,
+      "pim": 0
     },
     {
       "id": 38463,
@@ -1042,7 +1048,9 @@ window.SEASON_HISTORY = {
       "shots": 97,
       "ga": 13,
       "sv": 84,
-      "toi": 13085
+      "toi": 13085,
+      "a": 0,
+      "pim": 2
     }
   ]
 };

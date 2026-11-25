@@ -14,6 +14,10 @@ function seasonExportSheets(history, operator, at) {
   const duration = seconds => Number.isFinite(seconds) ? seconds / 86400 : null;
   const ratio = (n, d) => Number.isFinite(n) && Number.isFinite(d) && d > 0 ? n / d : null;
   const formula = (expression, value) => Number.isFinite(value) ? {formula:expression, value} : null;
+  // В сводке ВХЛ среднее время указывается с точностью до целой секунды вниз.
+  const averageIce = (p, time, games) => formula(
+    'IFERROR(INT(ROUND('+time+'*86400,0)/'+games+')/86400,"")',
+    p.gp > 0 ? duration(Math.floor(p.toi/p.gp)) : null);
   const sheet = (name, title, subtitle, columns, rows) => sheets.push({name, title, subtitle, columns, rows});
   function protocolLink(match) {
     const id = /^https:\/\/www\.vhlru\.ru\/report\/[1-9]\d*\/\?idgame=([1-9]\d*)$/.exec(match.protocolUrl)?.[1];
@@ -46,8 +50,9 @@ function seasonExportSheets(history, operator, at) {
       ...skaterGroups.map(([name,players]) => [name,players.length,'Амплуа по последнему сыгранному матчу']),
       ['Вратари',history.goalies.length,'Выходили на лёд за «Челмет»']);
     for (const [key,label] of [['pts','Лидеры по очкам'],['g','Лидеры по голам'],['a','Лидеры по передачам']]) {
-      const best = Math.max(...history.players.map(p => p[key]));
-      if (best > 0) overview.push([label,best,history.players.filter(p => p[key] === best).map(p => p.name).join(', ')]);
+      const candidates = key === 'a' ? [...history.players,...history.goalies.filter(p => Number.isFinite(p.a))] : history.players;
+      const best = Math.max(...candidates.map(p => p[key]));
+      if (best > 0) overview.push([label,best,candidates.filter(p => p[key] === best).map(p => p.name).join(', ')]);
     }
   } else {
     overview.push(['Протоколы ВХЛ',null,'Данные ВХЛ недоступны']);
@@ -77,24 +82,24 @@ function seasonExportSheets(history, operator, at) {
         const r=i+4;
         return [p.name,p.n,position[p.pos],p.gp,p.g,p.a,formula('E'+r+'+F'+r,p.pts),p.pm,p.sog,p.pim,p.hit,p.bl,
           p.fo,p.fow,formula('IFERROR(N'+r+'/M'+r+',"")',ratio(p.fow,p.fo)),p.shifts,duration(p.toi),
-          formula('IFERROR(Q'+r+'/D'+r+',"")',ratio(duration(p.toi),p.gp)),p.id];
+          averageIce(p,'Q'+r,'D'+r),p.id];
       });
       sheet(name,'Челмет · ' + name.toLowerCase(),leagueSource + ' · номер по последнему сыгранному матчу',skaterColumns,rows);
     }
     sheet('Вратари','Челмет · вратари',leagueSource + ' · номер по последнему сыгранному матчу',
-      [col('Вратарь',30),col('№',9),col('Матчи',12),col('Броски в створ',19),col('Пропущено',16),
+      [col('Вратарь',30),col('№',9),col('Матчи',12),col('Броски по воротам',22),col('Пропущено',16),
        col('Отражено',15),col('Доля отражённых',22,'percent'),col('Время на льду',20,'duration'),
-       col('Время за матч',20,'duration'),col('ID игрока ВХЛ',18)],
+       col('Время за матч',20,'duration'),col('ID игрока ВХЛ',18),col('Передачи',14),col('Штраф, мин',16)],
       history.goalies.map((p,i) => {
         const r=i+4;
         return [p.name,p.n,p.gp,p.shots,p.ga,p.sv,formula('IFERROR(F'+r+'/D'+r+',"")',ratio(p.sv,p.shots)),
-          duration(p.toi),formula('IFERROR(H'+r+'/C'+r+',"")',ratio(duration(p.toi),p.gp)),p.id];
+          duration(p.toi),averageIce(p,'H'+r,'C'+r),p.id,p.a??null,p.pim??null];
       }));
   }
   if (!operator) return sheets;
 
   const matches = operator.matches || [];
-  const source = operatorSource + ' · матчей в расчёте: ' + operator.n;
+  const source = operatorSource + ' · матчей в расчёте: ' + operator.n + ' · ноль означает отсутствие записанного действия';
   const measures = [
     ['fw','Выиграно вбрасываний'],['fl','Проиграно вбрасываний'],['sh','Броски в створ'],
     ['g','Голы'],['a','Передачи'],['bl','Блоки'],['hit','Силовые приёмы'],['to','Потери шайбы'],['pen','Штраф, мин']
@@ -108,7 +113,7 @@ function seasonExportSheets(history, operator, at) {
 
     function playerSheet(name, title, average, last) {
       const fmt = average ? 'decimal' : undefined;
-      const columns = [col('Игрок',28),col('№',9),col('Амплуа',18),col('Сыграно матчей',20),
+      const columns = [col('Игрок',28),col('№',9),col('Амплуа',18),col('Матчи в заявке оператора',29),
         ...measures.map(([,label]) => col(label,Math.max(13,label.length+4),fmt)),
         col('Доля выигранных вбрасываний',31,'percent'),col('Плюсы',13,fmt),col('Минусы',13,fmt)];
       const rows = [];
@@ -122,7 +127,7 @@ function seasonExportSheets(history, operator, at) {
           recorded ? value((t.pmc-t.pm)/2) : null]);
       }
       const note = last ? 'Последние пять учтённых матчей команды' : source;
-      const subtitle = average ? note + ' · в среднем за сыгранный игроком матч' : note;
+      const subtitle = average ? note + ' · в среднем за матч в заявке оператора' : note;
       sheet(name,title,last ? subtitle + ' · ' + operatorSource : subtitle,columns,rows);
     }
     playerSheet('Оператор — игроки','Журнал оператора · суммы по игрокам',false,false);

@@ -730,7 +730,7 @@ function renderRep(){const v=document.getElementById('view');
 addEventListener('message',e=>{if(!e.data)return;if(e.data.type==='lm-report-ready')repSend();if(e.data.type==='lm-report-printed')perAfterExport(e.data.p)});
 /* ---------- записи оператора за сезон из приёмника ---------- */
 const SEASON={data:null,at:0,busy:false,err:false,mode:'avg'};
-try{const c=JSON.parse(localStorage.getItem('lm_season')||'null');if(c&&c.data){SEASON.data=c.data;SEASON.at=c.at}}catch(e){}
+if(VIEW||WKEY){try{const c=JSON.parse(localStorage.getItem('lm_season')||'null');if(c?.data&&Number.isFinite(c.at)){SEASON.data=c.data;SEASON.at=c.at}}catch(e){}}
 async function loadSeason(){if(!API||!(WKEY||VIEW)||SEASON.busy||(SEASON.data&&Date.now()-SEASON.at<20000&&!SEASON.err))return;
   SEASON.busy=true;if(UI.tab==='season')render();
   try{const r=await api({op:'season'},30000);SEASON.data=r.season;SEASON.at=Date.now();SEASON.err=false;try{localStorage.setItem('lm_season',JSON.stringify({data:SEASON.data,at:SEASON.at}))}catch(e){}}
@@ -738,7 +738,8 @@ async function loadSeason(){if(!API||!(WKEY||VIEW)||SEASON.busy||(SEASON.data&&D
   SEASON.busy=false;if(UI.tab==='season'&&!ov.classList.contains('on'))render()}
 function renderOperatorSeason(coverage){
   const v=document.getElementById('seasonPanel'),D=SEASON.data,can=API&&(WKEY||VIEW);
-  const state=SEASON.busy?'Считаю по таблице…':SEASON.err?'Нет связи с таблицей'+(D?' — показан расчёт от '+hm(new Date(SEASON.at)):''):D?'По таблице на '+hm(new Date(SEASON.at)):'';
+  const received=D?new Date(SEASON.at).toLocaleString('ru-RU',{timeZone:'Asia/Yekaterinburg',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})+' ЧЛБ':'';
+  const state=SEASON.busy?'Считаю по таблице…':SEASON.err?'Нет связи с таблицей'+(D?' — показан расчёт от '+received:''):D?'По таблице на '+received:'';
   if(!D||!D.n){
     const ml=D&&D.matches.length?`<div class="box"><div class="cap">Матчи в таблице</div>${seasonList(D)}</div>`:'';
     v.innerHTML=`<div class="sumv"><div class="box empty"><h2>Записи оператора</h2><p class="sub">${!can?'Откройте ссылку просмотра или оператора, чтобы увидеть игровые журналы, суммы и средние по игрокам.':SEASON.busy&&!D?'Считаю по таблице…':SEASON.err&&!D?'Нет связи с таблицей оператора. Откройте этот раздел ещё раз после подключения.':'В журнале оператора пока нет матчей с записями во всех трёх периодах.'}</p></div><div class="side">${ml}</div></div>`;return}
@@ -762,14 +763,16 @@ function renderOperatorSeason(coverage){
     for(const x of group)rows+=`<tr><td class="l"><span class="no">${esc(x.p.n)}</span>${esc(x.p.name)}</td><td class="gp">${x.gp}</td>${cols.map(([k])=>cell(x,k)).join('')}</tr>`}
   const T=D.team,N=D.n,tv=(o,k)=>avg?fx(o[k]/N):o[k],fo=o=>o.fw+o.fl?(avg?Math.round(100*o.fw/(o.fw+o.fl))+'<small>%</small>':o.fw+'–'+o.fl):'·';
   if(!last)rows+=`<tr class="t"><td class="l">Команда</td><td class="gp">${N}</td><td>${fo(T.t)}</td>${KS.map(k=>`<td>${tv(T.t,k)}</td>`).join('')}<td></td></tr>`;
-  const pr=[[1,'1-й период'],[2,'2-й период'],[3,'3-й период']].map(([p,l])=>{const o=T.per[p];return `<tr><td>${l}</td><td>${fx(o.g/N)} : ${fx(o.ga/N)}</td><td>${fx(o.sh/N)}</td><td>${o.fw+o.fl?Math.round(100*o.fw/(o.fw+o.fl))+'%':'·'}</td><td>${fx(o.to/N)}</td><td>${fx(o.pen/N)}</td></tr>`}).join('')
+  const periods=[[1,'1-й период'],[2,'2-й период'],[3,'3-й период']];
+  if(T.per[4]&&['fw','fl','ga',...KS].some(k=>T.per[4][k]>0))periods.push([4,'Овертайм']);
+  const pr=periods.map(([p,l])=>{const o=T.per[p];return `<tr><td>${l}</td><td>${fx(o.g/N)} : ${fx(o.ga/N)}</td><td>${fx(o.sh/N)}</td><td>${o.fw+o.fl?Math.round(100*o.fw/(o.fw+o.fl))+'%':'·'}</td><td>${fx(o.to/N)}</td><td>${fx(o.pen/N)}</td></tr>`}).join('')
     +`<tr class="sumr"><td>Весь матч</td><td>${fx(T.t.g/N)} : ${fx(T.t.ga/N)}</td><td>${fx(T.t.sh/N)}</td><td>${T.t.fw+T.t.fl?Math.round(100*T.t.fw/(T.t.fw+T.t.fl))+'%':'·'}</td><td>${fx(T.t.to/N)}</td><td>${fx(T.t.pen/N)}</td></tr>`;
   const modes=[['avg','В среднем за матч'],['sum','Сумма'],...(D.n>5?[['last','Последние 5 матчей']]:[])];
   v.innerHTML=`<div class="sumv"><div class="tbl" style="--rows:${(all.length+(last?0:1)+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small">${modes.map(([m,t])=>`<button data-sm="${m}" class="${(last?'last':avg?'avg':'sum')===m?'on':''}">${t}</button>`).join('')}</div><span class="note">${esc(coverage)}</span></div>
-    <table><tr><th class="l">Игрок</th><th>Матчи</th>${cols.map(([k,l])=>`<th>${k==='fo'&&avg?'Выиграно вбрасываний':l}</th>`).join('')}</tr>${rows}</table>${pager}</div>
-   <div class="side"><div class="box"><div class="cap">Команда в среднем за матч</div><table class="pt"><tr><th class="l"></th><th>Шайбы</th><th>Броски</th><th>Вбрас.</th><th>Потери</th><th>Штр. мин</th></tr>${pr}</table></div>
+    <table><tr><th class="l">Игрок</th><th>В заявке</th>${cols.map(([k,l])=>`<th>${k==='fo'&&avg?'Выиграно вбрасываний':l}</th>`).join('')}</tr>${rows}</table>${pager}</div>
+   <div class="side"><div class="box"><div class="cap">Команда · среднее за все матчи журнала</div><table class="pt"><tr><th class="l"></th><th>Шайбы</th><th>Броски</th><th>Вбрас.</th><th>Потери</th><th>Штр. мин</th></tr>${pr}</table></div>
     <div class="box"><div class="cap">Матчи оператора</div>${seasonList(D)}</div>
-    <div class="box note">${state}${state?'. ':''}В расчёт оператора входят матчи с записями во всех трёх периодах. Среднее игрока считается на сыгранный им матч.${last?' ▲ ▼ показывают отклонение от среднего игрока за все матчи журнала.':''}</div></div></div>`;
+    <div class="box note">${state}${state?'. ':''}Учтены матчи с записями в трёх периодах. Среднее игрока — на матч в заявке оператора. Точка и ноль — нет записи о действии. Официальные показатели — в разделе «Игроки».${last?' ▲ ▼ показывают отклонение от среднего игрока за все матчи журнала.':''}</div></div></div>`;
 }
 function seasonList(D){return D.matches.map(m=>`<div class="sm${m.why?' off':''}"><span class="d">${esc((m.date||'').slice(0,5))}</span><span class="w">${esc(m.away||'Соперник')}${m.venue?` <small>${m.venue==='ВЫЕЗД'?'в гостях':'дома'}</small>`:''}${m.why?`<small class="y">не в расчёте: ${esc(m.why)}</small>`:''}</span><span class="s">${esc(m.score)}</span></div>`).join('')}
 
