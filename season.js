@@ -70,7 +70,8 @@ const seasonScreen = (() => {
   }
 
   const skaterCols = [['gp','Игры'],['g','Голы'],['a','Передачи'],['pts','Очки'],['sog','Броски в створ'],['pm','Плюс-минус']];
-  const goalieCols = [['gp','Игры'],['shots','Броски по воротам'],['ga','Пропущено'],['sv','Отражено'],['pct','% отражённых']];
+  const goalieCols = [['gp','Игры'],['toi','Игровое время, мин:с'],['shots','Броски по воротам'],['ga','Пропущено'],['sv','Отражено'],['pct','% отражённых']];
+  const departedGoalies = new Set([38463]); // Савелий Шерстнев. Матчи за «Челмет» остаются в истории.
   const readValue = (p,key) => key==='pct'?shotsSaved(p):p[key];
   function pageSlice(rows) {
     const size=pageSize(), last=Math.max(0,Math.ceil(rows.length/size)-1);
@@ -82,7 +83,8 @@ const seasonScreen = (() => {
   function players(h) {
     const goalies=state.group==='goalies', cols=goalies?goalieCols:skaterCols;
     const role=groups[state.group].pos, query=tz(state.query);
-    const rows=(goalies?h.goalies:h.players).filter(p=>p.pos===role&&tz(p.name).includes(query)).sort((a,b)=>{
+    const roster=goalies?h.goalies.filter(p=>!departedGoalies.has(p.id)):h.players;
+    const rows=roster.filter(p=>p.pos===role&&tz(p.name).includes(query)).sort((a,b)=>{
       const av=readValue(a,state.sort),bv=readValue(b,state.sort);
       if(av==null||bv==null)return (av==null)-(bv==null);
       return (state.descending?bv-av:av-bv)||a.name.localeCompare(b.name,'ru');
@@ -91,7 +93,7 @@ const seasonScreen = (() => {
     return `<section class="sz-directory sz-card"><div class="sz-tools"><div class="sz-group" role="group" aria-label="Амплуа">${Object.entries(groups).map(([key,g])=>`<button data-season-group="${key}" aria-pressed="${state.group===key}">${g.label}</button>`).join('')}</div>
       <input type="search" aria-label="Найти игрока по фамилии" placeholder="Найти игрока" value="${esc(state.query)}" id="seasonSearch"></div>
       <div class="sz-table-wrap"><table class="sz-table"><thead><tr><th scope="col">Игрок</th>${cols.map(([key,label])=>`<th scope="col" ${key===state.sort?'aria-sort="'+(state.descending?'descending':'ascending')+'"':''}><button data-season-sort="${key}">${label}${key===state.sort?(state.descending?' ↓':' ↑'):''}</button></th>`).join('')}</tr></thead>
-      <tbody>${visible.map(p=>`<tr><td><button data-season-player="${p.id}"><span class="sz-number">№ ${p.n}</span><b>${esc(p.name)}</b></button></td>${cols.map(([key])=>`<td class="${state.sort===key?'sz-ranked':''}">${key==='pct'?percent(p.sv,p.shots):key==='pm'?signed(p.pm):p[key]}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      <tbody>${visible.map(p=>`<tr><td><button data-season-player="${p.id}"><span class="sz-number">№ ${p.n}</span><b>${esc(p.name)}</b></button></td>${cols.map(([key])=>`<td class="${state.sort===key?'sz-ranked':''}">${key==='pct'?percent(p.sv,p.shots):key==='pm'?signed(p.pm):key==='toi'?(Number.isFinite(p.toi)?clock(p.toi):'Нет данных'):p[key]}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
       ${rows.length?'':'<p class="sz-empty">Игроков с таким именем нет.</p>'}${pager}</section>`;
   }
   function matches(h) {
