@@ -307,7 +307,7 @@ html[data-theme="tiles"] .lpop{background:#fff;box-shadow:0 12px 40px rgba(0,0,0
 .tdd.on{display:block} html[data-theme="tiles"] .tdd{background:#fff} html[data-theme="board"] .tdd{background:#1c1c1f}
 .tdd .li{margin-bottom:3px}
 .lpop .lps{grid-column:1/-1;font-size:11px;color:var(--ink2);padding:6px 6px 0}
-/* «Итоги» → «Пятёрки» */
+/* «Матч» → «Пятёрки» */
 .tbl.lvw{display:flex;flex-direction:column}
 .lv{flex:1;min-height:0;display:grid;grid-template-rows:repeat(4,minmax(0,1fr)) auto;gap:6px;padding:0 12px 12px}
 .lr{display:grid;grid-template-columns:58px repeat(5,minmax(0,1fr));gap:6px;min-height:0}
@@ -600,7 +600,7 @@ function render(flashN){requestAnimationFrame(()=>{fit('.tl span,.pc .pn span');
   if(VIEW){pPrev.style.display=pNext.style.display='none'}
   document.getElementById('theme').innerHTML=[['light','Светлый'],['board','Табло'],['tiles','Плитки']].map(([v,t])=>`<button data-th="${v}" class="${UI.theme===v?'on':''}">${t}</button>`).join('');
   
-  document.getElementById('tabs').innerHTML=[['input','Ввод'],['sum','Итоги'],['rep','Отчёт'],['season','Сезон']].filter(x=>!VIEW||x[0]!=='input').map(([v,t])=>`<button data-tab="${v}" class="${UI.tab===v?'on':''}">${t}</button>`).join('');
+  document.getElementById('tabs').innerHTML=[['input','Ввод'],['sum','Матч'],['rep','Отчёт'],['season','Сезон']].filter(x=>!VIEW||x[0]!=='input').map(([v,t])=>`<button data-tab="${v}" class="${UI.tab===v?'on':''}">${t}</button>`).join('');
   // полоса положения
   const s=sit(), st=document.getElementById('strip'); st.className='strip '+s.type;
   const pens=S.pens.map(p=>`<span class="pchip">${p.side==='us'?nm(p.n):S.away}${p.kind==='major'?' · 5 мин':p.kind==='double'?' · 2+2':' · 2 мин'}${VIEW?'':`<button data-pend="${p.id}">Штраф закончился</button>`}</span>`).join('');
@@ -659,7 +659,7 @@ function renderInput(flashN){
      <div class="pgrp d" style="flex:${Math.ceil(nD.length/cD)||1}"><div class="cap">Защитники</div><div class="tiles" style="grid-template-columns:repeat(${cD},minmax(0,1fr))">${nD.map(tile).join('')}</div></div>
      <div class="foot">${SO?`Буллиты: ${series.map(team=>`${esc(team.name)} <b>${team.goals}</b> из <b>${team.attempts}</b>`).join(' · ')}${so.win?' · серия закончена, гол добавлен в счёт':''}`:`${PN(S.cur)}: броски <b>${pc('sh')}</b> · вбрасывания <b>${fw}</b> из <b>${fw+fl}</b> · потери <b>${pc('to')}</b> · силовые <b>${pc('hit')}</b>`}</div>
    </div>
-   <div class="col side"><div class="cap">Последние записи · ошибку — ✎ или ×</div><div class="feed">${feed||'<div class="sub">Записей пока нет</div>'}${nList?`<div class="sub" style="padding:8px 4px;font-size:13px">Ещё ${nList} записей перенесены с бумажного листа (1–2-й периоды). Проверить или убрать — во вкладке «Итоги», нажав на число.</div>`:''}</div><button class="undo" id="undoB">Отменить последнее · ${MOD}Z</button></div>
+   <div class="col side"><div class="cap">Последние записи · ошибку — ✎ или ×</div><div class="feed">${feed||'<div class="sub">Записей пока нет</div>'}${nList?`<div class="sub" style="padding:8px 4px;font-size:13px">Ещё ${nList} записей перенесены с бумажного листа (1–2-й периоды). Проверить или убрать — во вкладке «Матч», нажав на число.</div>`:''}</div><button class="undo" id="undoB">Отменить последнее · ${MOD}Z</button></div>
   </div>`;
   // игрок выбран первым — сбоку от него список действий по амплуа (у защитников нет вбрасываний)
   const sg=SO&&UI.sog!=null?v.querySelector(`.tl[data-sog="${UI.sog}"]`):null;
