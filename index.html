@@ -523,7 +523,17 @@ addEventListener('pagehide',()=>{if(sync.on()&&sync.flag('lm_dirty')&&sync.worth
 /* прошлые матчи на этом компьютере */
 function archive(m){if(VIEW||!m.ev.length)return;try{let a=JSON.parse(localStorage.getItem('lm_archive')||'[]').filter(x=>x.id!==m.id);a.unshift(m);localStorage.setItem('lm_archive',JSON.stringify(a.slice(0,20)))}catch(e){}}
 function archList(){try{return JSON.parse(localStorage.getItem('lm_archive')||'[]')}catch(e){return []}}
-const scoreOf=m=>m.ev.filter(e=>e.k==='g').length+':'+m.ev.filter(e=>e.k==='ga').length;
+/* В записях home — наша команда. Порядок хозяев и гостей нужен только для показа. */
+const rinkOrder=(venue,ours,opponent)=>venue==='ВЫЕЗД'?[opponent,ours]:[ours,opponent];
+function scoreOf(m){
+  const {win}=soSt(m);
+  const ours=m.ev.filter(e=>e.k==='g').length+(win==='us'?1:0);
+  const opponent=m.ev.filter(e=>e.k==='ga').length+(win==='them'?1:0);
+  return rinkOrder(m.venue,ours,opponent).join(':')+(win?' Б':'');
+}
+function listedScore(m){
+  return String(m.score||'').replace(/^(\d+):(\d+)/,(_,ours,opponent)=>rinkOrder(m.venue,ours,opponent).join(':'));
+}
 /* режим «Просмотр»: раз в 15 секунд берём матч из таблицы */
 let viewId=null;
 async function pull(){if(!VIEW||!API||document.hidden)return;
@@ -547,7 +557,7 @@ function sitOf(key){const [a,b]=key.split('x').map(Number);return a>b?'pp':a<b?'
 /* буллиты: период 5; записи bg / bm (наш игрок забил / не забил), bga / bsv (соперник забил / вратарь отбил).
    В голы, броски, очки и плюс-минус не идут. Победный гол прибавляется к счёту по кнопке «Серия закончена». */
 const SOK=['bg','bm'];
-function soSt(){const c=k=>S.ev.filter(e=>e.k===k).length,u=c('bg'),t=c('bga'),ua=u+c('bm'),ta=t+c('bsv');return {u,t,ua,ta,any:ua+ta>0,win:S.soEnd&&u!==t?(u>t?'us':'them'):null}}
+function soSt(m=S){const c=k=>m.ev.filter(e=>e.k===k).length,u=c('bg'),t=c('bga'),ua=u+c('bm'),ta=t+c('bsv');return {u,t,ua,ta,any:ua+ta>0,win:m.soEnd&&u!==t?(u>t?'us':'them'):null}}
 /* ---------- запись ---------- */
 function push(gid,n,k,x={}){const e={id:S.nextId++,gid,p:S.cur,n,k,src:'ввод',ts:Date.now(),...x};S.ev.push(e);return e}
 function record(k,n,extra={}){
@@ -581,8 +591,11 @@ function fit(sel,min=9){const rg=document.createRange(),over=el=>{rg.selectNodeC
 function render(flashN){requestAnimationFrame(()=>{fit('.tl span,.pc .pn span');fit('.it .tx .as',9);const a=[...document.querySelectorAll('.pgrp .tl:not(.gks) span')];if(a.length){const m=Math.min(...a.map(e=>parseFloat(getComputedStyle(e).fontSize)));a.forEach(e=>e.style.fontSize=m+'px')}});
   document.querySelector('.app').classList.toggle('season-active',UI.tab==='season');
   document.title=UI.tab==='season'?'Итоги сезона · Челмет':'Лист матча';
-  const gF=S.ev.filter(e=>e.k==='g').length, gA=S.ev.filter(e=>e.k==='ga').length;
-  home.innerHTML=logo(S.home)+esc(S.home); away.innerHTML=esc(S.away)+logo(S.away); const so=soSt();score.textContent=(gF+(so.win==='us'?1:0))+':'+(gA+(so.win==='them'?1:0))+(so.win?' Б':''); venue.textContent=S.venue; pdate.textContent=' '+(S.date||'');document.getElementById('pPrint').textContent=UI.sumPer==='all'?'Весь матч':PN(UI.sumPer);
+  const [host,guest]=rinkOrder(S.venue,S.home,S.away);
+  home.innerHTML=logo(host)+esc(host);
+  away.innerHTML=esc(guest)+logo(guest);
+  score.textContent=scoreOf(S);
+  venue.textContent=S.venue; pdate.textContent=' '+(S.date||'');document.getElementById('pPrint').textContent=UI.sumPer==='all'?'Весь матч':PN(UI.sumPer);
   pName.textContent=PN(S.cur);
   if(VIEW){pPrev.style.display=pNext.style.display='none'}
   document.getElementById('theme').innerHTML=[['light','Светлый'],['board','Табло'],['tiles','Плитки']].map(([v,t])=>`<button data-th="${v}" class="${UI.theme===v?'on':''}">${t}</button>`).join('');
@@ -599,6 +612,9 @@ function renderInput(flashN){
   const v=document.getElementById('view');
   const a=UI.act, pl=UI.pl;
   const SO=S.cur===5,so=soSt();
+  const series=SO?rinkOrder(S.venue,
+    {name:S.home,goals:so.u,attempts:so.ua,shots:S.ev.filter(e=>SOK.includes(e.k)),goal:'bg'},
+    {name:S.away,goals:so.t,attempts:so.ta,shots:S.ev.filter(e=>e.k==='bga'||e.k==='bsv'),goal:'bga'}):[];
   const hint=SO&&!a&&!pl?'Буллит: нажмите игрока или вратаря':a&&!pl?`<b>${AN[a]}</b> — теперь нажмите номер игрока`:pl&&!a?`<b>${nm(pl)}</b> — что сделал?`:'Нажмите игрока, затем что он сделал — или наоборот';
   const tile=p=>{const c=a?cnt(p.n,a,S.cur):0;return `<button class="tl${pl===p.n?' pick':''}${flashN===p.n?' flash':''}" data-pl="${p.n}"><em>${p.pos==='з'?'ЗАЩ':'НАП'}</em><b>${p.n}</b><span>${p.name}</span>${a&&c?`<i>${c}</i>`:''}</button>`};
   const pc=k=>S.ev.filter(e=>e.k===k&&e.p===S.cur).length;
@@ -626,8 +642,7 @@ function renderInput(flashN){
     return `<div class="it${cls}${m.gid===UI.lastGid&&i===0?' new':''}"><div class="tx"><b>${t}</b>${gl?`<span class="as">${ast}</span>`:''}<small>${sub}</small></div>${(gl||ga)&&m.src!=='лист'?`<button class="x ed" data-eg="${m.gid}" title="Изменить: кто забил, передачи, кто был на льду">✎</button>`:''}<button class="x" data-del="${m.gid}" title="Убрать эту запись">×</button></div>`}).join('');
   v.innerHTML=`<div class="main${pl&&!a?' picking':''}">
    ${SO?`<div class="col side"><div class="cap">Серия буллитов</div>
-     <div class="sob"><div class="r"><b>${esc(S.home)}</b><span class="t">${so.u}</span><div class="cs">${S.ev.filter(e=>SOK.includes(e.k)).map(e=>`<i class="${e.k==='bg'?'y':''}">${e.n}</i>`).join('')}</div></div>
-       <div class="r"><b>${esc(S.away)}</b><span class="t">${so.t}</span><div class="cs">${S.ev.filter(e=>e.k==='bga'||e.k==='bsv').map(e=>`<i class="${e.k==='bga'?'y':''}"></i>`).join('')}</div></div></div>
+     <div class="sob">${series.map(team=>`<div class="r"><b>${esc(team.name)}</b><span class="t">${team.goals}</span><div class="cs">${team.shots.map(e=>`<i class="${e.k===team.goal?'y':''}">${SOK.includes(e.k)?e.n:''}</i>`).join('')}</div></div>`).join('')}</div>
      <div class="acts so">
        ${gk?'':`<div class="cap">Бросок соперника</div>
        <button class="act" data-so="bga" style="justify-content:center">Соперник забил</button>
@@ -642,7 +657,7 @@ function renderInput(flashN){
      ${nC.length||gk?`<div class="pgrp f" style="flex:1"><div class="cap">${nC.length?'Центральные · вбрасывания':''}</div><div class="tiles" style="grid-template-columns:repeat(${cC},minmax(0,1fr))">${nC.map(tile).join('')}${gkTile}${gkSwap}</div></div>`:''}
      <div class="pgrp f" style="flex:${Math.ceil(nF.length/cF)||1}"><div class="cap">${nC.length?'Крайние нападающие':'Нападающие'}</div><div class="tiles" style="grid-template-columns:repeat(${cF},minmax(0,1fr))">${nF.map(tile).join('')}</div></div>
      <div class="pgrp d" style="flex:${Math.ceil(nD.length/cD)||1}"><div class="cap">Защитники</div><div class="tiles" style="grid-template-columns:repeat(${cD},minmax(0,1fr))">${nD.map(tile).join('')}</div></div>
-     <div class="foot">${SO?`Буллиты: ${esc(S.home)} <b>${so.u}</b> из <b>${so.ua}</b> · ${esc(S.away)} <b>${so.t}</b> из <b>${so.ta}</b>${so.win?' · серия закончена, гол добавлен в счёт':''}`:`${PN(S.cur)}: броски <b>${pc('sh')}</b> · вбрасывания <b>${fw}</b> из <b>${fw+fl}</b> · потери <b>${pc('to')}</b> · силовые <b>${pc('hit')}</b>`}</div>
+     <div class="foot">${SO?`Буллиты: ${series.map(team=>`${esc(team.name)} <b>${team.goals}</b> из <b>${team.attempts}</b>`).join(' · ')}${so.win?' · серия закончена, гол добавлен в счёт':''}`:`${PN(S.cur)}: броски <b>${pc('sh')}</b> · вбрасывания <b>${fw}</b> из <b>${fw+fl}</b> · потери <b>${pc('to')}</b> · силовые <b>${pc('hit')}</b>`}</div>
    </div>
    <div class="col side"><div class="cap">Последние записи · ошибку — ✎ или ×</div><div class="feed">${feed||'<div class="sub">Записей пока нет</div>'}${nList?`<div class="sub" style="padding:8px 4px;font-size:13px">Ещё ${nList} записей перенесены с бумажного листа (1–2-й периоды). Проверить или убрать — во вкладке «Итоги», нажав на число.</div>`:''}</div><button class="undo" id="undoB">Отменить последнее · ${MOD}Z</button></div>
   </div>`;
@@ -683,7 +698,7 @@ function renderSum(){
   // голы
   const gl=S.ev.filter(e=>e.k==='g'||e.k==='ga').sort((x,y)=>(x.p-y.p)||((x.t||'99').localeCompare(y.t||'99'))||(x.id-y.id));
   let f=0,a=0;const glr=gl.map(e=>{e.k==='g'?f++:a++;const as=e.asst||S.ev.filter(x=>x.gid===e.gid&&x.k==='a').map(x=>x.n);const ty=sitOf(e.sit||'5x5');
-    return `<div class="gl"><span class="t">${PS(e.p)}${e.t?' '+e.t:''}</span><span class="s">${f}:${a}</span><span class="w">${e.k==='g'?nm(e.n)+(as.length?` <small>(${as.map(snm).join(', ')})</small>`:''):`<span style="color:var(--ink2)">${S.away}</span>`}</span><span class="tag ${ty}">${ty==='pk'&&e.k==='ga'?'<span style="color:var(--bad)">!</span> ':''}${SITS[ty]}</span></div>`}).reverse().join('');
+    return `<div class="gl"><span class="t">${PS(e.p)}${e.t?' '+e.t:''}</span><span class="s">${rinkOrder(S.venue,f,a).join(':')}</span><span class="w">${e.k==='g'?nm(e.n)+(as.length?` <small>(${as.map(snm).join(', ')})</small>`:''):`<span style="color:var(--ink2)">${S.away}</span>`}</span><span class="tag ${ty}">${ty==='pk'&&e.k==='ga'?'<span style="color:var(--bad)">!</span> ':''}${SITS[ty]}</span></div>`}).reverse().join('');
   const pers=[1,2,3,4].filter(p=>p<=S.cur||S.ev.some(e=>e.p===p));const c=(p,k)=>S.ev.filter(e=>e.p===p&&e.k===k).length;
   const cen=all.filter(x=>x.s.fw+x.s.fl).sort((x,y)=>(y.s.fw+y.s.fl)-(x.s.fw+x.s.fl));
   const un=S.ev.some(e=>e.p===0);
@@ -692,7 +707,7 @@ function renderSum(){
   const gks=(S.gk||[]).filter(Boolean).map(g=>{const sv=S.ev.filter(e=>e.k==='sv'&&e.n===g.n&&inP(e)).length,ga=S.ev.filter(e=>e.k==='ga'&&inP(e)&&(e.gk!=null?e.gk===g.n:e.gk===undefined&&e.src!=='лист'&&g0&&g0.n===g.n&&S.ev.some(x=>x.k==='sv'))).length;return {g,sv,ga}}).filter(x=>x.sv||x.ga);
   const gkBox=gks.length?`<div class="box"><div class="cap">Вратарь</div>${gks.map(x=>`<div class="gl" style="grid-template-columns:1fr auto"><span class="w">${x.g.n} ${x.g.name}</span><span>отбил <b>${x.sv}</b> · пропустил <b>${x.ga}</b>${x.sv+x.ga?` · <b>${(100*x.sv/(x.sv+x.ga)).toFixed(1).replace('.',',')} %</b>`:''}</span></div>`).join('')}</div>`:'';
   const soS=soSt(),soN=[...new Set(S.ev.filter(e=>SOK.includes(e.k)).map(e=>e.n))],soG=[...new Set(S.ev.filter(e=>(e.k==='bga'||e.k==='bsv')&&e.gk!=null).map(e=>e.gk))],soR=(l,r)=>`<div class="gl" style="grid-template-columns:1fr auto"><span class="w">${l}</span><span>${r}</span></div>`;
-  const soBox=soS.any?`<div class="box"><div class="cap">Буллиты · ${soS.u}:${soS.t}${soS.win?(soS.win==='us'?' · победа в серии':' · серия проиграна'):''}</div>${soN.map(n=>soR(nm(n),`забил <b>${cnt(n,'bg')}</b> из <b>${cnt(n,'bg')+cnt(n,'bm')}</b>`)).join('')}${soG.map(n=>{const f=k=>S.ev.filter(e=>e.k===k&&e.gk===n).length;return soR('Вратарь '+nm(n),`отбил <b>${f('bsv')}</b> из <b>${f('bsv')+f('bga')}</b>`)}).join('')}${soS.ta&&!soG.length?soR('Соперник',`забил <b>${soS.t}</b> из <b>${soS.ta}</b>`):''}</div>`:'';
+  const soBox=soS.any?`<div class="box"><div class="cap">Буллиты · ${rinkOrder(S.venue,soS.u,soS.t).join(':')}${soS.win?(soS.win==='us'?' · победа в серии':' · серия проиграна'):''}</div>${soN.map(n=>soR(nm(n),`забил <b>${cnt(n,'bg')}</b> из <b>${cnt(n,'bg')+cnt(n,'bm')}</b>`)).join('')}${soG.map(n=>{const f=k=>S.ev.filter(e=>e.k===k&&e.gk===n).length;return soR('Вратарь '+nm(n),`отбил <b>${f('bsv')}</b> из <b>${f('bsv')+f('bga')}</b>`)}).join('')}${soS.ta&&!soG.length?soR('Соперник',`забил <b>${soS.t}</b> из <b>${soS.ta}</b>`):''}</div>`:'';
   const pcard=(p,cls)=>{if(!p)return `<div class="pc e${cls||''}"></div>`;const s=st(p.n),z=v=>v?`<b>${v}</b>`:'<b class="z">·</b>';
     const ex=[s.fw+s.fl?`вбрас. ${s.fw}–${s.fl}`:'',s.bl?`блоки ${s.bl}`:'',s.hit?`силовые ${s.hit}`:'',s.to?`потери ${s.to}`:'',s.pen?`штраф ${s.pen} мин`:''].filter(Boolean).join(' · ');
     return `<div class="pc${cls||''}"><div class="ph">${avatar(p)}<div class="pn"><b>${p.n}</b><span>${p.name}</span></div></div>
@@ -708,7 +723,7 @@ function renderSum(){
     ${un&&UI.sumPer!=='all'?'<div class="note" style="padding:10px 14px">На бумажном листе блоки, силовые, потери, удаления и плюс-минус за 1–2-й периоды записаны вместе — по периодам их не разделить, они видны в «Весь матч».</div>':''}</div>
    <div class="side"><div class="box"><div class="cap">Голы</div>${glr||'<div class="sub">Голов нет</div>'}</div>
     ${gkBox}${soBox}
-    <div class="box"><div class="cap">По периодам</div><table class="pt"><tr><th class="l"></th><th>Счёт</th><th>Броски</th><th>Вбрасывания</th></tr>${pers.map(p=>`<tr><td>${PN(p)}</td><td>${c(p,'g')}:${c(p,'ga')}</td><td>${c(p,'sh')}</td><td>${c(p,'fw')}–${c(p,'fl')}</td></tr>`).join('')}</table></div>
+    <div class="box"><div class="cap">По периодам</div><table class="pt"><tr><th class="l"></th><th>Счёт</th><th>Броски</th><th>Вбрасывания</th></tr>${pers.map(p=>`<tr><td>${PN(p)}</td><td>${rinkOrder(S.venue,c(p,'g'),c(p,'ga')).join(':')}</td><td>${c(p,'sh')}</td><td>${c(p,'fw')}–${c(p,'fl')}</td></tr>`).join('')}</table></div>
     <div class="box"><div class="cap">Центры на вбрасываниях</div>${cen.map(x=>`<div class="bar"><span>${nm(x.p.n)}</span><span class="bt"><i style="width:${Math.round(100*x.s.fw/(x.s.fw+x.s.fl))}%"></i></span><span class="v">${x.s.fw}–${x.s.fl}</span></div>`).join('')||'<div class="sub">Пока нет</div>'}</div>
     ${S.source||S.sheetP1?`<div class="box note">${S.source||''} ${S.sheetP1||''}</div>`:''}</div></div>`;
 }
@@ -774,7 +789,7 @@ function renderOperatorSeason(coverage){
     <div class="box"><div class="cap">Матчи оператора</div>${seasonList(D)}</div>
     <div class="box note">${state}${state?'. ':''}Учтены матчи с записями в трёх периодах. Среднее игрока — на матч в заявке оператора. Точка и ноль — нет записи о действии. Официальные показатели — в разделе «Игроки».${last?' ▲ ▼ показывают отклонение от среднего игрока за все матчи журнала.':''}</div></div></div>`;
 }
-function seasonList(D){return D.matches.map(m=>`<div class="sm${m.why?' off':''}"><span class="d">${esc((m.date||'').slice(0,5))}</span><span class="w">${esc(m.away||'Соперник')}${m.venue?` <small>${m.venue==='ВЫЕЗД'?'в гостях':'дома'}</small>`:''}${m.why?`<small class="y">не в расчёте: ${esc(m.why)}</small>`:''}</span><span class="s">${esc(m.score)}</span></div>`).join('')}
+function seasonList(D){return D.matches.map(m=>`<div class="sm${m.why?' off':''}"><span class="d">${esc((m.date||'').slice(0,5))}</span><span class="w">${rinkOrder(m.venue,m.home||'Челмет',m.away||'Соперник').map(esc).join(' — ')}${m.venue?` <small>${m.venue==='ВЫЕЗД'?'в гостях':'дома'}</small>`:''}${m.why?`<small class="y">не в расчёте: ${esc(m.why)}</small>`:''}</span><span class="s" title="Счёт матча, хозяева первыми">${esc(listedScore(m))}</span></div>`).join('')}
 
 /* ---------- листы ---------- */
 const ov=document.getElementById('ov'),sh=document.getElementById('sheet');
@@ -961,10 +976,13 @@ function rosterSheet(isNew){sh.classList.remove('narrow');
     el.classList.toggle('on',L.length>0&&!(L.length===1&&tz(L[0][0])===q))};
   sh.oninput=e=>{if(e.target.id==='fA')tdd(true)};
   const draw=()=>{srt();
+    const teamFields=rinkOrder(ven,
+      `<span class="tw">${logo(f.h)}<input type="text" id="fH" aria-label="Наша команда" value="${esc(f.h)}" style="width:150px"></span>`,
+      `<span class="tw"><input type="text" id="fA" aria-label="Соперник" value="${esc(f.a)}" placeholder="Соперник" style="width:190px" autocomplete="off"><div class="tdd" id="tdd"></div></span>`);
     const tile=p=>`<button class="tl${p.out?' off':''}${p.fresh&&!p.out?' nw':''}" data-t="${p.n}">${p.out?'<em>не играет</em>':p.fresh?'<em>новый</em>':''}<b>${p.n}</b><span>${p.name}</span></button>`;
     const grp=(pos,l)=>{const g=R.filter(p=>p.pos===pos);return `<div class="lbl">${l} · играют ${g.filter(p=>!p.out).length} из ${g.length}</div><div class="gtiles">${g.map(tile).join('')}</div>`};
     sh.innerHTML=`<h2>${isNew?'Новый матч · кто сегодня играет':'Состав на матч'}</h2><p class="sub">${lines&&!list?'Нажмите на кружок и выберите игрока на это место.':'Нажмите на игрока — он «играет» или «не играет». Кнопки на экране ввода изменятся сами.'}${note?' '+note:''}</p>
-     <div class="row" style="margin:12px 0"><span class="tw">${logo(f.h)}<input type="text" id="fH" value="${f.h}" style="width:150px"></span><span class="sub">против</span><span class="tw"><input type="text" id="fA" value="${f.a}" placeholder="Соперник" style="width:190px" autocomplete="off"><div class="tdd" id="tdd"></div></span><input type="text" id="fD" value="${f.d}" style="width:120px"><div class="seg" id="fV"><button class="${ven==='ДОМА'?'on':''}">ДОМА</button><button class="${ven==='ВЫЕЗД'?'on':''}">ВЫЕЗД</button></div></div>
+     <div class="row" style="margin:12px 0">${teamFields.join('<span class="sub">против</span>')}<input type="text" id="fD" value="${f.d}" style="width:120px"><div class="seg" id="fV"><button class="${ven==='ДОМА'?'on':''}">ДОМА</button><button class="${ven==='ВЫЕЗД'?'on':''}">ВЫЕЗД</button></div></div>
      ${list?`<p class="sub">Одна строка — один игрок: номер, фамилия, «н» (нападающий) или «з» (защитник). Лишнюю строку можно стереть.</p><textarea id="fR" style="min-height:240px">${R.map(p=>`${p.n} ${p.name} ${p.pos}`).join('\n')}</textarea>`
       :lines?linesHtml():grp('н','Нападающие')+grp('з','Защитники')+`<div class="lbl">Новый игрок, которого нет в списке</div>
      <div class="row"><input type="text" id="nN" placeholder="№" style="width:70px" inputmode="numeric"><input type="text" id="nF" placeholder="Фамилия" style="width:200px"><div class="seg" id="nP"><button class="${np==='н'?'on':''}" data-np="н">Нападающий</button><button class="${np==='з'?'on':''}" data-np="з">Защитник</button></div><button class="btn dark" data-add>Добавить</button></div>`}
@@ -1032,9 +1050,9 @@ function rosterSheet(isNew){sh.classList.remove('narrow');
   draw();open_(); if(isNew&&sync.on()&&!sync.flag('lm_rdirty'))cloud(true);
 }
 function pastSheet(){sh.classList.remove('narrow');
-  let rows=archList().map(m=>({id:m.id,date:m.date,home:m.home,away:m.away,score:scoreOf(m),local:m}));
+  let rows=archList().map(m=>({id:m.id,date:m.date,home:m.home,away:m.away,venue:m.venue,local:m}));
   const draw=msg=>{sh.innerHTML=`<h2>Прошлые матчи</h2><p class="sub">${msg||'Нажмите на матч, чтобы открыть его.'}</p>
-    <div class="mlist">${rows.filter(r=>r.id!==S.id).map(r=>`<button class="mrow" data-id="${r.id}"><span>${r.date||''}</span><span>${r.home} – ${r.away}</span><span class="n">${r.score||''}</span></button>`).join('')||'<div class="sub">Других матчей пока нет</div>'}</div>
+    <div class="mlist">${rows.filter(r=>r.id!==S.id).map(r=>`<button class="mrow" data-id="${r.id}"><span>${r.date||''}</span><span>${rinkOrder(r.venue,r.home,r.away).map(esc).join(' – ')}</span><span class="n">${esc(r.local?scoreOf(r.local):listedScore(r))}</span></button>`).join('')||'<div class="sub">Других матчей пока нет</div>'}</div>
     <div class="row">${VIEW&&viewId?'<button class="btn" data-live>Вернуться к текущему матчу</button>':''}<span class="sp"></span><button class="btn dark" data-x>Закрыть</button></div>`};
   sh.onclick=async e=>{const b=e.target.closest('button');if(!b)return;if('x' in b.dataset){close_();return}
     if('live' in b.dataset){viewId=null;close_();pull();return}
@@ -1052,7 +1070,7 @@ function dl(name,content,type){
   link.href=url;link.download=name;link.hidden=true;document.body.append(link);
   try{link.click()}finally{link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
 }
-const fname=()=>(S.date||'').split('.').reverse().join('-')+'_'+S.home+'_'+S.away;
+const fname=()=>(S.date||'').split('.').reverse().join('-')+'_'+rinkOrder(S.venue,S.home,S.away).join('_');
 function csv(){const keep=UI.sumPer,out=[];
   for(const [p,l] of [['all','Матч'],[0,'1–2 пер. (не разделено)'],[1,'1 период'],[2,'2 период'],[3,'3 период'],[4,'ОТ']]){if(p!=='all'&&!S.ev.some(e=>e.p===p))continue;UI.sumPer=p;
     for(const x of ord(true).filter(p=>!p.out||S.ev.some(e=>e.n===p.n))){const s=st(x.n);out.push([l,x.n,x.name,x.pos,s.fw,s.fl,s.sh,s.g,s.a,s.bl,s.hit,s.to,s.pen,s.pmc?s.pl:'',s.pmc?s.mi:''].join(';'))}}

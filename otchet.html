@@ -660,12 +660,17 @@ const mod=(k,t,v,u,g,x)=>`<div class="mod"><div class="mod-lab"><span class="mod
 const tile=(v,d,x)=>`<div class="tile"><b class="v">${v}</b><span class="d">${d}</span><span class="x">${x||'&nbsp;'}</span></div>`;
 const fold=(k,t,sub,n,u,body)=>`<details class="fold"><summary><span class="fold-ic">${svg(k)}</span><span class="fold-t"><b>${t}</b><span>${sub}</span></span><span class="fold-n">${n}<small>${u}</small></span><span class="fold-chev"></span></summary><div class="fold-body">${body}</div></details>`;
 const ART=`<svg viewBox="0 0 240 160" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="14" y="20" width="212" height="120" rx="44"/><path d="M120 20v120M70 20v120M170 20v120" stroke-dasharray="3 6"/><circle cx="120" cy="80" r="24"/><path d="M34 62v36M206 62v36"/><circle cx="120" cy="80" r="4.5" fill="var(--hl)" stroke="none"/></svg>`;
-const TITLE=()=>`${esc(D.home)} – ${esc(D.away)}${D.date?' · '+esc(D.date):''}${D.venue?' · '+esc(D.venue).toLowerCase():''}`;
+const hostGuest=(ours,opponent)=>D.venue==='ВЫЕЗД'?[opponent,ours]:[ours,opponent];
+const matchTeams=()=>hostGuest(D.home,D.away);
+const TITLE=()=>`${matchTeams().map(esc).join(' – ')}${D.date?' · '+esc(D.date):''}${D.venue?' · '+esc(D.venue).toLowerCase():''}`;
 const hero=(kick,h)=>`<header class="sec-hero"><div class="sh-art">${ART}</div><div class="sh-txt"><div class="sh-kick">${kick}</div><h1>${h}</h1><p>${TITLE()}</p></div></header>`;
 const verdict=(kick,num,word,ps)=>`<section class="verdict"><div class="vd-band"><div class="vd-top"><span class="vd-kick">${kick}</span></div><div class="vd-num">${num}</div></div><div class="vd-body"><div class="vd-word">${word}</div><div class="vd-src ps">${ps}</div></div></section>`;
 const fo=(r,f)=>({a:E('fw',f,r.n),b:E('fl',f,r.n),get n(){return this.a+this.b},get q(){return pct(this.a,this.b)}});
 const cenRule=x=>x.n>=8&&x.q>=60?'S':x.n>=4&&x.n<=7&&x.q>=75?'S':x.n>=10&&x.q>=50&&x.q<60?'S':x.n>=8&&x.q<=40?'C':x.n>=4&&x.n<=7&&x.q<=25?'Cп':null;
-const SCORE=f=>`${E('g',f)+(f===ALL&&D.so==='us'?1:0)}:${E('ga',f)+(f===ALL&&D.so==='them'?1:0)}`;
+const SCORE=f=>hostGuest(
+  E('g',f)+(f===ALL&&D.so==='us'?1:0),
+  E('ga',f)+(f===ALL&&D.so==='them'?1:0)
+).join(':');
 
 /* ---------- когда цифра попадает в итоги (пороги — допущение, Антоном не утверждены) ---------- */
 const RULES=[
@@ -798,7 +803,7 @@ function sheet(v){
   const fo2=ff=>{const a=N('fw',ff),b=N('fl',ff);return a+b?`${a}–${b}`:'·'},fo3=ff=>{const a=N('fw',ff),b=N('fl',ff);return a+b?pct(a,b):'·'};
   const gk=ff=>{const s=N('sv',ff),n=s+N('ga',ff);return n?`${s}/${n}`:'·'},gk2=ff=>{const s=N('sv',ff),n=s+N('ga',ff);return n?(100*s/n).toFixed(1).replace('.',','):'·'};
   const isF=e=>pl(e.n)&&pl(e.n).pos==='н',isD=e=>pl(e.n)&&pl(e.n).pos==='з';
-  const rows=[['Счёт',ff=>`${N('g',ff)}:${N('ga',ff)}`],['Броски',ff=>N('sh',ff)],['Броски соперника в створ',ff=>N('sv',ff)+N('ga',ff)],['Вбрасывания',fo2],['Вбрасывания, %',fo3],['Блоки',ff=>N('bl',ff)],['Силовые',ff=>N('hit',ff)],['Потери',ff=>N('to',ff)],
+  const rows=[['Счёт',SCORE],['Броски',ff=>N('sh',ff)],['Броски соперника в створ',ff=>N('sv',ff)+N('ga',ff)],['Вбрасывания',fo2],['Вбрасывания, %',fo3],['Блоки',ff=>N('bl',ff)],['Силовые',ff=>N('hit',ff)],['Потери',ff=>N('to',ff)],
     ['Удаления / минуты',ff=>`${N('pen',ff)}/${mins(ff)}`],['Забили в большинстве',ff=>N('g',ff,e=>e.sit==='pp')],['Пропущено в меньшинстве',ff=>N('ga',ff,e=>e.pk)],['Вратарь: отбил / бросков',gk],['Вратарь, %',gk2],
     ['Бросков на гол',ff=>N('g',ff)?(N('sh',ff)/N('g',ff)).toFixed(1).replace('.',','):'·'],['Потерь на бросок',ff=>N('sh',ff)?(N('to',ff)/N('sh',ff)).toFixed(1).replace('.',','):'·'],['Броски: нап. / защ.',ff=>`${N('sh',ff,isF)}/${N('sh',ff,isD)}`]];
   const F=findings(p,m),its=[...F.K.slice(0,3).map(x=>[1,x]),...F.C.slice(0,4).map(x=>[0,x])];

@@ -26,15 +26,19 @@ const seasonScreen = (() => {
   function matchRow(m, full=false) {
     const won = m.goalsFor > m.goalsAgainst;
     const shortDate = m.date.slice(8)+'.'+m.date.slice(5,7);
-    const description = esc(m.opponent)+' · '+date(m.date);
+    const teams=[['Челмет',m.goalsFor],[m.opponent,m.goalsAgainst]];
+    if(!m.home)teams.reverse();
+    const title=teams.map(([name])=>esc(name)).join(' — ');
+    const score=teams.map(([,goals])=>goals).join(':');
+    const description=title+' · '+date(m.date);
     const protocol = full && m.protocolUrl ? `<div class="sz-protocols">
       <a data-season-protocol href="${esc(m.protocolUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Протокол ВХЛ: ${description} (в новой вкладке)">Протокол ВХЛ</a>
-      <a data-season-attachment href="protocols/${m.id}.html" download="Челмет — ${esc(m.opponent)} — ${m.date}.html" aria-label="Скачать копию протокола: ${description}">Скачать копию</a>
+      <a data-season-attachment href="protocols/${m.id}.html" download="${title} — ${m.date}.html" aria-label="Скачать копию протокола: ${description}">Скачать копию</a>
     </div>` : '';
     return `<div class="sz-match">
       <time datetime="${m.date}">${full?date(m.date):shortDate}</time>
-      <span class="sz-opponent">${esc(m.opponent)}<small>${m.home?'Дома':'В гостях'}</small></span>
-      <span class="sz-score" aria-label="Счёт Челмета ${m.goalsFor}:${m.goalsAgainst}">${m.goalsFor}:${m.goalsAgainst}</span>
+      <span class="sz-opponent">${title}<small>${m.home?'Дома':'В гостях'}</small></span>
+      <span class="sz-score" aria-label="${title}, счёт ${score}">${score}</span>
       <span class="sz-outcome ${won?'sz-win':''}">${won?'Победа':'Поражение'}${m.finish?' · '+esc(m.finish):''}</span>${protocol}
     </div>`;
   }
@@ -98,7 +102,7 @@ const seasonScreen = (() => {
   }
   function matches(h) {
     const {visible,pager}=pageSlice([...h.matches].reverse());
-    return `<section class="sz-directory sz-card"><div class="sz-card-heading"><h2>Матчи «Челмета»</h2><span class="sz-secondary">Счёт со стороны «Челмета»</span></div>
+    return `<section class="sz-directory sz-card"><div class="sz-card-heading"><h2>Матчи «Челмета»</h2><span class="sz-secondary">Хозяева — гости</span></div>
       <div class="sz-match-list">${visible.map(m=>matchRow(m,true)).join('')}</div>${pager}</section>`;
   }
   function profile(id) {
