@@ -83,6 +83,7 @@ html[data-theme="tiles"] .pb{background:var(--bg)} html[data-theme="tiles"] .pb.
 .strip{display:flex;align-items:center;gap:12px;min-height:54px;padding:6px 8px 6px 18px;border-radius:var(--r);background:var(--card)}
 .strip .what{font-size:19px;font-weight:700;white-space:nowrap}
 .strip .what .n{font-weight:800}
+.strip .what.lgw{font-size:14px;font-weight:500;color:var(--ink2)}
 .strip .sign{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:var(--bad);color:#fff;font-weight:800;margin-right:8px;transform:rotate(45deg)}
 .strip .sign span{transform:rotate(-45deg)}
 .strip.pp{background:var(--accSoft)} .strip.pp .what{color:var(--btn)}
@@ -101,7 +102,7 @@ html[data-theme="board"] .pchip{background:rgba(255,255,255,.08)}
 .col{background:var(--card);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;min-height:0;gap:8px}
 .cap{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;padding:2px 4px}
 /* действия */
-.acts{display:grid;grid-template-rows:repeat(7,minmax(46px,1fr)) minmax(64px,1.5fr) minmax(46px,1fr);gap:6px;flex:1;min-height:0}
+.acts{display:grid;grid-template-rows:repeat(8,minmax(46px,1fr)) minmax(64px,1.5fr) minmax(46px,1fr);gap:6px;flex:1;min-height:0}
 .act{display:flex;align-items:center;gap:10px;padding:0 14px;border-radius:12px;background:var(--tile);text-align:left;font-size:var(--actFs);font-weight:600;line-height:1.1}
 .act:hover{background:var(--tileH)}
 .acts.so{grid-template-rows:none;grid-auto-rows:minmax(46px,64px);flex:none;margin-top:auto} .acts.so .cap{align-self:end}
@@ -207,6 +208,7 @@ td small{font-size:.7em;font-weight:500;color:var(--ink2);margin-left:1px}
 .bar .bt{height:10px;border-radius:5px;background:var(--tile);overflow:hidden}.bar .bt i{display:block;height:100%;background:var(--ink)}
 .bar .v{font:800 16px var(--num)}
 .note{font-size:12px;color:var(--src);line-height:1.4}
+.lgn{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:8px;font-size:12px;line-height:1.4;color:var(--src)} .lgn .btn{height:36px;padding:0 14px;font-size:13px}
 
 /* листы */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:10;backdrop-filter:blur(8px)}
@@ -284,7 +286,7 @@ html[data-theme="board"] .coach{background:#fff;color:#1D1D1F}
 html[data-theme="board"] .snack{background:#fff;color:#1D1D1F}
 .snack.on{opacity:1;pointer-events:auto}
 .snack button{flex:none;height:36px;padding:0 12px;border-radius:9px;background:var(--acc);color:#fff;font-weight:700}
-@media (max-height:720px){.app{gap:8px;padding:8px 12px}.acts{gap:4px;grid-template-rows:repeat(7,minmax(44px,1fr)) minmax(54px,1.3fr) minmax(44px,1fr)}.col{padding:8px 10px;gap:6px}.hint{font-size:18px;min-height:28px;padding:0 6px}.strip{min-height:50px;padding:3px 8px 3px 18px}}
+@media (max-height:720px){.app{gap:8px;padding:8px 12px}.acts{gap:3px;grid-template-rows:repeat(8,minmax(44px,1fr)) minmax(44px,1.3fr) minmax(44px,1fr)}.col{padding:8px 10px;gap:6px}.hint{font-size:18px;min-height:28px;padding:0 6px}.strip{min-height:50px;padding:3px 8px 3px 18px}}
 /* состав по пятёркам */
 .lgrid{display:grid;grid-template-columns:104px repeat(3,minmax(0,1fr)) 6px repeat(2,minmax(0,1fr));gap:5px 6px;align-items:center;margin-top:2px}
 .lgrid .lh{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em;text-align:center}
@@ -446,26 +448,143 @@ function norm(m){ // перенос с прошлых версий и из фа�
     if(e.k==='g'&&e.src==='лист'&&!e.asst)e.asst={80:[34,26],95:[14]}[e.n]; }
   if(m.gk===undefined&&(m.home||'Челмет')==='Челмет'&&!m.ev.some(e=>e.src==='лист'))m.gk=DEFG.map(n=>{const c=CLUB.find(c=>c.pos==='в'&&c.n===n);return c?{id:c.id,n:c.n,name:c.name}:null});
   if(!m.cur) m.cur=m.ev.some(e=>e.src==='лист')?3:1;
-  fix1119(m); fixSkip(m);
+  fixSkip(m);
   return m}
 /* Пропущенный период: период пуст, а в следующих записи есть — значит, стрелку нажали лишний раз. Записи сдвигаются на своё место. Буллиты (5) не трогаются. */
-function fixSkip(m){ if(m.ev.some(e=>e.src==='лист'))return;
+function fixSkip(m){ if(m.perAuto||m.ev.some(e=>e.src==='лист'))return;
   const has=p=>m.ev.some(e=>e.p===p);
   for(let q=1;q<=3;q++){ let g=0; while(!has(q)&&[2,3,4].some(p=>p>q&&has(p))&&g++<4){ m.ev.forEach(e=>{if(e.p>q&&e.p<=4)e.p--}); if(m.cur>q&&m.cur<=4)m.cur-- } } }
-/* Разовая правка матча с «Дизелем» 19.11.2026 (слова Антона во время игры): второй период писался как третий — вернуть во второй;
-   к первому голу передача Зиновьева (14), к третьему — Цыплакова (91). После матча убрать. */
-function fix1119(m){ if(m.id!=='2026-11-18-6bqy')return;
-  const T3=Date.UTC(2026,10,19,15,0,0);   // 20:00 по Челябинску: третий период раньше начаться не мог (второй начался в 19:18)
-  m.ev.forEach(e=>{if(e.p===3&&e.ts<T3)e.p=2}); if(m.cur===3&&Date.now()<T3)m.cur=2;
-  [[65,14],[117,91]].forEach(([gid,n])=>{ const gl=m.ev.find(e=>e.gid===gid&&e.k==='g'); if(!gl||m.ev.some(e=>e.gid===gid&&e.k==='a'&&e.n===n))return;
-    let i=-1; m.ev.forEach((e,j)=>{if(e.gid===gid&&(e.k==='a'||e.k==='g'))i=j});
-    m.ev.splice(i+1,0,{id:m.nextId++,gid,p:gl.p,n,k:'a',src:'ввод',ts:gl.ts}) }) }
+/* ---------- протокол лиги: голы, передачи и удаления попадают в саму программу ----------
+   Слова Антона 19.11.2026: «оператор не всегда успевает всех отметить или может отметить неправильно, а в протокол после видеопросмотра вписывают правильных…
+   добавлять в программу, в отчёт»; 20.11.2026 про удаления: «если он даже будет отмечать, ты их должен корректировать с сайта лиги потом: время, кто удалён».
+   Источник — онлайн-протокол ВХЛ (тот же, что в отчёте). Номер матча — по дате; применяется, только когда в заголовке лиги те же две команды.
+   Правило то же, что в отчёте: период правится, когда у лиги записей не меньше, чем у оператора (лига отстаёт на минуту-другую).
+   Исправленная запись получает метку lg:1, прежний номер — в was. «На льду при голе» и всё остальное остаётся от оператора.
+   LIGA, vpPens и vpGoals — копии из otchet.html; одинаковость сверяет tools/proverki/liga.js. */
+/*LIGA-COPY*/
+const LIGA={"15.11.2026":904334,"17.11.2026":904348,"19.11.2026":904358,"21.11.2026":904367,"27.11.2026":904391,"29.11.2026":904405,"01.12.2026":904416,"03.12.2026":904424,"08.12.2026":904438,"11.12.2026":904452,"19.12.2026":904488,"21.12.2026":904496,"23.12.2026":904509,"25.12.2026":904520,"09.01.2027":904544,"11.01.2027":904553,"13.01.2027":904563,"22.01.2027":904601,"24.01.2027":904614,"26.01.2027":904626,"31.01.2027":904647,"02.02.2027":904654,"04.02.2027":904663,"07.02.2027":904681,"13.02.2027":904706,"15.02.2027":904716,"17.02.2027":904730,"19.02.2027":904741,"24.02.2027":904759,"26.02.2027":904769,"28.02.2027":904777,"02.03.2027":904793,"07.03.2027":904808,"09.03.2027":904813,"12.03.2027":904828,"14.03.2027":904841,"18.03.2027":904860};
+function vpPens(html){const t=html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g,'').replace(/<[^>]+>/g,'|').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').replace(/(\| ?){2,}/g,'|'),list=[];
+  const add=(mm,ss,team,o)=>{const sec=+mm*60+ +ss;list.push({t:mm+':'+ss,sec,p:Math.min(4,Math.floor(sec/1200)+1),team:team.trim(),...o})},cut=x=>x.trim().replace(/\.$/,'').toLowerCase();
+  for(const m of t.matchAll(/(\d+):(\d\d) ?\|Удаление\. ?\| ?([^|.]+)\. ?\|(\d+)\. ([^|]+)\|\. (\d+) мин\. ?([^|]*)\|/g))add(m[1],m[2],m[3],{n:+m[4],name:m[5].trim().split(' ')[0],min:+m[6],why:cut(m[7])});
+  /* командный штраф: «03:06 | Удаление. | Челмет. | Командный штраф | . 2 мин. Нарушение численного состава. Отбывал: | 50. Екимов Никита |» */
+  for(const m of t.matchAll(/(\d+):(\d\d) ?\|Удаление\. ?\| ?([^|.]+)\. ?\|Командный штраф\|\. (\d+) мин\. ?([^|]*?)(?:Отбывал: ?\|(\d+)\. ([^|]+))?\|/g))add(m[1],m[2],m[3],{n:null,name:'командный штраф',min:+m[4],why:cut(m[5]),serve:m[6]?m[6]+' '+m[7].trim().split(' ')[0]:''});
+  /* сводка лиги «Статистика N-го периода: … Штраф: a-b» (хозяева-гости) — по ней сверяется список; хозяева — первая команда в заголовке страницы */
+  const stat={};for(const m of t.matchAll(/Статистика (\d)-го периода: ?\|[^|]*Штраф: (\d+)-(\d+)/g))if(!stat[m[1]])stat[m[1]]=[+m[2],+m[3]];
+  const tt=/:\s*([^:<]+?)-([^<(]+?)\s*\(онлайн/.exec((/<title>([^<]*)/.exec(html)||[])[1]||'');
+  /* вся сводка лиги за период (хозяева-гости): броски, броски в створ, голы, вбрасывания, блокированные броски, силовые, штраф — для сравнения двух команд на листе 1 */
+  const sum={},SK={'Броски':'sh','Броски в створ':'sog','Голы':'g','Вбрасывания':'fo','Блокированные броски':'bl','Силовые приемы':'hit','Силовые приёмы':'hit','Штраф':'pen'};
+  for(const m of t.matchAll(/Статистика (\d)-го периода: ?\|([^|]*)/g)){if(sum[m[1]])continue;const o={};for(const x of m[2].matchAll(/([А-ЯЁа-яё ]+?): ?(\d+)-(\d+)/g)){const k=SK[x[1].trim()];if(k)o[k]=[+x[2],+x[3]]}sum[m[1]]=o}
+  return {list:list.sort((a,b)=>a.sec-b.sec),stat,sum,homeL:tt?tt[1].trim():'',fin:/Окончание игры/.test(t)}}
+function vpGoals(html){const t=html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g,'').replace(/<[^>]+>/g,'|').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').replace(/(\| ?){2,}/g,'|'),out=[],sn=x=>x.trim().split(' ')[0];
+  for(const m of t.matchAll(/(\d+):(\d\d) ?\|(\d+)\|-\|(\d+)\|([А-Я]{3}) ?\|Изменение счета:\| ?([^|.]+)\. ?\|(\d+)\. ([^|]+)\|(?:, ассистенты: ?\|(\d+)\. ([^|]+)\|)?(?:, ?\|(\d+)\. ([^|]+)\|)?([^|]*)\|(В пустые ворота)?/g)){const sec=+m[1]*60+ +m[2];
+    out.push({t:m[1]+':'+m[2],sec,p:Math.min(4,Math.floor((sec-1)/1200)+1),sc:m[3]+':'+m[4],team:m[6].trim(),n:+m[7],name:sn(m[8]),as:[[m[9],m[10]],[m[11],m[12]]].filter(a=>a[0]).map(a=>({n:+a[0],name:sn(a[1])})),
+      sit:m[14]||/пустые ворота/i.test(m[13])?'en':m[5]==='БОЛ'?'pp':m[5]==='МЕН'?'pk':'eq'})}
+  return out.sort((a,b)=>a.sec-b.sec)}
+/*END-LIGA-COPY*/
+/* ---------- период по часам лиги ----------
+   Слова Антона 22.11.2026: «убрать переключение периодов вообще… он забыл нажать период — и что дальше?… ты видишь в протоколе начало и окончание периода
+   и можешь сопоставлять тайминг»; «чтобы данные не потерять — это самое главное… все перерывы относятся к первому периоду, только концовка — к следующему».
+   Лига пишет в протокол время по часам: «13:32 Окончание 1 периода», «13:49 Начало 2 периода». У каждой записи оператора есть время нажатия (ts).
+   Запись стоит в том периоде, в чьё время сделана. Весь перерыв — прошедший период; последняя минута перед началом следующего (PTAIL) — следующий.
+   Ни одна запись не удаляется; прежний период записи остаётся в p0. Гол и удаление со временем лиги (t) стоят по игровому времени.
+   Овертайм и буллиты не трогаются — формат их отметок у лиги не проверен, туда оператор переходит стрелкой.
+   Защита от чужих часов: первая запись оператора должна лечь рядом с началом матча по лиге (от −15 до +20 минут), а записей раньше чем за 15 минут до начала — не больше пяти и не больше десятой части; иначе период остаётся ручным. */
+const PTAIL=1;
+function vpMarks(html){const t=html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g,'').replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' '),s={},e={};
+  for(const m of t.matchAll(/(\d\d):(\d\d) (Начало|Окончание) (\d) периода/g)){const o=m[3]==='Начало'?s:e,p=+m[4];if(p>=1&&p<=3&&o[p]==null)o[p]=+m[1]*60+ +m[2]}
+  return {s,e}}
+const perAt=(M,T)=>M.s[3]!=null&&T>=M.s[3]-PTAIL?3:M.s[2]!=null&&T>=M.s[2]-PTAIL?2:1;
+const perBrk=(M,T,p)=>M.e[p]!=null&&T>=M.e[p]+1&&(p===3||M.s[p+1]==null||T<M.s[p+1]-PTAIL);
+function perFix(m,L){ if(!L||!L.marks||L.marks.s[1]==null||m.ev.some(e=>e.src==='лист')||!ligaFits(m,L))return 0;
+  const M=L.marks,[dd,mo,yy]=String(m.date||'').split('.').map(Number);
+  const tm=ts=>{const d=new Date(ts);return d.getFullYear()===yy&&d.getMonth()+1===mo&&d.getDate()===dd?d.getHours()*60+d.getMinutes()+d.getSeconds()/60:null};
+  // Пока лига не дала начало периода, у оператора может быть больше свежих сведений.
+  const lastStart=M.s[2]==null?1:M.s[3]==null?2:3;
+  const G=new Map();for(const e of m.ev){if(!G.has(e.gid))G.set(e.gid,[]);G.get(e.gid).push(e)}
+  const lt=g=>{const x=g.find(e=>(e.k==='g'||e.k==='ga'||e.k==='pen')&&/^\d+:\d\d$/.test(e.t||''));if(!x)return 0;const [a,b]=x.t.split(':').map(Number),sec=a*60+b;return x.k==='pen'?Math.floor(sec/1200)+1:Math.floor((sec-1)/1200)+1};
+  const todo=[];let first=null,early=0,cnt=0;
+  for(const g of G.values()){ if(g.some(e=>!(e.p>=1&&e.p<=lastStart)))continue;            // овертайм, буллиты, бумажный лист
+    const byT=lt(g); if(byT){if(byT<=3)todo.push([g,byT,false]);continue}
+    const own=g.find(e=>e.src==='ввод'&&e.ts&&!e.lg),T=own?tm(own.ts):null; if(T==null)continue; cnt++; if(T<M.s[1]-15){early++;continue}
+    if(first==null||T<first)first=T; todo.push([g,perAt(M,T),perBrk(M,T,perAt(M,T))]) }
+  if(first==null||first>M.s[1]+20||early>5||early>cnt*.1)return 0;   // часы компьютера не сходятся с часами лиги — период остаётся ручным
+  let n=0;for(const [g,p,brk] of todo)for(const e of g){if(e.p!==p){if(e.p0==null)e.p0=e.p;e.p=p;n++} if(brk)e.brk=1;else delete e.brk}
+  m.perAuto=L.id; const now=tm(Date.now()); if(now!=null&&m.cur<=lastStart&&now>=M.s[1]-15)m.cur=perAt(M,now);
+  return n}
+/* стрелки периода оператору не показываются, пока протокол лиги отвечает и ведёт период сам; после третьего периода стрелка вперёд — в овертайм */
+const freshLeague=m=>!!(LG.data && !LG.err && LG.data.id===ligaId(m) && Date.now()-LG.data.at<180000 && ligaFits(m,LG.data));
+const perLive=()=>!VIEW&&S.date===today()&&S.perAuto===ligaId(S)&&freshLeague(S)&&LG.data.marks.s[S.cur]!=null;
+const LG={data:null,at:0,busy:null,err:false};
+const ligaId=m=>LIGA[m.date]||0;
+const lz=x=>String(x||'').toLowerCase().replace(/ё/g,'е').replace(/^хк\s+/,'').replace(/[^а-яa-z0-9]/g,'');
+function ligaFits(m,L){const a=lz(L.teams[0]),b=lz(L.teams[1]),h=lz(m.home),w=lz(m.away);if(!a||!b||!h||w.length<3)return false;
+  const other=a===h?b:b===h?a:'';return !!other&&(w.includes(other)||other.includes(w))}
+const sitT=e=>{const k=e.sit||'5x5',[a,b]=k.split('x').map(Number);return a>5||b>5||a+b>10?'en':a>b?'pp':a<b?'pk':'eq'};
+const LSIT={g:{eq:'5x5',pp:'5x4',pk:'4x5',en:'5x6'},ga:{eq:'5x5',pp:'4x5',pk:'5x4',en:'6x5'}}, LKIND={2:'minor',4:'double',5:'major',10:'misc'};
+/* Если в другом периоде уже есть лишний ручной гол этой стороны, недостающая запись может быть тем же голом. */
+function goalsByPeriodSafe(events,goals,home,kind){
+  return [1,2,3,4].every(p=>events.filter(e=>e.p===p&&e.k===kind).length<=
+    goals.filter(g=>g.p===p&&((g.team===home)===(kind==='g'))).length);
+}
+function ligaApply(m,L){ if(!L||m.ligaOff||m.ev.some(e=>e.src==='лист')||!ligaFits(m,L))return 0;
+  let fg=0,fp=0;const mk=(gid,p,n,k,x)=>{const e={id:m.nextId++,gid,p,n,k,src:'ввод',ts:Date.now(),lg:1,...x};m.ev.push(e);return e};
+  /* пары «запись лиги — запись оператора»: сначала по номеру игрока, оставшиеся по порядку */
+  const pair=(lg,op)=>{const left=op.slice();return lg.map(g=>{const i=left.findIndex(e=>e.n===g.n);return i>=0?left.splice(i,1)[0]:null}).map(e=>e||left.shift()||null)};
+  const addUs=goalsByPeriodSafe(m.ev,L.goals,m.home,'g'),addThem=goalsByPeriodSafe(m.ev,L.goals,m.home,'ga');
+  for(const p of [1,2,3,4]){
+    const us=L.goals.filter(g=>g.p===p&&g.team===m.home),th=L.goals.filter(g=>g.p===p&&g.team!==m.home),og=m.ev.filter(e=>e.k==='g'&&e.p===p),oga=m.ev.filter(e=>e.k==='ga'&&e.p===p);
+    if(us.length&&(us.length===og.length||(addUs&&us.length>og.length)))pair(us,og).forEach((e,i)=>{const g=us[i],la=g.as.map(a=>a.n);
+      if(!e){const gid=m.nextId;mk(gid,p,g.n,'sh');mk(gid,p,g.n,'g',{sit:LSIT.g[g.sit],t:g.t});la.forEach(n=>mk(gid,p,n,'a'));fg++;return}
+      const authorChanged=e.n!==g.n;
+      if(authorChanged){if(e.was==null)e.was=e.n;const sh=m.ev.find(x=>x.gid===e.gid&&x.k==='sh'&&x.n===e.n);if(sh)sh.n=g.n;e.n=g.n;e.lg=1;fg++}
+      if(e.unknown){delete e.unknown;e.lg=1;
+        const shot=m.ev.find(x=>x.gid===e.gid&&x.k==='sh');
+        if(shot)shot.n=g.n;else mk(e.gid,e.p,g.n,'sh',{ts:e.ts});
+        if(!authorChanged)fg++}
+      e.t=g.t;
+      if(sitT(e)!==g.sit&&!(sitT(e)==='en'&&g.sit!=='en')){e.sit=LSIT.g[g.sit];e.lg=1;fg++}
+      const oa=m.ev.filter(x=>x.gid===e.gid&&x.k==='a').map(x=>x.n);
+      if(oa.join()!==la.join()){if(oa.slice().sort().join()!==la.slice().sort().join())fg++;
+        m.ev=m.ev.filter(x=>!(x.gid===e.gid&&x.k==='a'));m.ev.splice(m.ev.indexOf(e)+1,0,...la.map(n=>({id:m.nextId++,gid:e.gid,p:e.p,n,k:'a',src:'ввод',ts:e.ts,lg:1})))}});
+    if(th.length&&(th.length===oga.length||(addThem&&th.length>oga.length)))th.forEach((g,i)=>{const e=oga[i],our={pp:'pk',pk:'pp'}[g.sit]||g.sit;   // состав записан с нашей стороны
+      if(!e){const sv=[...new Set(m.ev.filter(x=>x.k==='sv'&&x.p===p).map(x=>x.n))];mk(m.nextId,p,null,'ga',{sit:LSIT.ga[g.sit],t:g.t,...(sv.length===1&&g.sit!=='en'?{gk:sv[0]}:{})});fg++;return}
+      e.t=g.t;if(sitT(e)!==our&&!(sitT(e)==='en'&&our!=='en')){e.sit=LSIT.ga[g.sit];e.lg=1;fg++}});
+    const lp=L.pens.filter(x=>x.p===p&&x.team===m.home),op=m.ev.filter(e=>e.k==='pen'&&e.p===p);
+    if(lp.length&&lp.length>=op.length)pair(lp,op).forEach((e,i)=>{const g=lp[i],kind=LKIND[g.min]||'minor',x={t:g.t,why:g.why,...(LKIND[g.min]?{}:{mm:g.min}),...(g.n==null&&g.serve?{serve:g.serve}:{})};
+      if(!e){mk(m.nextId,p,g.n,'pen',{min:kind,...x});fp++;return}
+      if(e.n!==g.n){if(e.was==null)e.was=e.n;e.n=g.n;e.lg=1;fp++}
+      if((e.mm||PMIN[e.min]||2)!==g.min){e.min=kind;e.lg=1;fp++}
+      delete e.mm;delete e.serve;Object.assign(e,x)})}
+  if(fg||fp)m.liga={id:L.id,fg:(m.liga&&m.liga.fg||0)+fg,fp:(m.liga&&m.liga.fp||0)+fp};
+  return fg+fp}
+async function ligaLoad(){const id=ligaId(S);if(!id)return null;
+  try{const html=await readLeaguePage(id),tt=/:\s*([^:<]+?)-([^<(]+?)\s*\(онлайн/.exec((/<title>([^<]*)/.exec(html)||[])[1]||'');
+    // Штрафы читаются отдельно и больше не исправляют исходные события оператора.
+    LG.data={id,goals:vpGoals(html),pens:[],marks:vpMarks(html),teams:tt?[tt[1].trim(),tt[2].trim()]:['',''],at:new Date()};LG.err=false}
+  catch(_){LG.err=true}
+  return LG.data}
+/* применить загруженный протокол к открытому матчу; при открытом окне (гол, удаление, состав) записи не трогаются — в следующий раз */
+function ligaRun(){const L=LG.data;if(!freshLeague(S))return;if(ov.classList.contains('on')){LG.at=0;return}
+  const c0=S.cur,a0=S.perAuto,pf=perFix(S,L),pch=pf||S.cur!==c0||S.perAuto!==a0;   // сначала период по часам лиги, потом сверка голов: она ищет пару гола по периоду
+  if(pch&&!VIEW)save();
+  const was=JSON.stringify(S.ev),nx=S.nextId,lg0=S.liga,n=ligaApply(S,L);
+  if(JSON.stringify(S.ev)===was){if(pch)render();return}
+  if(VIEW){render();return}
+  if(n)try{const b=JSON.parse(localStorage.getItem('lm_liga_bak')||'null');if(!b||b.id!==S.id)localStorage.setItem('lm_liga_bak',JSON.stringify({id:S.id,at:new Date().toISOString(),ev:JSON.parse(was)}))}catch(e){}
+  save();render();
+  if(n)snack(`Протокол лиги: исправлено ${n}`,'Вернуть',()=>{S.ev=JSON.parse(was);S.nextId=nx;S.liga=lg0;S.ligaOff=true;save();render()})}
+function ligaSync(force){if(!ligaId(S))return Promise.resolve();if(LG.busy)return LG.busy;if(!force&&Date.now()-LG.at<60000){ligaRun();return Promise.resolve()}LG.at=Date.now();
+  return LG.busy=(async()=>{try{const id=ligaId(S);await ligaLoad();if(force&&!VIEW&&S.ligaOff&&freshLeague(S)){delete S.ligaOff;save()}if(id===ligaId(S))ligaRun()}finally{LG.busy=null;if((UI.tab==='input'||UI.tab==='sum')&&!ov.classList.contains('on'))render()}})()}
+/* строка под голами в «Итогах»: что сверено и когда */
+function ligaNote(){if(!ligaId(S))return '';const L=LG.data&&LG.data.id===ligaId(S)?LG.data:null,hm=d=>String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'),fx=S.liga&&S.liga.id===ligaId(S)?S.liga.fg+S.liga.fp:0;
+  const t=S.ev.some(e=>e.src==='лист')?'':S.ligaOff?'Правки по протоколу лиги возвращены, сверка выключена':LG.err?'Протокол лиги не ответил':!L?'Протокол лиги загружается':!L.teams[0]?'Протокол лиги на этот матч ещё не открыт':!ligaFits(S,L)?`В протоколе лиги на эту дату другой матч: ${esc(L.teams.join(' – '))}. Записи не тронуты`:`Голы и передачи сверены с протоколом лиги в ${hm(L.at)}${fx?` · исправлено записей: ${fx}`:''}`;
+  return t?`<div class="lgn noprint"><span>${t}</span>${VIEW?'':'<button class="btn" data-liga>Сверить</button>'}</div>`:''}
 /* Переход на следующий период: только когда в текущем есть записи — случайное второе нажатие период не перескочит. */
 function perNext(){ if(S.cur>=5)return;
   if(S.cur<=3&&!S.ev.some(e=>e.p===S.cur)){snack(`${PN(S.cur)}: записей ещё нет — ${PN(S.cur+1).toLowerCase()} откроется после первой записи`,'Понятно',()=>{});return}
   S.cur++;save();render() }
 /* Отчёт за текущий период выгружен (печать · PDF) — программа сама встаёт на следующий период. */
-function perAfterExport(p){ if(VIEW||p!==S.cur||S.cur>2||!S.ev.some(e=>e.p===S.cur))return;
+function perAfterExport(p){ if(VIEW||perLive()||p!==S.cur||S.cur>2||!S.ev.some(e=>e.p===S.cur))return;
   const was=S.cur;S.cur++;save();render();
   snack(`Отчёт за ${PN(was).toLowerCase()} выгружен · открыт ${PN(S.cur).toLowerCase()}`,'Вернуть',()=>{if(!S.ev.some(e=>e.p>was)){S.cur=was;save();render()}}) }
 let S=null; if(!VIEW){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}}
@@ -475,7 +594,7 @@ let UI={tab:Q.get('tab')==='season'?'season':VIEW||Q.get('tab')==='sum'?'sum':'i
 try{UI.theme=localStorage.getItem('lm_theme')||'light'}catch(e){}
 document.documentElement.dataset.theme=UI.theme;
 
-const ACTS=[['sh','Бросок','S'],['fw','Выиграл вбрасывание','Q'],['fl','Проиграл вбрасывание','W'],['bl','Заблокировал бросок','B'],['hit','Силовой приём','H'],['to','Потеря шайбы','L']];
+const ACTS=[['sh','Бросок в створ','S'],['sm','Бросок не в створ','M'],['fw','Выиграл вбрасывание','Q'],['fl','Проиграл вбрасывание','W'],['bl','Заблокировал бросок','B'],['hit','Силовой приём','H'],['tk','Отбор, перехват','T'],['to','Потеря шайбы','L']];   /* «бросок не в створ» (мимо или заблокирован соперником) и «отбор, перехват» добавлены по слову Антона 22.11.2026 «делаем» */   /* удаления оператор не вводит (слова Антона 21.11.2026: «удаление полностью убрать и брать полностью у лиги») — они приходят из протокола лиги, см. ligaApply */
 const AN={...Object.fromEntries(ACTS.map(a=>[a[0],a[1]])),pen:'Удаление'};
 AN.sv='Отбил бросок';AN.bg='Буллит — забил';AN.bm='Буллит — не забил';AN.bga='Буллит соперника — гол';AN.bsv='Буллит соперника — отбил';AN.g='Гол';AN.a='Передача';AN.ga='Гол в наши ворота';
 const PN=p=>p===0?'1–2-й периоды':p===5?'Буллиты':p===4?'Овертайм':p+'-й период';
@@ -543,7 +662,7 @@ function listedScore(m){
 let viewId=null;
 async function pull(){if(!VIEW||!API||document.hidden)return;
   try{const r=await api(viewId?{op:'get',id:viewId}:{op:'latest'});sync.last=new Date();sync.err=false;
-    if(r.match&&(r.match.id!==S.id||r.match.savedAt!==S.savedAt)){S=norm(r.match);if(!ov.classList.contains('on'))render()}}
+    if(r.match&&(r.match.id!==S.id||r.match.savedAt!==S.savedAt)){S=norm(r.match);if(freshLeague(S))ligaApply(S,LG.data);if(!ov.classList.contains('on'))render()}}
   catch(e){sync.err=true}
   sync.show()}
 
@@ -603,6 +722,7 @@ function render(flashN){queueMicrotask(refreshPenalties);requestAnimationFrame((
   venue.textContent=S.venue; pdate.textContent=' '+(S.date||'');document.getElementById('pPrint').textContent=UI.sumPer==='all'?'Весь матч':PN(UI.sumPer);
   pName.textContent=PN(S.cur);
   if(VIEW){pPrev.style.display=pNext.style.display='none'}
+  else{const pl=perLive()&&S.cur<=3;pPrev.style.display=pl?'none':'';pNext.style.display=pl&&!(S.cur===3&&LG.data.marks.e[3]!=null)?'none':'';pName.title=pl?'Период ведётся по часам протокола лиги':''}
   document.getElementById('theme').innerHTML=[['light','Светлый'],['board','Табло'],['tiles','Плитки']].map(([v,t])=>`<button data-th="${v}" class="${UI.theme===v?'on':''}">${t}</button>`).join('');
   
   document.getElementById('tabs').innerHTML=[['input','Ввод'],['sum','Матч'],['rep','Отчёт'],['season','Сезон']].filter(x=>!VIEW||x[0]!=='input').map(([v,t])=>`<button data-tab="${v}" class="${UI.tab===v?'on':''}">${t}</button>`).join('');
@@ -645,8 +765,9 @@ function renderInput(flashN){
     else if(ga){t='Гол в наши ворота';cls=' goal'}
     else if(m.k==='pm'){t=(m.v>0?'+':'−')+' на льду · '+nm(m.n)}
     else if(m.k==='bga'||(m.k==='bsv'&&m.n==null)){t=AN[m.k]+(m.gk!=null?' · '+nm(m.gk):'')}
+    else if(m.k==='pen'&&m.n==null){t='Командный штраф'+(m.serve?' · отбывал '+esc(m.serve):'')}
     else t=`${AN[m.k]} · ${nm(m.n)}`;
-    const sub=PS(m.p)+(m.src==='лист'?' · с бумажного листа':m.src==='лига'?' · по трансляции лиги':m.ts?' · '+new Date(m.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):'')+((gl||ga)&&(gl||ga).sit?' · '+SITS[sitOf((gl||ga).sit)]:'');
+    const sub=PS(m.p)+(m.src==='лист'?' · с бумажного листа':m.src==='лига'?' · по трансляции лиги':g.some(x=>x.lg)?' · по протоколу лиги':m.ts?' · '+new Date(m.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):'')+(m.brk?' · в перерыве':'')+((gl||ga)&&(gl||ga).sit?' · '+SITS[sitOf((gl||ga).sit)]:'');
     return `<div class="it${cls}${m.gid===UI.lastGid&&i===0?' new':''}"><div class="tx"><b>${t}</b>${gl?`<span class="as">${ast}</span>`:''}<small>${sub}</small></div>${(gl||ga)&&m.src!=='лист'?`<button class="x ed" data-eg="${m.gid}" title="Изменить: кто забил, передачи, кто был на льду">✎</button>`:''}<button class="x" data-del="${m.gid}" title="Убрать эту запись">×</button></div>`}).join('');
   v.innerHTML=`<div class="main${pl&&!a?' picking':''}">
    ${SO?`<div class="col side"><div class="cap">Серия буллитов</div>
@@ -673,7 +794,7 @@ function renderInput(flashN){
   const sg=SO&&UI.sog!=null?v.querySelector(`.tl[data-sog="${UI.sog}"]`):null;
   const pp=pl&&!a?P(pl):null, tl=sg||(pp&&v.querySelector(`.tl[data-pl="${pl}"]`));
   if(tl){const el=document.createElement('div');el.className='pop'+(SO?' so':'');
-    const L=SO?[]:[['sh','Бросок'],['bl','Заблокировал бросок'],...(pp.pos==='н'?[['fw','Выиграл вбрасывание'],['fl','Проиграл вбрасывание']]:[]),['hit','Силовой приём'],['to','Потеря шайбы']];
+    const L=SO?[]:[['sh','Бросок в створ'],['sm','Бросок не в створ'],['bl','Заблокировал бросок'],...(pp.pos==='н'?[['fw','Выиграл вбрасывание'],['fl','Проиграл вбрасывание']]:[]),['hit','Силовой приём'],['tk','Отбор, перехват'],['to','Потеря шайбы']];
     el.innerHTML=L.map(([k,l])=>`<button class="pb" data-act="${k}">${l}</button>`).join('')+(sg?'<button class="pb goal" data-so="bsv">Отбил</button><button class="pb" data-so="bga">Не отбил</button>':SO?'<button class="pb goal" data-act="bg">Забил</button><button class="pb" data-act="bm">Не забил</button>':'<button class="pb goal" data-act="g">Гол</button>');
     v.appendChild(el);const r=tl.getBoundingClientRect(),c=tl.closest('.col').getBoundingClientRect(),w=el.offsetWidth,h=el.offsetHeight,G=12;
     const fit=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));let left,top,side;
@@ -684,8 +805,7 @@ function renderInput(flashN){
     el.classList.add(side);el.style.left=left+'px';el.style.top=top+'px';
     el.style.setProperty('--ax',fit(r.left+r.width/2-left,18,w-18)+'px');el.style.setProperty('--ay',fit(r.top+r.height/2-top,18,h-18)+'px')}
 }
-const COLS=[['fo','Вбрасывания'],['sh','Броски'],['g','Голы'],['a','Передачи'],['bl','Блоки'],['hit','Силовые приёмы'],['to','Потери шайбы'],['pen','Штраф, минуты'],['pm','Плюсы и минусы']];
-const LIGA={"15.11.2026":904334,"17.11.2026":904348,"19.11.2026":904358,"21.11.2026":904367,"27.11.2026":904391,"29.11.2026":904405,"01.12.2026":904416,"03.12.2026":904424,"08.12.2026":904438,"11.12.2026":904452,"19.12.2026":904488,"21.12.2026":904496,"23.12.2026":904509,"25.12.2026":904520,"09.01.2027":904544,"11.01.2027":904553,"13.01.2027":904563,"22.01.2027":904601,"24.01.2027":904614,"26.01.2027":904626,"31.01.2027":904647,"02.02.2027":904654,"04.02.2027":904663,"07.02.2027":904681,"13.02.2027":904706,"15.02.2027":904716,"17.02.2027":904730,"19.02.2027":904741,"24.02.2027":904759,"26.02.2027":904769,"28.02.2027":904777,"02.03.2027":904793,"07.03.2027":904808,"09.03.2027":904813,"12.03.2027":904828,"14.03.2027":904841,"18.03.2027":904860};
+const COLS=[['fo','Вбрасывания'],['sh','Броски в створ'],['sm','Броски не в створ'],['g','Голы'],['a','Передачи'],['bl','Блоки'],['hit','Силовые приёмы'],['tk','Отборы, перехваты'],['to','Потери шайбы'],['pen','Штраф, минуты'],['pm','Плюсы и минусы']];
 const PMIN={minor:2,double:4,major:5,misc:10};
 /* Последний проверенный снимок ВХЛ хранится отдельно от исходного журнала оператора. */
 const penaltyCache=new Map(), penaltyRequests=new Map();
@@ -797,31 +917,31 @@ function penaltySheet(player,page=0){
   open_();
 }
 
-function st(n){const f=e=>e.n===n&&(UI.sumPer==='all'||e.p===UI.sumPer);const r={};for(const k of ['fw','fl','sh','g','a','bl','hit','to','pen'])r[k]=S.ev.filter(e=>f(e)&&e.k===k).length;
+function st(n){const f=e=>e.n===n&&(UI.sumPer==='all'||e.p===UI.sumPer);const r={};for(const k of ['fw','fl','sh','sm','g','a','bl','hit','tk','to','pen'])r[k]=S.ev.filter(e=>f(e)&&e.k===k).length;
   r.pen=penaltyMinutes(n,UI.sumPer,penaltyRecord());
   const pm=S.ev.filter(e=>f(e)&&e.k==='pm');r.pm=pm.reduce((s,e)=>s+e.v,0);r.pmc=pm.length;r.pl=pm.filter(e=>e.v>0).length;r.mi=r.pmc-r.pl;return r}
 /* плюсы и минусы показываются отдельно, без общего итога (слова Антона 16.11): «+2 −1» */
 const pmTxt=(pl,mi)=>`+${pl} −${mi}`;
 function renderSum(){
   const v=document.getElementById('view'), all=ord(true).filter(p=>!p.out||S.ev.some(e=>e.n===p.n)).map(p=>({p,s:st(p.n)}));
-  const mx={};for(const k of ['sh','a','bl','hit','to','pen']){mx[k]=Math.max(0,...all.map(x=>x.s[k]));mx[k+'c']=all.filter(x=>x.s[k]===mx[k]).length}
+  const mx={};for(const k of ['sh','a','bl','hit','tk','to','pen']){mx[k]=Math.max(0,...all.map(x=>x.s[k]));mx[k+'c']=all.filter(x=>x.s[k]===mx[k]).length}
   const cell=(x,k)=>{const s=x.s;if(k==='fo')return s.fw+s.fl?`<td class="cl" data-c="${x.p.n}|fw">${s.fw}–${s.fl}</td>`:'<td class="z">·</td>';
     if(k==='pm')return s.pmc?`<td style="white-space:nowrap">${pmTxt(s.pl,s.mi)}</td>`:'<td class="z">·</td>';
     const val=s[k]; if(!val)return '<td class="z">·</td>';
     const lead=mx[k]===val&&mx[k+'c']===1;
-    return `<td class="cl" data-c="${x.p.n}|${k}">${val}${lead&&['sh','a','bl','hit'].includes(k)?'<span class="dot" title="больше всех"></span>':''}${lead&&['to','pen'].includes(k)?'<span class="warn" title="больше всех">!</span>':''}</td>`};
-  let rows='';for(const [g,l] of [['н','Нападающие'],['з','Защитники']]){rows+=`<tr class="g"><td colspan="10">${l}</td></tr>`;
+    return `<td class="cl" data-c="${x.p.n}|${k}">${val}${lead&&['sh','a','bl','hit','tk'].includes(k)?'<span class="dot" title="больше всех"></span>':''}${lead&&['to','pen'].includes(k)?'<span class="warn" title="больше всех">!</span>':''}</td>`};
+  let rows='';for(const [g,l] of [['н','Нападающие'],['з','Защитники']]){rows+=`<tr class="g"><td colspan="${COLS.length+1}">${l}</td></tr>`;
     for(const x of all.filter(x=>x.p.pos===g))rows+=`<tr><td class="l"><span class="no">${x.p.n}</span>${x.p.name}</td>${COLS.map(([k])=>cell(x,k)).join('')}</tr>`}
-  const T={};for(const k of ['fw','fl','sh','g','a','bl','hit','to','pen'])T[k]=all.reduce((s,x)=>s+x.s[k],0);
+  const T={};for(const k of ['fw','fl','sh','sm','g','a','bl','hit','tk','to','pen'])T[k]=all.reduce((s,x)=>s+x.s[k],0);
   const official=penaltyRecord();
   T.pen=penaltyMinutes(null,UI.sumPer,official);
   const teamPenalty=T.pen||penaltiesConfirmed(official?.value,UI.sumPer)?T.pen:'·';
-  rows+=`<tr class="t"><td class="l">Команда</td><td>${T.fw}–${T.fl}</td><td>${T.sh}</td><td>${T.g}</td><td>${T.a}</td><td>${T.bl}</td><td>${T.hit}</td><td>${T.to}</td><td title="${official?'Удаления ВХЛ':'ВХЛ не подтвердила данные'}">${teamPenalty}</td><td></td></tr>`;
+  rows+=`<tr class="t"><td class="l">Команда</td><td>${T.fw}–${T.fl}</td><td>${T.sh}</td><td>${T.sm}</td><td>${T.g}</td><td>${T.a}</td><td>${T.bl}</td><td>${T.hit}</td><td>${T.tk}</td><td>${T.to}</td><td title="${official?'Удаления ВХЛ':'ВХЛ не подтвердила данные'}">${teamPenalty}</td><td></td></tr>`;
   // голы
   const gl=S.ev.filter(e=>e.k==='g'||e.k==='ga').sort((x,y)=>(x.p-y.p)||((x.t||'99').localeCompare(y.t||'99'))||(x.id-y.id));
   let f=0,a=0;const glr=gl.map(e=>{e.k==='g'?f++:a++;const as=e.asst||S.ev.filter(x=>x.gid===e.gid&&x.k==='a').map(x=>x.n);const ty=sitOf(e.sit||'5x5');
     return `<div class="gl"><span class="t">${PS(e.p)}${e.t?' '+e.t:''}</span><span class="s">${rinkOrder(S.venue,f,a).join(':')}</span><span class="w">${e.k==='g'?nm(e.n)+(as.length?` <small>(${as.map(snm).join(', ')})</small>`:''):`<span style="color:var(--ink2)">${S.away}</span>`}</span><span class="tag ${ty}">${ty==='pk'&&e.k==='ga'?'<span style="color:var(--bad)">!</span> ':''}${SITS[ty]}</span></div>`}).reverse().join('');
-  const pers=[1,2,3,4].filter(p=>p<=S.cur||S.ev.some(e=>e.p===p));const c=(p,k)=>S.ev.filter(e=>e.p===p&&e.k===k).length;
+  const pers=[1,2,3,4].filter(p=>(p<=S.cur||S.ev.some(e=>e.p===p))&&(UI.sumPer==='all'||p<=UI.sumPer));const c=(p,k)=>S.ev.filter(e=>e.p===p&&e.k===k).length;
   const cen=all.filter(x=>x.s.fw+x.s.fl).sort((x,y)=>(y.s.fw+y.s.fl)-(x.s.fw+x.s.fl));
   const un=S.ev.some(e=>e.p===0);
   const lv=UI.sumView==='lines';
@@ -843,7 +963,7 @@ function renderSum(){
   v.innerHTML=`<div class="sumv"><div class="tbl${lv?' lvw':''}" style="--rows:${(all.length+1+1.6+1.7).toFixed(1)}"><div style="padding:12px 14px 4px" class="row noprint"><div class="seg small" id="sumPer">${[['all','Весь матч'],[1,'1-й'],[2,'2-й'],[3,'3-й'],[4,'ОТ']].map(([p,t])=>`<button data-sp="${p}" class="${UI.sumPer===p?'on':''}">${t}</button>`).join('')}</div><div class="seg small" id="sumView"><button data-sv="tbl" class="${lv?'':'on'}">Таблица</button><button data-sv="lines" class="${lv?'on':''}">Пятёрки</button></div><span class="note" style="flex:1;min-width:0">${VIEW||lv?'':'Нажмите на число — откроются эти записи.'}</span><button class="btn acc" data-print style="height:52px;padding:0 18px;flex:none" title="Напечатать то, что на экране, или сохранить как PDF">Печать · PDF</button></div>
     ${lv?lvHtml():`<table><tr><th class="l">Игрок</th>${COLS.map(([,l])=>`<th>${l}</th>`).join('')}</tr>${rows}</table>`}
     ${un&&UI.sumPer!=='all'?'<div class="note" style="padding:10px 14px">На бумажном листе блоки, силовые, потери, удаления и плюс-минус за 1–2-й периоды записаны вместе — по периодам их не разделить, они видны в «Весь матч».</div>':''}</div>
-   <div class="side"><div class="box"><div class="cap">Голы</div>${glr||'<div class="sub">Голов нет</div>'}</div>
+   <div class="side"><div class="box"><div class="cap">Голы</div>${glr||'<div class="sub">Голов нет</div>'}${ligaNote()}</div>
     ${gkBox}${soBox}
     <div class="box"><div class="cap">По периодам</div><table class="pt"><tr><th class="l"></th><th>Счёт</th><th>Броски</th><th>Вбрасывания</th></tr>${pers.map(p=>`<tr><td>${PN(p)}</td><td>${rinkOrder(S.venue,c(p,'g'),c(p,'ga')).join(':')}</td><td>${c(p,'sh')}</td><td>${c(p,'fw')}–${c(p,'fl')}</td></tr>`).join('')}</table></div>
     <div class="box"><div class="cap">Центры на вбрасываниях</div>${cen.map(x=>`<div class="bar"><span>${nm(x.p.n)}</span><span class="bt"><i style="width:${Math.round(100*x.s.fw/(x.s.fw+x.s.fl))}%"></i></span><span class="v">${x.s.fw}–${x.s.fl}</span></div>`).join('')||'<div class="sub">Пока нет</div>'}</div>
@@ -854,13 +974,12 @@ function renderSum(){
 function repData(){
   const sk=S.roster.filter(p=>!p.out||S.ev.some(e=>e.n===p.n)).map(p=>{const c=clubOf(p);return {n:p.n,name:p.name,pos:p.pos,line:!p.out&&p.ln>=1&&p.ln<=4?p.ln:0,ph:PHOTOS&&c&&c.ph?`photos/${c.id}.jpg`:''}});
   const gk=(S.gk||[]).filter(Boolean).map(g=>{const c=g.id&&cById(g.id);return {n:g.n,name:g.name,ph:PHOTOS&&c&&c.ph?`photos/${c.id}.jpg`:''}});
-  const sitT=e=>{const k=e.sit||'5x5',[a,b]=k.split('x').map(Number);return a>5||b>5||a+b>10?'en':a>b?'pp':a<b?'pk':'eq'};
   const leaguePenalties=penaltyRecord()?.value||null;
   const source=leaguePenalties?S.ev.filter(e=>e.k!=='pen').concat(leaguePenalties.list.filter(e=>e.side==='us')
     .map(e=>({k:'pen',p:e.p,n:e.n,mm:e.min}))):S.ev;
   const ev=source.map(e=>{const o={p:e.p,n:e.n,k:e.k};if(e.v!=null)o.v=e.v;if(e.gk!=null)o.gk=e.gk;if(e.k==='pen')o.min=e.mm||PMIN[e.min]||2;
     if(e.k==='g'||e.k==='ga'){const t=sitT(e);o.sit=t;if(e.k==='ga'&&t==='pk')o.pk=1} /* состав записан с нашей стороны: pk — мы в меньшинстве */ return o});
-  return {type:'lm-report',leaguePenalties,id:S.id,home:S.home,away:S.away,date:S.date||'',venue:S.venue||'',cur:S.cur,roster:sk,gk,ev,so:soSt().win};
+  return {type:'lm-report',leaguePenalties,id:S.id,home:S.home,away:S.away,date:S.date||'',venue:S.venue||'',cur:S.cur,roster:sk,gk,ev,so:soSt().win,ligaFix:S.liga&&S.liga.id===ligaId(S)?S.liga.fg:0};
 }
 function repSend(){const f=document.getElementById('repF');if(f&&f.contentWindow)try{f.contentWindow.postMessage(repData(),'*')}catch(_){}}
 function renderRep(){const v=document.getElementById('view');
@@ -1011,7 +1130,7 @@ function menuSheet(){sh.classList.remove('narrow');
     if(m==='csv')csv();
     if(m==='print'){close_();UI.tab='sum';render();setTimeout(()=>print(),200)}
     if(m==='hints'){close_();try{localStorage.removeItem('lm_hints')}catch(_){}coach(0)}
-    if(m==='keys'){sh.innerHTML=`<h2>Клавиши</h2><p class="sub">Необязательно — всё делается мышкой. Работают в любой раскладке.</p><div style="font-size:17px;line-height:2">S — бросок · Q / W — выиграл / проиграл вбрасывание · B — заблокировал бросок · H — силовой · L — потеря<br>Затем наберите номер игрока цифрами (например 9 5) — запись готова<br>G — гол · Shift+G — гол в наши ворота · ${MOD}Z — отменить последнее<br>← / → — период · Esc — сбросить выбор</div><div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn dark" data-x>Понятно</button></div>`}};
+    if(m==='keys'){sh.innerHTML=`<h2>Клавиши</h2><p class="sub">Необязательно — всё делается мышкой. Работают в любой раскладке.</p><div style="font-size:17px;line-height:2">S — бросок в створ · M — бросок не в створ · Q / W — выиграл / проиграл вбрасывание · B — заблокировал бросок · H — силовой · T — отбор, перехват · L — потеря<br>Затем наберите номер игрока цифрами (например 9 5) — запись готова<br>G — гол · Shift+G — гол в наши ворота · ${MOD}Z — отменить последнее<br>← / → — период (когда протокол лиги не отвечает) · Esc — сбросить выбор</div><div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn dark" data-x>Понятно</button></div>`}};
   open_();
 }
 /* Состав на матч: все игроки клуба плитками, нажатие — играет / не играет */
@@ -1167,7 +1286,7 @@ function pastSheet(){sh.classList.remove('narrow');
       UI.tab=VIEW?'sum':UI.tab;close_();render()}
     catch(_){draw('Не удалось открыть матч — нет связи с таблицей.')}};
   draw();open_();
-  if(API&&(WKEY||VIEW))api({op:'list'},8000).then(r=>{const have=new Set(rows.map(x=>x.id));for(const m of r.list)if(!have.has(m.id))rows.push(m);rows.sort((a,b)=>(b.id>a.id?1:-1));if(ov.classList.contains('on')&&sh.querySelector('.mlist'))draw()}).catch(()=>{});
+  if(API&&(WKEY||VIEW))api({op:'list'},8000).then(r=>{if(!r||!r.ok||!Array.isArray(r.list))return;rows=r.list.slice();/* есть связь — список только из таблицы: стёртое из неё на компьютере не показывается */rows.sort((a,b)=>(b.id>a.id?1:-1));if(ov.classList.contains('on')&&sh.querySelector('.mlist'))draw()}).catch(()=>{});
 }
 function dl(name,content,type){
   const file=content instanceof Blob?content:new Blob([content],{type});
@@ -1178,14 +1297,14 @@ function dl(name,content,type){
 const fname=()=>(S.date||'').split('.').reverse().join('-')+'_'+rinkOrder(S.venue,S.home,S.away).join('_');
 function csv(){const keep=UI.sumPer,out=[];
   for(const [p,l] of [['all','Матч'],[0,'1–2 пер. (не разделено)'],[1,'1 период'],[2,'2 период'],[3,'3 период'],[4,'ОТ']]){if(p!=='all'&&!S.ev.some(e=>e.p===p))continue;UI.sumPer=p;
-    for(const x of ord(true).filter(p=>!p.out||S.ev.some(e=>e.n===p.n))){const s=st(x.n);out.push([l,x.n,x.name,x.pos,s.fw,s.fl,s.sh,s.g,s.a,s.bl,s.hit,s.to,s.pen,s.pmc?s.pl:'',s.pmc?s.mi:''].join(';'))}}
-  UI.sumPer=keep;dl(fname()+'.csv','﻿Часть;№;Игрок;Амплуа;Выиграл вбр.;Проиграл вбр.;Броски;Голы;Передачи;Заблокировал;Силовые;Потери;Штраф, мин;Плюсы;Минусы\n'+out.join('\n'),'text/csv')}
+    for(const x of ord(true).filter(p=>!p.out||S.ev.some(e=>e.n===p.n))){const s=st(x.n);out.push([l,x.n,x.name,x.pos,s.fw,s.fl,s.sh,s.sm,s.g,s.a,s.bl,s.hit,s.tk,s.to,s.pen,s.pmc?s.pl:'',s.pmc?s.mi:''].join(';'))}}
+  UI.sumPer=keep;dl(fname()+'.csv','﻿Часть;№;Игрок;Амплуа;Выиграл вбр.;Проиграл вбр.;Броски в створ;Броски не в створ;Голы;Передачи;Заблокировал;Силовые;Отборы, перехваты;Потери;Штраф, мин;Плюсы;Минусы\n'+out.join('\n'),'text/csv')}
 
 /* ---------- первое знакомство: три подсказки ---------- */
 const HINTS=[['.acts','Увидели действие на льду — нажмите его здесь, например «Бросок».'],
   ['.tiles','Потом нажмите номер игрока. Всё — записано. Можно и наоборот: сначала номер, потом действие.'],
   ['.feed','Ошиблись — нажмите × у записи в этом списке или «Отменить последнее». Ничего не потеряется.'],
-  ['#strip','Удаления публикует ВХЛ. Здесь можно посмотреть протокол и отметить снятого вратаря.']];
+  ['#strip','Удаления вводить не нужно — они приходят из протокола лиги. Здесь отмечается только снятый вратарь.']];
 function coach(i){document.querySelectorAll('.coach,.ring').forEach(x=>x.remove());if(UI.tab!=='input'){UI.tab='input';render()}
   if(i>=HINTS.length){try{localStorage.setItem('lm_hints','1')}catch(_){}return}
   const el=document.querySelector(HINTS[i][0]);if(!el)return;const r=el.getBoundingClientRect();
@@ -1201,6 +1320,7 @@ document.addEventListener('click',e=>{if(!VIEW&&e.target.closest('#home,#away')&
   const b=e.target.closest('button');if(!b||ov.contains(b))return;const d=b.dataset;
   if('officialPenalties' in d){penaltySheet();return}
   if(VIEW&&!(d.tab||d.th||d.sp!=null||d.sv||d.sm||'print' in d||b.id==='menuB'))return;
+  if('liga' in d){ligaSync(true);return}
   if(d.gk){record('sv',+d.gk);return}
   if('gkswap' in d){const old=S.gk.slice(),a=gk0(),b2=S.gk.find(g=>g&&g.n!==a.n);S.gk=[b2,a];UI.act=UI.pl=null;save();render();snack('В воротах '+b2.n+' '+b2.name+' — дальше считаю ему','Вернуть',()=>{S.gk=old;save();render()});return}
   if(d.sog){UI.sog=UI.sog===+d.sog?null:+d.sog;UI.act=UI.pl=null;render();return}
@@ -1208,7 +1328,7 @@ document.addEventListener('click',e=>{if(!VIEW&&e.target.closest('#home,#away')&
   if('soend' in d){S.soEnd=!S.soEnd;save();render();return}
   if(d.act){choose(d.act,null);return} if(d.pl){choose(null,+d.pl);return}
   if(d.del){delGroup(+d.del);return} if(d.eg){const gid=+d.eg,e=S.ev.find(x=>x.gid===gid&&(x.k==='g'||x.k==='ga'));if(e)goalSheet(e.k==='g',null,gid);return} if(b.id==='undoB'){undoLast();return}
-  if(d.tab){UI.tab=d.tab;render();if(d.tab==='season')loadSeason();return}
+  if(d.tab){UI.tab=d.tab;render();if(d.tab==='season')loadSeason();if(d.tab==='sum'||d.tab==='rep')ligaSync();return}
   if(d.sm){SEASON.mode=d.sm;seasonScreen.firstPage();render();return} if(d.th){UI.theme=d.th;document.documentElement.dataset.theme=d.th;try{localStorage.setItem('lm_theme',d.th)}catch(_){}render();return}
   if(d.sp!=null){UI.sumPer=d.sp==='all'?'all':+d.sp;render();return} if(d.sv){UI.sumView=d.sv;render();return} if('print' in d){window.print();return}
   if(d.pend){endPen(d.pend);return} if(d.pull){S.pull[d.pull]=!S.pull[d.pull];save();render();return}
@@ -1216,13 +1336,13 @@ document.addEventListener('click',e=>{if(!VIEW&&e.target.closest('#home,#away')&
   if(b.id==='menuB'){menuSheet();return}});
 document.addEventListener('click',e=>{const td=e.target.closest('td[data-c]');if(!td||VIEW)return;const [n,k]=td.dataset.c.split('|');cellSheet(+n,k)});
 ov.addEventListener('click',e=>{if(e.target===ov)close_()});
-const KM={KeyS:'sh',KeyQ:'fw',KeyW:'fl',KeyB:'bl',KeyH:'hit',KeyL:'to'};let buf='',bufT;
+const KM={KeyS:'sh',KeyM:'sm',KeyQ:'fw',KeyW:'fl',KeyB:'bl',KeyH:'hit',KeyT:'tk',KeyL:'to'};let buf='',bufT;
 document.addEventListener('keydown',e=>{
   if(ov.classList.contains('on')){if(e.key==='Escape')close_();else if(sh.onkey)sh.onkey(e);return}
   if(/INPUT|TEXTAREA/.test(e.target.tagName)||VIEW||UI.tab==='season')return;
   if((e.metaKey||e.ctrlKey)&&e.code==='KeyZ'){e.preventDefault();undoLast();return} if(e.metaKey||e.ctrlKey)return;
   if(e.key==='Escape'){UI.act=null;UI.pl=null;UI.sog=null;buf='';render();return}
-  if(e.key==='ArrowLeft'){S.cur=Math.max(1,S.cur-1);save();render();return} if(e.key==='ArrowRight'){perNext();return}
+  if(e.key==='ArrowLeft'||e.key==='ArrowRight'){if(perLive()&&S.cur<=3&&!(e.key==='ArrowRight'&&S.cur===3&&LG.data.marks.e[3]!=null))return; if(e.key==='ArrowLeft'){S.cur=Math.max(1,S.cur-1);save();render()}else perNext();return}
   if(e.code==='KeyG'){if(S.cur!==5)goalSheet(!e.shiftKey);return}
   if(KM[e.code]&&UI.tab==='input'){choose(KM[e.code],null);return}
   if(/^Digit\d$/.test(e.code)&&UI.tab==='input'){buf+=e.code.slice(5);clearTimeout(bufT);
@@ -1238,6 +1358,7 @@ render();
 let seenHints=false;try{seenHints=localStorage.getItem('lm_hints')==='1'}catch(_){}
 if(!seenHints&&!VIEW)setTimeout(()=>{if(UI.tab==='input')coach(0)},400);
 if(UI.tab==='season')loadSeason();
+setTimeout(()=>ligaSync(),1500);setInterval(()=>{if(!document.hidden)ligaSync()},60000);
 if(VIEW){pull();setInterval(pull,15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()})} else {sync.soon(800);setInterval(()=>sync.push(),30000)}
 setInterval(refreshPenalties,60000);
 addEventListener('online',()=>{penaltyRequests.clear();refreshPenalties()});

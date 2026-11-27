@@ -595,6 +595,7 @@ body{font-variant-numeric:tabular-nums}
 .sheet table.team{table-layout:fixed}.sheet table.team th:not(:first-child){width:calc(44mm/var(--n))}.sheet table.team th{white-space:normal;vertical-align:bottom}
 .sheet table.cen{table-layout:fixed}.sheet table.cen th:nth-child(2){width:9mm}.sheet table.cen th:nth-child(n+3){width:15mm}.sheet table.cen th:last-child{width:11mm}
 .sheet .col:nth-child(2) td,.sheet .col:nth-child(2) th{padding-left:1mm;padding-right:1mm}
+.sheet:not(.x3) .col:nth-child(2) table.ln :is(th,td){padding-inline:.8mm}
 .sheet .nd{color:#5E5E63}
 .sheet table.big{table-layout:fixed;font-size:8pt}
 .sheet table.big th:nth-child(1){width:5mm}.sheet table.big th:nth-child(3){width:4mm}.sheet table.big th:nth-child(n+4){width:5.5mm}.sheet table.big th:nth-child(5){width:9mm}
@@ -625,6 +626,67 @@ body{padding-block:8px 48px}
 .call p b{display:inline}.call p span{overflow:hidden;text-overflow:ellipsis}
 .call .btn.go{min-height:36px;padding:8px 16px;margin-left:var(--space-2)}
 .sheet .its li.n{padding-left:0;color:#5E5E63;font-weight:400}.sheet .its li.n::before{display:none}
+
+/* ---------- отчёт на трёх листах, крупно (слова Антона 21.11.2026, 13:39: «один отчёт… три листа… максимально крупно, печатают на А4 и показывают») ---------- */
+.sheet.x3{font-size:var(--fz,11pt);gap:4mm}
+.sheet.x3 .sh-b{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10mm}.sheet.x3.pl2 .sh-b{grid-template-columns:minmax(0,1fr)}
+.sheet.x3 .col{display:flex;flex-direction:column}
+.sheet.x3 h3{font-size:.8em;margin:1.4em 0 .45em;text-transform:uppercase;letter-spacing:.06em}
+.sheet.x3 p,.sheet.x3 table,.sheet.x3 .pens span{font-size:1em}
+.sheet.x3 th{font-size:.72em;padding:.3em .45em;white-space:normal;vertical-align:bottom;line-height:1.15}
+.sheet.x3 td{padding:var(--rp,.42em) .45em}
+.sheet.x3 .nm{font-size:.85em}
+.sheet.x3 .its li{font-size:1.12em;padding:.3em 0 .3em 1.5em}
+.sheet.x3 .its li::before{left:.2em;top:.72em;width:.6em;height:.6em}
+.sheet.x3 .its li.w::before{left:0;top:.42em;width:1em;height:1em;font:700 .75em/1.3 var(--body);width:1.3em;height:1.3em;border-width:.1em;border-radius:.2em}
+.sheet.x3 .pens span{line-height:1.5;padding:.2em 0}.sheet.x3 .pens b{font-variant-numeric:tabular-nums}
+.sheet.x3 table.team{table-layout:auto}.sheet.x3 table.team th:not(:first-child){width:6.2em}
+.sheet.x3 table.team td b{font-size:1.18em;line-height:1}
+.sheet.x3 table.cen{table-layout:auto}.sheet.x3 table.cen th{width:auto!important}
+.sheet.x3 td.pl img{width:1.9em;height:1.9em;margin-right:.5em}.sheet.x3 td.pl b{min-width:1.7em}
+.sheet.x3 table.ln td:first-child,.sheet.x3 table.cen td:first-child{white-space:nowrap}
+.sheet.x3 td.hi{font-weight:700;background:#FFE3D1}.sheet.x3 td.lo{font-weight:700;box-shadow:inset 0 0 0 .12em #1D1D1F}
+.sheet.x3 table.big.wide{font-size:1em;table-layout:auto}
+.sheet.x3 table.big.wide th{font-size:.68em;padding:.3em .35em;white-space:normal;text-align:center}
+.sheet.x3 table.big.wide td{padding:var(--rp,.3em) .35em;font-size:1em;text-align:center}
+.sheet.x3 table.big.wide td.pl{width:auto;text-align:left;white-space:nowrap}.sheet.x3 table.big.wide td:first-child{text-align:center;color:#5E5E63}
+.sheet.x3 table.big.wide th.vp,.sheet.x3 table.big.wide td.vp{text-align:center;padding-right:.35em}.sheet.x3 table.big.wide td.vp+td,.sheet.x3 table.big.wide th.vp+th{text-align:center;padding-left:.35em}
+.sheet.x3 table.big.wide td.vp{font-weight:700}
+.sheet.x3 .vpn{font-size:.62em;margin-top:.6em}
+.sheet.x3 .z0{color:#B4B4BA}
+
+/* ---------- вид по разбору дизайнера 21.11.2026: шапка в три зоны, плашки-заголовки, цифры по центру, одно выделение — тёмная плашка ---------- */
+.sheet.x3 .sh-h{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;border-bottom:2pt solid #1D1D1F;padding-bottom:2.5mm}
+.sheet.x3 .sh-h h2{font-size:24pt}
+.sheet.x3 .sh-h .mid{text-align:center}.sheet.x3 .sh-h .mid b{display:block;font:700 12pt/1.2 var(--display)}.sheet.x3 .sh-h .mid span{font-size:8pt;color:#5E5E63}
+.sheet.x3 .sc b{font-size:34pt}.sheet.x3 .sc span{font-size:8pt}
+.sheet.x3 h3{background:#1D1D1F;color:#fff;font-size:.72em;letter-spacing:.08em;padding:.5em .8em;margin:1.3em 0 .5em}
+.sheet.x3 td,.sheet.x3 th{text-align:center}.sheet.x3 th:first-child,.sheet.x3 td:first-child{text-align:left}
+.sheet.x3 td.z0{color:#B4B4BA}
+.sheet.x3 td.hi{background:#1D1D1F;color:#fff;font-weight:700;box-shadow:inset .28em 0 0 #F26A1B}.sheet.x3 td.hi b{color:#fff}
+.sheet.x3 .tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:4mm}
+.sheet.x3 .kt{border:1pt solid #1D1D1F;text-align:center;padding:.55em .3em .6em}
+.sheet.x3 .kt b{display:block;font:700 2.5em/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.sheet.x3 .kt span{display:block;margin-top:.5em;font-size:.68em;text-transform:uppercase;letter-spacing:.06em;color:#5E5E63}
+.sheet.x3.s1 .sh-b{grid-template-columns:5fr 7fr}
+.sheet.x3 .tiles.c7{grid-template-columns:repeat(7,1fr);gap:3mm}.sheet.x3 .tiles.c7 .kt b{font-size:2.15em;white-space:nowrap}
+.sheet.x3 .kt b i{font-style:normal;font-weight:400;color:#B4B4BA;margin:0 .12em}.sheet.x3 .kt b u{text-decoration:none;color:#5E5E63}
+.sheet.x3 .cmp-h{font-size:.8em;text-align:center;letter-spacing:.04em;margin-bottom:-2mm}.sheet.x3 .cmp-h span{color:#5E5E63;font-weight:700}
+.sheet.x3 .its li::before{display:none}.sheet.x3 .its li{padding-left:1.7em}.sheet.x3 .its li.w::before{display:block}
+.sheet.x3 .pens span{display:flex;gap:.6em}.sheet.x3 .pens b{flex:none;width:3.3em}
+.sheet.x3 table.team th:not(:first-child){width:6.4em}.sheet.x3 table.team td.mn{background:#E8E8EB}
+.sheet.x3 table.cen td.pc b{font-size:1.25em}
+.sheet.x3 th.grp{border-bottom:.2mm solid #5E5E63}
+.sheet.x3 p.box{border:1pt solid #1D1D1F;padding:.6em .8em;line-height:1.5}
+.sheet.x3 table.big.wide{table-layout:fixed}
+.sheet.x3 table.big.wide th.c-ln{width:4.4em!important;text-align:center}.sheet.x3 table.big.wide th.c-pl{width:14em!important;text-align:left}.sheet.x3 table.big.wide th.c-ps{width:2.2em!important}.sheet.x3 table.big.wide td.pl{text-align:left}
+.sheet.x3 table.big td:nth-child(3):not(.hi){color:#1D1D1F}.sheet.x3 table.big td:nth-child(3){font-family:var(--body)}
+.sheet.x3 table.big.wide td.ps{color:#5E5E63}
+.sheet.x3 table.big.wide td.lnn{font:700 1.4em/1 var(--display);text-align:center;color:#1D1D1F;vertical-align:middle;border-top:1.5pt solid #1D1D1F}
+.sheet.x3 table.big tr.first td{border-top:1.5pt solid #1D1D1F}
+.sheet.x3 table.big.wide td.cur{background:#E8E8EB}
+.sheet.x3 table.big.wide td.hi{background:#1D1D1F;color:#fff}.sheet.x3.s1.one .sh-b{grid-template-columns:7fr 5fr}
+.sheet.x3 .sh-f{font-size:7.5pt;text-align:center}
 
 .league-penalties .pen-list{list-style:none;padding:0;margin:0}
 .league-penalties li{padding:.28em 0;border-bottom:1px solid #8885;line-height:1.35;overflow-wrap:anywhere}
@@ -750,7 +812,7 @@ function decode(f,fm,m,p){
   const by=(k,g)=>R().map(r=>({r,v:pn(k,r,g)}));
   const fw=E('fw',f),fl=E('fl',f),ga=E('ga',f),g=E('g',f),pen=E('pen',f),sh=E('sh',f),shF=D.ev.filter(e=>e.k==='sh'&&f(e)&&pl(e.n)&&pl(e.n).pos==='н').length;
   const sitTxt=k=>{const n=E(k,f),c=s=>D.ev.filter(e=>e.k===k&&f(e)&&e.sit===s).length,pp_=c('pp'),pk_=c('pk'),en=c('en');
-    return [['в равных составах',n-pp_-pk_-en],['в большинстве',pp_],['в меньшинстве',pk_],['пустые ворота',en]].filter(x=>x[1]).map(x=>`${x[0]} ${x[1]}`).join(' · ')};
+    return [['в равных составах',n-pp_-pk_-en],['в большинстве',pp_],['в меньшинстве',pk_],['пустые ворота',en]].filter(x=>x[1]).map(x=>`${x[0]} ${x[1]}`)};   /* каждый состав — своей строкой: в узкой колонке строка через точку переносилась */
   const cen=CEN().map(r=>({r,a:pn('fw',r),b:pn('fl',r)})).filter(x=>x.a+x.b).sort((x,y)=>(y.a+y.b)-(x.a+x.b)||x.r.n-y.r.n);
   const gks=D.gk.map(k=>({k,sv:D.ev.filter(e=>e.k==='sv'&&e.n===k.n&&f(e)).length,ga:D.ev.filter(e=>e.k==='ga'&&e.gk===k.n&&f(e)).length})).filter(x=>x.sv+x.ga);
   const svAll=E('sv',f),noShot=R().filter(r=>r.pos==='н'&&r.line>=1&&E('sh',fm,r.n)===0),sub=t=>`<div class="da-g">${t}</div>`;
@@ -769,7 +831,7 @@ function decode(f,fm,m,p){
    ...(so.length?[['so','буллиты',of(so.filter(e=>e.k==='bg').length,so.length),'забито',wide([...new Set(so.map(e=>e.n))].map(n=>{const a=so.filter(e=>e.n===n),y=a.filter(e=>e.k==='bg').length;return bar(who(n),y,a.length,pct(y,a.length-y))}))]]:[]),
    ...(p>=2&&!m&&D.ev.some(fm)&&noShot.length?[['ns','без броска с начала матча',noShot.length,'нападающие',`<ul class="da-l">${noShot.map(r=>`<li class="pl">${cell(r)}<b></b></li>`).join('')}</ul>`]]:[])];
   const full=C.filter(c=>c[4]),zero=C.filter(c=>!c[4]&&(c[0]!=='pen'||penaltyStats(f).count===0));
-  return `<div class="dx">${full.map(([k,t,n,s2,b])=>`<section class="da" data-k="${k}"><header class="da-h"><span class="da-t">${t}</span><b class="da-n">${n}</b>${s2?`<span class="da-s">${s2}</span>`:''}</header><div class="da-w">${b}</div></section>`).join('')}</div>${zero.length?`<p class="note dzero">Не было: ${zero.map(c=>c[1]).join(' · ')}.</p>`:''}`;
+  return `<div class="dx">${full.map(([k,t,n,s2,b])=>`<section class="da" data-k="${k}"><header class="da-h"><span class="da-t">${t}</span><b class="da-n">${n}</b>${[].concat(s2||[]).map(x=>`<span class="da-s">${x}</span>`).join('')}</header><div class="da-w">${b}</div></section>`).join('')}</div>${zero.length?`<p class="note dzero">Не было: ${zero.map(c=>c[1]).join(' · ')}.</p>`:''}`;
 }
 const cenCards=(fm,f)=>{const a=CEN().sort((x,y)=>fo(y,fm).n-fo(x,fm).n||x.n-y.n),hasL=LINES().length>0;return a.length?`<div class="pgrid">${a.map(r=>{const x=fo(r,fm),y=f?fo(r,f):null;
   return `<div class="pcard"><div class="who">${pp(r.n,56)}<div><span class="nm">${esc(r.name)}</span>${hasL?`<span class="ln">${r.line?r.line+'-е&nbsp;звено':'вне звеньев'}</span>`:''}</div></div><div class="v">${x.n?x.q:'·'}${x.n?'<small>%</small>':''}</div><div class="d"><span>${f?'с начала матча':'за игру'}</span><b>${x.n?`${x.a} из ${x.n}`:'·'}</b>${y?`<span>в этом периоде</span><b>${y.n?`${y.a} из ${y.n}`:'·'}</b>`:''}</div></div>`}).join('')}</div>`:'<div class="empty">вбрасываний пока нет</div>'};
@@ -809,7 +871,7 @@ function body(v){
 /* ---------- лист для печати: A4 горизонтально, один лист на отчёт ---------- */
 function sheet(v,through){
   const hasL=LINES().length>0,m=v==='m',p=m?D.maxP:v,f=m?ALL:inP(v),fm=m?ALL:upTo(v),N=(k,ff,g)=>D.ev.filter(e=>e.k===k&&ff(e)&&(!g||g(e))).length,P=D.periods;
-  const cols=m?[...(P.length>1?P.map(x=>[PSHORT(x),inP(x)]):[]),['вся игра',ALL]]:[['за период',f],...(v>1?[['было',inP(v-1)]]:[]),['с начала матча',fm]],main=m?cols.length-1:0;
+  const cols=m?[...(P.length>1?P.map(x=>[PSHORT(x),inP(x)]):[]),['вся игра',ALL]]:[['за период',f],...(v>1?[['было',inP(v-1)],['с начала матча',fm]]:[])],main=m?cols.length-1:0;
   const fo2=ff=>{const a=N('fw',ff),b=N('fl',ff);return a+b?`${a}–${b}`:'·'},fo3=ff=>{const a=N('fw',ff),b=N('fl',ff);return a+b?pct(a,b):'·'};
   const gk=ff=>{const s=N('sv',ff),n=s+N('ga',ff);return n?`${s}/${n}`:'·'},gk2=ff=>{const s=N('sv',ff),n=s+N('ga',ff);return n?(100*s/n).toFixed(1).replace('.',','):'·'};
   const isF=e=>pl(e.n)&&pl(e.n).pos==='н',isD=e=>pl(e.n)&&pl(e.n).pos==='з';
@@ -827,24 +889,66 @@ function sheet(v,through){
   /* Есть данные лиги — отчёт на двух листах (Антон 19.11: «можешь на двух листах, не обязательно на одном»): второй лист — игроки во всю ширину,
      время и смены по каждому сыгранному периоду и всего с начала матча. */
   const VPS=T?vpPers().filter(q=>m||q<=v):[],d0=x=>x||'·';
-  const vpTd=r=>{if(!T)return '';const t=vpOf(m?'m':v,r.n);return VPS.map(q=>{const x=vpPer(q,r.n);return `<td class="sep vp${!m&&q===v?' cur':''}">${d0(x&&x[0])}</td><td class="${!m&&q===v?'cur':''}">${d0(x&&x[1])}</td>`}).join('')+(VPS.length>1||m?`<td class="sep vp"><b>${d0(t&&t[0])}</b></td><td><b>${d0(t&&t[1])}</b></td>`:'')};
+  let tTop=null;   // наибольшее время на площадке за период (за игру) — для выделения на листе игроков
+  const vpTd=r=>{if(!T)return '';const t=vpOf(m?'m':v,r.n);return VPS.map(q=>{const x=vpPer(q,r.n);return `<td class="sep vp${!m&&q===v?' cur':''}${!m&&q===v&&x&&tTop!=null&&vpSec(x[0])===tTop?' hi':''}">${d0(x&&x[0])}</td><td class="${!m&&q===v?'cur':''}">${d0(x&&x[1])}</td>`}).join('')+(VPS.length>1||m?`<td class="sep vp${m&&t&&tTop!=null&&vpSec(t[0])===tTop?' hi':''}"><b>${d0(t&&t[0])}</b></td><td><b>${d0(t&&t[1])}</b></td>`:'')};
   const vpTh=()=>!T?'':VPS.map(q=>`<th class="sep vp">${q===4?'ОТ':q+'-й'} время</th><th>смены</th>`).join('')+(VPS.length>1||m?'<th class="sep vp">всего время</th><th>смены</th>':'');
+  const MX={};for(const k of ['sh','bl','hit','to'])MX[k]=Math.max(0,...R().map(r=>pn(k,r,f)));const hc=(k,r)=>{const x=pn(k,r,f);return x>=2&&x===MX[k]?` class="${k==='to'?'lo':'hi'}"`:''};
   const tb=GROUPS().map(([t,rs])=>rs.map((r,i)=>{const a=pn('fw',r,f),b=pn('fl',r,f);
-    return `<tr${i===0?' class="first"':''}>${hasL?`<td>${r.line||'–'}</td>`:''}<td class="pl"><b>${r.n}</b> ${esc(r.name)}</td><td>${r.pos}</td><td>${z(pn('sh',r,f))}</td><td>${a+b?a+'–'+b:'·'}</td><td>${z(pn('bl',r,f))}</td><td>${z(pn('hit',r,f))}</td><td>${z(pn('to',r,f))}</td><td>${z(mins(f,r.n))}</td><td>${z(pn('g',r,f))}</td><td>${z(pn('a',r,f))}</td><td>${z(pn('pm',r,f,e=>e.v>0))}</td><td>${z(pn('pm',r,f,e=>e.v<0))}</td>${vpTd(r)}${m?'':`<td${T?'':' class="sep"'}>${z(pn('sh',r,fm))}</td><td>${z(pn('to',r,fm))}</td>`}</tr>`}).join('')).join('');
+    return `<tr${i===0?' class="first"':''}>${hasL?`<td>${r.line||'–'}</td>`:''}<td class="pl"><b>${r.n}</b> ${esc(r.name)}</td><td>${r.pos}</td><td${hc('sh',r)}>${z(pn('sh',r,f))}</td><td>${a+b?a+'–'+b:'·'}</td><td${hc('bl',r)}>${z(pn('bl',r,f))}</td><td${hc('hit',r)}>${z(pn('hit',r,f))}</td><td${hc('to',r)}>${z(pn('to',r,f))}</td><td>${z(mins(f,r.n))}</td><td>${z(pn('g',r,f))}</td><td>${z(pn('a',r,f))}</td><td>${z(pn('pm',r,f,e=>e.v>0))}</td><td>${z(pn('pm',r,f,e=>e.v<0))}</td>${vpTd(r)}${m?'':`<td${T?'':' class="sep"'}>${z(pn('sh',r,fm))}</td><td>${z(pn('to',r,fm))}</td>`}</tr>`}).join('')).join('');
   const noShot=R().filter(r=>r.pos==='н'&&r.line>=1&&pn('sh',r,fm)===0).map(r=>esc(r.name)),dense=R().length>24;
   const HEAD=k=>`<div class="sh-h"><div><span class="k">лист матча · ${m?'отчёт об игре':'отчёт о периоде'}${k}</span><h2>${m?'Вся игра':PNAME(v)}</h2><span class="k">${TITLE()}</span></div>
     <div class="sc"><b>${SCORE(f)}${m&&D.so?' Б':''}</b><span>${m?(P.length>1?'по периодам '+P.map(x=>SCORE(inP(x))).join(' · '):''):`в матче ${SCORE(fm)}`}</span></div></div>`;
   const C1=`<h3>${m?'итоги игры':'итоги периода'}</h3><ul class="its">${its.map(([g,x])=>`<li class="${g?'g':'w'}">${x}</li>`).join('')||'<li class="n">записей пока нет</li>'}</ul>
-     <h3>команда</h3><table class="team" style="--n:${cols.length}"><tr><th></th>${cols.map(x=>`<th>${x[0]}</th>`).join('')}</tr>${rows.map(([t,fn])=>`<tr><td>${t}</td>${cols.map((x,i)=>`<td>${i===main?'<b>':''}${fn(x[1])}${i===main?'</b>':''}</td>`).join('')}</tr>`).join('')}</table>`, C2=`<h3>центральные на вбрасываниях</h3><table class="cen"><tr><th></th><th>звено</th>${m?'':'<th>за период</th>'}<th>${m?'за игру':'Σ'}</th><th>%</th></tr>${cen}</table>
-     ${hasL?`<h3>звенья${m?'':' · за период'}</h3><table><tr><th></th><th>бр</th><th>вбр</th><th>бл</th><th>сил</th><th>пот</th><th>штр</th><th class="sep">Σ бр</th><th>Σ пот</th></tr>${lines}</table>
-     <h3>пары защитников${m?'':' · за период'}</h3><table><tr><th></th><th>бр</th><th>бл</th><th>сил</th><th>пот</th></tr>${pairs}</table>`:'<h3>звенья и пары защитников</h3><p class="nd">пятёрки не расставлены</p>'}
-     <h3>нападающие без броска с начала матча</h3><p>${noShot.length?noShot.join(', '):'бросали все'}</p>`;
-  const TBL=w=>`<h3>игроки${m?' · за игру':' · за период'}</h3><table class="big${hasL?'':' nol'}${w?' wide':''}"><tr>${hasL?'<th>зв</th>':''}<th></th><th></th><th>бр</th><th>вбр</th><th>бл</th><th>сил</th><th>пот</th><th>штр</th><th>гол</th><th>пер</th><th>+</th><th>−</th>${vpTh()}${m?'':`<th class="${T?'s2':'sep'}">Σ бр</th><th class="s2">Σ пот</th>`}</tr>${tb}</table>${T?`<p class="nd vpn">${vpNote(v)}</p>`:''}`;
-  if(T)return `<div class="sheet two${dense?' dense':''}">${HEAD(' · лист 1 из 2 · команда')}<div class="sh-b"><div class="col">${C1}</div><div class="col">${C2}</div><div class="col">${vpGoalBlock(v)+vpPenBlock(v,through)}</div></div></div>
-   <div class="sheet two pl2${dense?' dense':''}">${HEAD(' · лист 2 из 2 · игроки')}<div class="sh-b"><div class="col">${TBL(1)}</div></div></div>`;
+     <h3>команда</h3><table class="team" style="--n:${cols.length}"><tr><th></th>${cols.map(x=>`<th>${x[0]}</th>`).join('')}</tr>${rows.map(([t,fn])=>`<tr><td>${t}</td>${cols.map((x,i)=>`<td${i===main?' class="mn"':''}>${i===main?'<b>':''}${fn(x[1])}${i===main?'</b>':''}</td>`).join('')}</tr>`).join('')}</table>`, CENH=`<h3>центральные на вбрасываниях</h3><table class="cen"><tr><th></th><th>звено</th>${m?'':'<th>за период</th>'}<th>${m?'за игру':'с начала матча'}</th><th>%</th></tr>${cen}</table>`, LNH=w=>`${hasL?`<h3>звенья${m?'':' · за период'}</h3><table class="ln"><tr><th></th>${(w?['броски','вбрасы&shy;вания','блоки','силовые','потери','штраф, мин']:['бр','вбр','бл','сил','пот','штр']).map(h=>`<th>${h}</th>`).join('')}<th class="sep">${w?'броски с начала матча':'бр матч'}</th><th>${w?'потери с начала матча':'пот матч'}</th></tr>${lines}</table>
+     <h3>пары защитников${m?'':' · за период'}</h3><table class="ln"><tr><th></th>${(w?['броски','блоки','силовые','потери']:['бр','бл','сил','пот']).map(h=>`<th>${h}</th>`).join('')}</tr>${pairs}</table>`:'<h3>звенья и пары защитников</h3><p class="nd">пятёрки не расставлены</p>'}`, NSH=`<h3>нападающие без броска с начала матча</h3><p>${noShot.length?noShot.join(', '):'бросали все'}</p>`, C2=CENH+LNH(0)+NSH;
+  const TBL=w=>`<h3>игроки${m?' · за игру':' · за период'}</h3><table class="big${hasL?'':' nol'}${w?' wide':''}"><tr>${hasL?'<th>зв</th>':''}<th></th><th></th>${(w===2?['броски','вбрасы&shy;вания','блоки','силовые','потери','штраф, мин','голы','пере&shy;дачи','на льду +','на льду −']:['бр','вбр','бл','сил','пот','штр','гол','пер','+','−']).map(h=>`<th>${h}</th>`).join('')}${vpTh()}${m?'':`<th class="${T?'s2':'sep'}">${w===2?'броски с начала матча':'бр матч'}</th><th class="s2">${w===2?'потери с начала матча':'пот матч'}</th>`}</tr>${tb}</table>${T?`<p class="nd vpn">${vpNote(v)}</p>`:''}`;
+  if(T){
+    const top=(a,min)=>{const mx=Math.max(0,...a);return mx>=(min||2)&&a.filter(x=>x===mx).length===1?mx:null};   // выделяется одно значение на столбец: наибольшее, не меньше 2, без равных
+    const hi=(x,t)=>t!=null&&x===t?' class="hi"':'';
+    const tt=TITLE().split(' · ');
+    const H3=k=>`<div class="sh-h"><div><h2>${m?'Вся игра':PNAME(v)}</h2></div><div class="mid"><b>${tt[0]}</b><span>${tt.slice(1).join(' · ')} · лист ${k}</span></div>
+      <div class="sc"><b>${SCORE(f)}${m&&D.so?' Б':''}</b><span>${m?(P.length>1?'по периодам '+P.map(x=>SCORE(inP(x))).join(' · '):''):`в матче ${SCORE(fm)}`}</span></div></div>`;
+    const FT=t=>`<div class="sh-f">${t}</div>`,PLT='тёмная плашка — наибольшее значение в столбце';
+    /* сравнение двух команд по сводке лиги (слова Антона 21.11.2026, 14:00: «поставить этот блок… от самого важного к самому неважному»); нет сводки хотя бы за один период — плитки по записям оператора */
+    const QS=VP.pens,[host,guest]=matchTeams(),ps=(m?P:[v]).map(x=>QS.sum&&QS.sum[x]),CK=[['g',m&&D.so?'счёт до буллитов':'счёт'],['sog','броски в створ'],['sh','все броски'],['fo','вбрасывания выиграно'],['bl','заблокировано бросков'],['hit','силовые'],['pen','штраф, мин']];
+    // Сводки ВХЛ перечисляют хозяев первыми. У карточки оператора площадка может отличаться.
+    const first=leagueSide(VP.teams,host,guest);
+    const cmpOk=first>=0&&ps.length&&ps.every(o=>o&&CK.every(([k])=>o[k]));
+    const cs=k=>[first,1-first].map(i=>ps.reduce((t,o)=>t+o[k][i],0));
+    const cmp=cmpOk?`<div class="cmp-h"><b>${esc(host)}</b> : <span>${esc(guest)}</span> · сводка лиги${m?' с начала матча':' за период'}</div><div class="tiles c7">${CK.map(([k,l])=>{const a=cs(k);return `<div class="kt"><b>${a[0]}<i>:</i><u>${a[1]}</u></b><span>${l}</span></div>`}).join('')}</div>`:'';
+    const tiles=cmp||`<div class="tiles">${[[SCORE(f),'счёт'],[N('sh',f),'броски'],[N('sv',f)+N('ga',f),'броски соперника в створ'],[fo3(f)==='·'?'·':fo3(f)+' %','вбрасывания выиграно'],[N('to',f),'потери']].map(([a,b])=>`<div class="kt"><b>${a}</b><span>${b}</span></div>`).join('')}</div>`;
+    const c1=C1.split('<h3>команда</h3>');
+    /* лист 2 */
+    const cr=CEN().map(r=>{const a=pn('fw',r,f),b=pn('fl',r,f),A=pn('fw',r,fm),B=pn('fl',r,fm);return {r,a,b,A,B,p:A+B>=3?pct(A,B):-1}}),ct=top(cr.map(x=>x.p),1);
+    const cen3=cr.map(({r,a,b,A,B,p})=>`<tr><td class="pl">${r.ph?`<img src="${esc(r.ph)}" alt="" onerror="this.remove()">`:''}<b>${r.n}</b> ${esc(r.name)}</td><td>${r.line||'·'}</td>${m?'':`<td>${a+b?`${a} из ${a+b}`:'·'}</td>`}<td>${A+B?`${A} из ${A+B}`:'·'}</td><td class="pc${ct!=null&&p===ct?' hi':''}"><b>${A+B?pct(A,B)+' %':'·'}</b></td></tr>`).join('');
+    const lr=LINES().map(l=>({l,sh:cL('sh',l,f),fw:cL('fw',l,f),fl:cL('fl',l,f),bl:cL('bl',l,f),hit:cL('hit',l,f),to:cL('to',l,f),mn:D.ev.filter(e=>e.k==='pen'&&f(e)&&pl(e.n)&&pl(e.n).line===l).reduce((t,e)=>t+(e.min||2),0),sh2:cL('sh',l,fm),to2:cL('to',l,fm)}));
+    const lt={};for(const k of ['sh','bl','hit','to','sh2','to2'])lt[k]=top(lr.map(x=>x[k]));
+    const ln3=lr.map(x=>`<tr><td><b>${x.l}-е звено</b></td><td${hi(x.sh,lt.sh)}>${x.sh}</td><td>${x.fw+x.fl?x.fw+'–'+x.fl:'·'}</td><td${hi(x.bl,lt.bl)}>${x.bl}</td><td${hi(x.hit,lt.hit)}>${x.hit}</td><td${hi(x.to,lt.to)}>${x.to}</td><td>${z(x.mn)}</td>${m?'':`<td class="sep${x.sh2===lt.sh2?' hi':''}">${x.sh2}</td><td${hi(x.to2,lt.to2)}>${x.to2}</td>`}</tr>`).join('');
+    const S2R=`${hasL?`<h3>звенья${m?' · за игру':' · за период'}</h3><table class="ln"><tr><th rowspan="2"></th>${['броски','вбрасы&shy;вания','блоки','силовые','потери','штраф, мин'].map(h=>`<th rowspan="2">${h}</th>`).join('')}${m?'':'<th colspan="2" class="sep grp">с начала матча</th>'}</tr><tr>${m?'':'<th class="sep">броски</th><th>потери</th>'}</tr>${ln3}</table>
+      <h3>пары защитников${m?' · за игру':' · за период'}</h3><table class="ln"><tr><th></th>${['броски','блоки','силовые','потери'].map(h=>`<th>${h}</th>`).join('')}</tr>${pairs}</table>`:'<h3>звенья и пары защитников</h3><p class="nd">пятёрки не расставлены</p>'}`;
+    const S2L=`<h3>центральные на вбрасываниях</h3><table class="cen"><tr><th></th><th>звено</th>${m?'':'<th>за период</th>'}<th>${m?'за игру':'с начала матча'}</th><th>выиграно</th></tr>${cen3}</table>
+      <h3>нападающие без броска с начала матча</h3><p class="box">${noShot.length?noShot.join(', '):'бросали все'}</p>`;
+    /* лист 3 */
+    /* выделяются все столбцы (слова Антона 21.11.2026, 13:53: «надо же выделять все позиции… у вбрасываний тоже»): наибольшее значение без равных;
+       вбрасывания — лучший процент от трёх вбрасываний; голы и передачи — от одного; остальное — от двух; время — наибольшее за период (за игру) */
+    const PV={sh:r=>pn('sh',r,f),fo:r=>{const a=pn('fw',r,f),b=pn('fl',r,f);return a+b>=3?pct(a,b):-1},bl:r=>pn('bl',r,f),hit:r=>pn('hit',r,f),to:r=>pn('to',r,f),pen:r=>mins(f,r.n)||0,g:r=>pn('g',r,f),a:r=>pn('a',r,f),
+      pp:r=>pn('pm',r,f,e=>e.v>0),pn:r=>pn('pm',r,f,e=>e.v<0),sh2:r=>pn('sh',r,fm),to2:r=>pn('to',r,fm)},PMIN3={fo:1,g:1,a:1};
+    const pt={};for(const k in PV)pt[k]=top(R().map(PV[k]),PMIN3[k]||2);
+    const pc=(k,r,txt,cls)=>{const x=PV[k](r),h=pt[k]!=null&&x===pt[k];return `<td${h||cls?` class="${[cls,h?'hi':''].filter(Boolean).join(' ')}"`:''}>${txt!=null?txt:z(x)}</td>`};
+    tTop=top(R().map(r=>{const x=m?vpOf('m',r.n):vpPer(v,r.n);return x?vpSec(x[0]):0}),1);
+    const tb3=GROUPS().map(([t,rs])=>rs.map((r,i)=>{const a=pn('fw',r,f),b=pn('fl',r,f);
+      return `<tr${i===0?' class="first"':''}>${hasL&&i===0?`<td class="lnn" rowspan="${rs.length}">${r.line||'–'}</td>`:''}<td class="pl"><b>${r.n}</b> ${esc(r.name)}</td><td class="ps">${r.pos}</td>${pc('sh',r)}${pc('fo',r,a+b?a+'–'+b:'·')}${pc('bl',r)}${pc('hit',r)}${pc('to',r)}${pc('pen',r)}${pc('g',r)}${pc('a',r)}${pc('pp',r)}${pc('pn',r)}${vpTd(r)}${m?'':pc('sh2',r,null,'sep')+pc('to2',r)}</tr>`}).join('')).join('');
+    const T3=`<table class="big wide${hasL?'':' nol'}"><tr>${hasL?'<th class="c-ln">звено</th>':''}<th class="c-pl">игрок</th><th class="c-ps"></th>${['броски','вбрасы&shy;вания','блоки','силовые','потери','штраф, мин','голы','пере&shy;дачи','на льду +','на льду −'].map(h=>`<th>${h}</th>`).join('')}${vpTh()}${m?'':'<th class="sep">броски с начала матча</th><th>потери с начала матча</th>'}</tr>${tb3}</table>`;
+    return `<div class="sheet two x3 s1${cols.length===1?' one':''}">${H3('1 из 3 · команда')}${tiles}<div class="sh-b"><div class="col">${c1[0]}${vpGoalBlock(v)+vpPenBlock(v,through)}</div><div class="col"><h3>команда${m?' · по периодам':v>1?' · за период, было, с начала матча':' · за период'}</h3>${c1[1]}</div></div>${FT((cmp?'плитки — сводка лиги: слева «'+esc(host)+'», справа «'+esc(guest)+'» · итоги и таблица команды — записи оператора · ':'')+'знак «!» — показатель, отмеченный программой · голы и удаления — онлайн-протокол ВХЛ')}</div>
+   <div class="sheet two x3 s2">${H3('2 из 3 · звенья и вбрасывания')}<div class="sh-b"><div class="col">${S2L}</div><div class="col">${S2R}</div></div>${FT(PLT+' · вбрасывания: выиграно–проиграно · лучший процент отмечается от трёх вбрасываний')}</div>
+   <div class="sheet two x3 pl2 s3">${H3('3 из 3 · игроки')}<div class="sh-b"><div class="col">${T3}</div></div>${FT(PLT+' (вбрасывания — лучший процент от трёх вбрасываний) · н — нападающий, з — защитник · на льду + и − — был на площадке при забитой и при пропущенной · '+vpNote(v).replace('онлайн-протокол','протокол'))}</div>`}
   return `<div class="sheet${dense?' dense':''}">${HEAD('')}<div class="sh-b"><div class="col">${C1}${vpPenBlock(v,through)}</div><div class="col">${C2}</div><div class="col">${TBL(0)}</div></div></div>`;
 }
-function fitSheet(s){const t=s.querySelector('table.big');if(!t)return;t.classList.remove('fit');
+function fitX3(s){const b=s.querySelector('.sh-b'),over=()=>b.scrollHeight>b.clientHeight+1||b.scrollWidth>b.clientWidth+1||[...b.children].some(c=>c.scrollWidth>c.clientWidth+1)||[...s.querySelectorAll('table.big.wide td,table.big.wide th')].some(t=>t.scrollWidth>t.clientWidth+1);
+  s.style.setProperty('--rp','.3em');let z=14;for(;z>7;z-=.25){s.style.setProperty('--fz',z+'pt');if(!over())break}
+  /* шрифт упёрся в ширину, а место по высоте осталось — строки раздвигаются, пока лист не заполнится */
+  let r=.3;for(;r<1.5;r+=.05){s.style.setProperty('--rp',(r+.05).toFixed(2)+'em');if(over()){break}}s.style.setProperty('--rp',r.toFixed(2)+'em')}
+function fitSheet(s){if(s.classList.contains('x3')){s.querySelectorAll('td').forEach(t=>{if(t.textContent.trim()==='·')t.classList.add('z0')});fitX3(s);return}const t=s.querySelector('table.big');if(!t)return;t.classList.remove('fit');
   const over=()=>{const b=s.getBoundingClientRect().bottom-parseFloat(getComputedStyle(s).paddingBottom)*(s.getBoundingClientRect().height/s.offsetHeight);return [...s.querySelectorAll('.col')].some(c=>c.lastElementChild&&c.lastElementChild.getBoundingClientRect().bottom>b+.5)};
   if(!over())return;t.classList.add('fit');
   for(let i=0;i<=12;i++){const k=i/12;t.style.setProperty('--bp',(1.1-.9*k).toFixed(2)+'mm');t.style.setProperty('--bf',(7.5-1.3*k).toFixed(2)+'pt');t.style.setProperty('--bi',(5-1.5*k).toFixed(2)+'mm');if(!over())return}}
@@ -914,7 +1018,12 @@ const vpOf=(v,n)=>{if(!vpHas(v))return null;if(v==='m')return VP.per.m[n]||null;
   for(let i=1;i<=v;i++){const x=vpPer(i,n);if(x){s+=vpSec(x[0]);c+=x[1];ok=true}}
   return ok?[vpFmt(s),c]:null};
 const vpNote=v=>`${D.liga?'Голы и передачи, время':'Время'} на площадке и смены — онлайн-протокол ВХЛ на ${String(VP.at.getHours()).padStart(2,'0')}:${String(VP.at.getMinutes()).padStart(2,'0')}`;
-function vpParse(html){const doc=new DOMParser().parseFromString(html,'text/html'),teams=[];let cur=null;
+function leagueSide(teams,first,second){
+  const key=name=>String(name||'').trim().toLowerCase().replace(/ё/g,'е').replace(/^хк\s+/,'');
+  const a=teams.map(key),i=a.indexOf(key(first));
+  return a.length===2&&i>=0&&a[1-i]===key(second)?i:-1;
+}
+function vpParse(doc){const teams=[];let cur=null;
   doc.querySelectorAll('.game__content_tabs__item[data-tab]').forEach(el=>{const t=el.dataset.tab;
     if(t==='stat-teamA'||t==='stat-teamB'){cur={};teams.push(cur);return} if(t==='stat-teams'){cur=null;return}
     const k=/^stats-teams-(match|period-(\d))$/.exec(t);if(!cur||!k)return;const o={};
@@ -933,7 +1042,10 @@ function vpPens(html){const t=html.replace(/<script[\s\S]*?<\/script>|<style[\s\
   /* сводка лиги «Статистика N-го периода: … Штраф: a-b» (хозяева-гости) — по ней сверяется список; хозяева — первая команда в заголовке страницы */
   const stat={};for(const m of t.matchAll(/Статистика (\d)-го периода: ?\|[^|]*Штраф: (\d+)-(\d+)/g))if(!stat[m[1]])stat[m[1]]=[+m[2],+m[3]];
   const tt=/:\s*([^:<]+?)-([^<(]+?)\s*\(онлайн/.exec((/<title>([^<]*)/.exec(html)||[])[1]||'');
-  return {list:list.sort((a,b)=>a.sec-b.sec),stat,homeL:tt?tt[1].trim():'',fin:/Окончание игры/.test(t)}}
+  /* вся сводка лиги за период (хозяева-гости): броски, броски в створ, голы, вбрасывания, блокированные броски, силовые, штраф — для сравнения двух команд на листе 1 */
+  const sum={},SK={'Броски':'sh','Броски в створ':'sog','Голы':'g','Вбрасывания':'fo','Блокированные броски':'bl','Силовые приемы':'hit','Силовые приёмы':'hit','Штраф':'pen'};
+  for(const m of t.matchAll(/Статистика (\d)-го периода: ?\|([^|]*)/g)){if(sum[m[1]])continue;const o={};for(const x of m[2].matchAll(/([А-ЯЁа-яё ]+?): ?(\d+)-(\d+)/g)){const k=SK[x[1].trim()];if(k)o[k]=[+x[2],+x[3]]}sum[m[1]]=o}
+  return {list:list.sort((a,b)=>a.sec-b.sec),stat,sum,homeL:tt?tt[1].trim():'',fin:/Окончание игры/.test(t)}}
 let livePenalties=null;
 function officialPenalties(){
   return [livePenalties,D.leaguePenalties].find(source=>source&&LeaguePenalties.fits(source,D,vpId()))||null;
@@ -962,6 +1074,11 @@ function vpGoals(html){const t=html.replace(/<script[\s\S]*?<\/script>|<style[\s
   return out.sort((a,b)=>a.sec-b.sec)}
 /* Отчёт считает по D.ev. Записи оператора лежат в D.ev0; голы и передачи подменяются голами лиги — по периодам и только когда у лиги их не меньше,
    чем у оператора (лига отстаёт на минуту-другую). «На льду при голе», броски и остальное остаются от оператора; за гол, которого у оператора не было, добавляется бросок. */
+/* Если в другом периоде уже есть лишний ручной гол этой стороны, недостающая запись может быть тем же голом. */
+function goalsByPeriodSafe(events,goals,home,kind){
+  return [1,2,3,4].every(p=>events.filter(e=>e.p===p&&e.k===kind).length<=
+    goals.filter(g=>g.p===p&&((g.team===home)===(kind==='g'))).length);
+}
 function vpApply(){
   if(!D)return;
   if(!D.ev0)D.ev0=D.ev;
@@ -971,17 +1088,18 @@ function vpApply(){
   D.gdiff=0;D.liga=false;
   if(!VP||VP.id!==vpId()||!VP.goals)return;
   let ev=D.ev.slice(),diff=0;
+  const addUs=goalsByPeriodSafe(D.ev0,VP.goals,D.home,'g'),addThem=goalsByPeriodSafe(D.ev0,VP.goals,D.home,'ga');
   for(const p of [1,2,3,4]){const L=VP.goals.filter(g=>g.p===p),us=L.filter(g=>g.team===D.home),th=L.filter(g=>g.team!==D.home),og=D.ev0.filter(e=>e.k==='g'&&e.p===p),oga=D.ev0.filter(e=>e.k==='ga'&&e.p===p).length;
-    if(us.length&&us.length>=og.length){
+    if(us.length&&(us.length===og.length||(addUs&&us.length>og.length))){
       /* отличия: сколько авторов голов и ассистентов лиги нет среди записей оператора за период (в записях отчёта гол и передачи не связаны между собой) */
       const miss=(lg,op)=>{op=op.slice();let k=0;lg.forEach(n=>{const i=op.indexOf(n);if(i<0)k++;else op.splice(i,1)});return k};
       diff+=miss(us.map(g=>g.n),og.map(e=>e.n))+miss(us.flatMap(g=>g.as.map(x=>x.n)),D.ev0.filter(e=>e.k==='a'&&e.p===p).map(e=>e.n));
       const left=og.map(e=>e.n);ev=ev.filter(e=>!((e.k==='g'||e.k==='a')&&e.p===p));
       us.forEach(g=>{ev.push({p,n:g.n,k:'g',sit:g.sit,lt:g.t});g.as.forEach(a=>ev.push({p,n:a.n,k:'a'}));const i=left.indexOf(g.n);if(i<0&&us.length>og.length)ev.push({p,n:g.n,k:'sh'});else if(i>=0)left.splice(i,1)})}
-    for(let i=oga;i<th.length;i++){const g=th[i];ev.push({p,n:null,k:'ga',sit:g.sit==='pp'?'pk':g.sit==='pk'?'pp':g.sit,...(g.sit==='pp'?{pk:1}:{})});diff++}}
+    for(let i=oga;addThem&&i<th.length;i++){const g=th[i];ev.push({p,n:null,k:'ga',sit:g.sit==='pp'?'pk':g.sit==='pk'?'pp':g.sit,...(g.sit==='pp'?{pk:1}:{})});diff++}}
   D.ev=ev;D.gdiff=diff;D.liga=true}
 const vpGoalBlock=v=>{const a=VP.goals.filter(x=>v==='m'||x.p===v);
-  return `<h3>голы · протокол лиги${v==='m'?'':' · за период'}</h3><p class="pens">${a.length?a.map(g=>`<span${g.team===D.home?'':' class="nd"'}><b>${g.t}</b> ${g.sc} ${g.team===D.home?`${g.n} ${esc(g.name)}${g.as.length?' ('+g.as.map(x=>esc(x.name)).join(', ')+')':''}`:`${esc(g.team)} — ${g.n} ${esc(g.name)}`}${g.sit==='pp'?' · бол.':g.sit==='pk'?' · мен.':g.sit==='en'?' · пуст. вор.':''}</span>`).join(''):'<span>голов не было</span>'}${D.gdiff?`<span class="nd">отличий от записей оператора: ${D.gdiff}</span>`:''}</p>`};
+  return `<h3>голы · протокол лиги${v==='m'?'':' · за период'}</h3><p class="pens">${a.length?a.map(g=>`<span${g.team===D.home?'':' class="nd"'}><b>${g.t}</b> ${g.sc} ${g.team===D.home?`${g.n} ${esc(g.name)}${g.as.length?' ('+g.as.map(x=>esc(x.name)).join(', ')+')':''}`:`${esc(g.team)} — ${g.n} ${esc(g.name)}`}${g.sit==='pp'?' · бол.':g.sit==='pk'?' · мен.':g.sit==='en'?' · пуст. вор.':''}</span>`).join(''):'<span>голов не было</span>'}${D.gdiff+(D.ligaFix||0)?`<span class="nd">отличий от записей оператора: ${D.gdiff+(D.ligaFix||0)}</span>`:''}</p>`};
 function vpLoad(force){const id=vpId();if(!id)return Promise.resolve();if(vpBusy)return id===vpRequestId?vpBusy:vpBusy.then(()=>vpId()===id?vpLoad(force):null);
   if(!force&&id===vpRequestId&&Date.now()-vpAt<45000)return Promise.resolve();vpAt=Date.now();vpRequestId=id;
   return vpBusy=(async()=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);
@@ -989,8 +1107,10 @@ function vpLoad(force){const id=vpId();if(!id)return Promise.resolve();if(vpBusy
       if(!D||vpId()!==id)throw new Error('открыт другой матч');
       const penalties=LeaguePenalties.read(html,D,id);
       if(penalties){livePenalties=LeaguePenalties.merge(officialPenalties(),penalties);vpApply();updatePeriods();if(view!=null)show(view)}
-      const per=vpParse(html),pens=vpPens(html),goals=vpGoals(html);
-      if(per){const was=VP&&VP.id===id?JSON.stringify([VP.per,VP.pens,VP.goals]):'';VP={id,per,pens,goals,at:new Date()};vpApply();if(view!=null&&D&&vpId()===id&&JSON.stringify([per,pens,goals])!==was)show(view)}}catch(_){}
+      const doc=new DOMParser().parseFromString(html,'text/html');
+      const teams=[...doc.querySelectorAll('.game__tablo .game__team-name')].map(el=>el.textContent.trim());
+      const per=leagueSide(teams,D.home,D.away)>=0?vpParse(doc):null,pens=vpPens(html),goals=vpGoals(html);
+      if(per){pens.homeL=teams[0];const was=VP&&VP.id===id?JSON.stringify([VP.per,VP.pens,VP.goals]):'';VP={id,per,pens,goals,teams,at:new Date()};vpApply();if(view!=null&&D&&vpId()===id&&JSON.stringify([per,pens,goals])!==was)show(view)}}catch(_){}
     clearTimeout(t);vpBusy=null})()}
 
 function updatePeriods(){
@@ -1001,7 +1121,7 @@ function updatePeriods(){
 function renderCall(){document.getElementById('call').innerHTML=`<p><b>Отчёт</b><span>${TITLE()}</span></p><div class="chips">${[...D.periods.map(p=>[p,PNAME(p)]),['m','Вся игра']].map(([v,t])=>`<button class="chip${v===view?' on':''}" data-p="${v}">${t}</button>`).join('')}<button class="btn go" id="prn"><span>Печать · </span>PDF</button></div>`}
 function show(v){view=v;renderCall();document.getElementById('rep').innerHTML=body(v)+vpPenBlock(v);renderPaper(v)}
 document.getElementById('call').onclick=e=>{if(e.target.closest('#prn')){vpLoad(true).then(()=>window.print());return}const b=e.target.closest('.chip');if(b)show(b.dataset.p==='m'?'m':+b.dataset.p)};
-addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='lm-report')return;const keep=D&&D.id===d.id?view:null;D=d;vpApply();
+addEventListener('message',e=>{const d=e.data;if(!d||d.type!=='lm-report')return;const keep=D&&D.id===d.id?view:null;D=d;if(VP&&VP.id===vpId()&&leagueSide(VP.teams,D.home,D.away)<0){VP=null;vpAt=0}vpApply();
   const mx=updatePeriods();
   show(keep!=null&&(keep==='m'||keep<=mx)?keep:Math.min(d.cur,mx));vpLoad()});
 addEventListener('afterprint',()=>{try{parent.postMessage({type:'lm-report-printed',p:view},'*')}catch(_){}});

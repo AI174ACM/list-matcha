@@ -1,7 +1,7 @@
 /* Лист матча: работа без сети.
    Страница: сначала сеть (3 секунды), нет сети — из памяти браузера. Так правки приходят сразу.
    Шрифты и значки: из памяти браузера. */
-const CACHE_VERSION='0da99ecc834fe1ad265fcff90fe13d2abb42a975c7c4233409b8cf6ff56189ad'; // При публикации сюда подставляется хеш файлов сайта.
+const CACHE_VERSION='551801224449b9ff0a3e2b000d59c0c272246ecb3c3fba43d936bff4b9db9c36'; // При публикации сюда подставляется хеш файлов сайта.
 const PREFIX='list-matcha:'+self.registration.scope+':';
 const C=PREFIX+CACHE_VERSION;
 const FILES=['./','otchet.html','league-penalties.js','season-history.js','season.css','season.js','season-export.js','season-xlsx.js','logos/382.png','manifest.webmanifest','icon-192.png','icon-512.png','fonts/Onest-cyrillic.woff2','fonts/Onest-latin.woff2','fonts/JetBrainsMono-cyrillic.woff2','fonts/JetBrainsMono-latin.woff2'];
