@@ -213,6 +213,10 @@ td small{font-size:.7em;font-weight:500;color:var(--ink2);margin-left:1px}
 .ov.on{display:flex}
 .sheet{background:var(--card);color:var(--ink);border-radius:22px;padding:24px;width:min(980px,96vw);max-height:94vh;overflow:auto}
 html[data-theme="tiles"] .sheet{background:#fff} html[data-theme="tiles"] .row.foot{background:#fff}
+.penalty-teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px}
+.penalty-team{min-width:0;display:grid;align-content:start;gap:6px}
+.penalty-team .lbl{margin:4px 0}
+.penalty-team .it .tx b{white-space:normal;overflow:visible}
 .sheet h2{margin:0;font-size:26px}
 .sub{color:var(--ink2);font-size:15px}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0 14px}
@@ -359,6 +363,7 @@ html[data-theme="tiles"] .pc{background:#fff;box-shadow:inset 0 0 0 2px var(--in
 <script src="season-xlsx.js"></script>
 <script src="season-export.js"></script>
 <script src="season.js"></script>
+<script src="league-penalties.js"></script>
 <script>
 const KEY='list_matcha_v1';
 const API='https://script.google.com/macros/s/AKfycbz2jG-gntMFAdd0OaCrxcGIgImqLvjk0F4jXOk5a-tm4qpTRv9HgwIqZuthMZthKaFJWg/exec';   /* адрес приёмника в Google Таблице; подставляется при публикации */
@@ -470,8 +475,8 @@ let UI={tab:Q.get('tab')==='season'?'season':VIEW||Q.get('tab')==='sum'?'sum':'i
 try{UI.theme=localStorage.getItem('lm_theme')||'light'}catch(e){}
 document.documentElement.dataset.theme=UI.theme;
 
-const ACTS=[['sh','Бросок','S'],['fw','Выиграл вбрасывание','Q'],['fl','Проиграл вбрасывание','W'],['bl','Заблокировал бросок','B'],['hit','Силовой приём','H'],['to','Потеря шайбы','L'],['pen','Удаление','P']];
-const AN=Object.fromEntries(ACTS.map(a=>[a[0],a[1]]));
+const ACTS=[['sh','Бросок','S'],['fw','Выиграл вбрасывание','Q'],['fl','Проиграл вбрасывание','W'],['bl','Заблокировал бросок','B'],['hit','Силовой приём','H'],['to','Потеря шайбы','L']];
+const AN={...Object.fromEntries(ACTS.map(a=>[a[0],a[1]])),pen:'Удаление'};
 AN.sv='Отбил бросок';AN.bg='Буллит — забил';AN.bm='Буллит — не забил';AN.bga='Буллит соперника — гол';AN.bsv='Буллит соперника — отбил';AN.g='Гол';AN.a='Передача';AN.ga='Гол в наши ворота';
 const PN=p=>p===0?'1–2-й периоды':p===5?'Буллиты':p===4?'Овертайм':p+'-й период';
 const PS=p=>p===0?'1–2 пер.':p===5?'Б':p===4?'ОТ':p+' пер.';
@@ -480,7 +485,7 @@ const P=n=>S.roster.find(x=>x.n===n);
 const gk0=()=>(S.gk||[]).find(Boolean)||null;   // вратарь в воротах — первый в составе
 const snm=n=>{const p=n!=null&&(P(n)||(S.gk||[]).find(g=>g&&g.n===n));return p?p.name:'№'+n};
 const nm=n=>{if(n==null)return 'номер не указан';const p=P(n)||(S.gk||[]).find(g=>g&&g.n===n);return p?p.n+' '+p.name:'№'+n};
-function save(){if(VIEW)return;S.savedAt=new Date().toISOString();try{localStorage.setItem(KEY,JSON.stringify(S));localStorage.setItem('lm_dirty','1')}catch(e){}sync.soon()}
+function save(){if(VIEW)return;attachPenalties(S);S.savedAt=new Date().toISOString();try{localStorage.setItem(KEY,JSON.stringify(S));localStorage.setItem('lm_dirty','1')}catch(e){}sync.soon()}
 
 /* ---------- связь с таблицей ---------- */
 async function api(body,ms=20000){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);
@@ -579,7 +584,7 @@ function choose(k,n){ // действие и игрок в любом поряд
   if(k!=null){ if(k==='g'){const p=UI.pl;UI.pl=null;render();goalSheet(true,p);return} if(k==='ga'){goalSheet(false);return}
     UI.act=UI.act===k?null:k; }
   if(n!=null){ UI.sog=null; UI.pl=UI.pl===n&&k==null?null:n; }
-  if(UI.act&&UI.pl){ const a=UI.act,p=UI.pl; if(a==='pen'){const o=document.querySelector('.pop');if(o)o.remove();penSheet(p);return} record(a,p); return }
+  if(UI.act&&UI.pl){ const a=UI.act,p=UI.pl; record(a,p); return }
   render();
 }
 
@@ -588,7 +593,7 @@ function cnt(n,k,p){return S.ev.filter(e=>e.n===n&&e.k===k&&(p==null||e.p===p)).
 /* длинная фамилия («Ануфриенко») не обрезается, а ужимается под ширину места */
 function fit(sel,min=9){const rg=document.createRange(),over=el=>{rg.selectNodeContents(el);return rg.getBoundingClientRect().width>el.getBoundingClientRect().width+.5};   // ширина текста с долями точки: целые scrollWidth пропускают обрезку на полточки
   document.querySelectorAll(sel).forEach(el=>{el.style.fontSize='';if(!el.firstChild||!over(el))return;let fs=parseFloat(getComputedStyle(el).fontSize);while(over(el)&&fs>min){fs-=.5;el.style.fontSize=fs+'px'}})}
-function render(flashN){requestAnimationFrame(()=>{fit('.tl span,.pc .pn span');fit('.it .tx .as',9);const a=[...document.querySelectorAll('.pgrp .tl:not(.gks) span')];if(a.length){const m=Math.min(...a.map(e=>parseFloat(getComputedStyle(e).fontSize)));a.forEach(e=>e.style.fontSize=m+'px')}});
+function render(flashN){queueMicrotask(refreshPenalties);requestAnimationFrame(()=>{fit('.tl span,.pc .pn span');fit('.it .tx .as',9);const a=[...document.querySelectorAll('.pgrp .tl:not(.gks) span')];if(a.length){const m=Math.min(...a.map(e=>parseFloat(getComputedStyle(e).fontSize)));a.forEach(e=>e.style.fontSize=m+'px')}});
   document.querySelector('.app').classList.toggle('season-active',UI.tab==='season');
   document.title=UI.tab==='season'?'Итоги сезона · Челмет':'Лист матча';
   const [host,guest]=rinkOrder(S.venue,S.home,S.away);
@@ -604,8 +609,11 @@ function render(flashN){requestAnimationFrame(()=>{fit('.tl span,.pc .pn span');
   // полоса положения
   const s=sit(), st=document.getElementById('strip'); st.className='strip '+s.type;
   const pens=S.pens.map(p=>`<span class="pchip">${p.side==='us'?nm(p.n):S.away}${p.kind==='major'?' · 5 мин':p.kind==='double'?' · 2+2':' · 2 мин'}${VIEW?'':`<button data-pend="${p.id}">Штраф закончился</button>`}</span>`).join('');
-  st.innerHTML=`<span class="what">${s.type==='pk'?'<span class="sign"><span>!</span></span>':''}${SITW[s.type]} · <span class="n">${s.us}</span> на <span class="n">${s.them}</span></span><div class="pens">${pens}</div><span class="sp"></span>${VIEW?'':`
-   <button class="chipb" data-opp>Удаление у соперника</button><button class="chipb${S.pull.us?' on':''}" data-pull="us">Наш вратарь снят</button><button class="chipb${S.pull.them?' on':''}" data-pull="them">Их вратарь снят</button>`}`;
+  const legacy=S.ev.some(e=>e.k==='pen')&&!penaltyRecord();
+  const status=S.pens.length||s.type==='en'?`<span class="what">${s.type==='pk'?'<span class="sign"><span>!</span></span>':''}${SITW[s.type]} · <span class="n">${s.us}</span> на <span class="n">${s.them}</span></span>`:
+    legacy?'<span class="what">Штрафные минуты — из журнала оператора</span>':'';
+  st.innerHTML=`${status}<div class="pens">${pens}</div><span class="sp"></span><button class="chipb" data-official-penalties>Удаления ВХЛ</button>${VIEW?'':`
+   <button class="chipb${S.pull.us?' on':''}" data-pull="us">Наш вратарь снят</button><button class="chipb${S.pull.them?' on':''}" data-pull="them">Их вратарь снят</button>`}`;
   UI.tab==='input'?renderInput(flashN):UI.tab==='season'?renderSeason():UI.tab==='rep'?renderRep():renderSum(); sync.show();
 }
 function renderInput(flashN){
@@ -665,7 +673,7 @@ function renderInput(flashN){
   const sg=SO&&UI.sog!=null?v.querySelector(`.tl[data-sog="${UI.sog}"]`):null;
   const pp=pl&&!a?P(pl):null, tl=sg||(pp&&v.querySelector(`.tl[data-pl="${pl}"]`));
   if(tl){const el=document.createElement('div');el.className='pop'+(SO?' so':'');
-    const L=SO?[]:[['sh','Бросок'],['bl','Заблокировал бросок'],...(pp.pos==='н'?[['fw','Выиграл вбрасывание'],['fl','Проиграл вбрасывание']]:[]),['hit','Силовой приём'],['to','Потеря шайбы'],['pen','Удаление']];
+    const L=SO?[]:[['sh','Бросок'],['bl','Заблокировал бросок'],...(pp.pos==='н'?[['fw','Выиграл вбрасывание'],['fl','Проиграл вбрасывание']]:[]),['hit','Силовой приём'],['to','Потеря шайбы']];
     el.innerHTML=L.map(([k,l])=>`<button class="pb" data-act="${k}">${l}</button>`).join('')+(sg?'<button class="pb goal" data-so="bsv">Отбил</button><button class="pb" data-so="bga">Не отбил</button>':SO?'<button class="pb goal" data-act="bg">Забил</button><button class="pb" data-act="bm">Не забил</button>':'<button class="pb goal" data-act="g">Гол</button>');
     v.appendChild(el);const r=tl.getBoundingClientRect(),c=tl.closest('.col').getBoundingClientRect(),w=el.offsetWidth,h=el.offsetHeight,G=12;
     const fit=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));let left,top,side;
@@ -677,9 +685,120 @@ function renderInput(flashN){
     el.style.setProperty('--ax',fit(r.left+r.width/2-left,18,w-18)+'px');el.style.setProperty('--ay',fit(r.top+r.height/2-top,18,h-18)+'px')}
 }
 const COLS=[['fo','Вбрасывания'],['sh','Броски'],['g','Голы'],['a','Передачи'],['bl','Блоки'],['hit','Силовые приёмы'],['to','Потери шайбы'],['pen','Штраф, минуты'],['pm','Плюсы и минусы']];
+const LIGA={"15.11.2026":904334,"17.11.2026":904348,"19.11.2026":904358,"21.11.2026":904367,"27.11.2026":904391,"29.11.2026":904405,"01.12.2026":904416,"03.12.2026":904424,"08.12.2026":904438,"11.12.2026":904452,"19.12.2026":904488,"21.12.2026":904496,"23.12.2026":904509,"25.12.2026":904520,"09.01.2027":904544,"11.01.2027":904553,"13.01.2027":904563,"22.01.2027":904601,"24.01.2027":904614,"26.01.2027":904626,"31.01.2027":904647,"02.02.2027":904654,"04.02.2027":904663,"07.02.2027":904681,"13.02.2027":904706,"15.02.2027":904716,"17.02.2027":904730,"19.02.2027":904741,"24.02.2027":904759,"26.02.2027":904769,"28.02.2027":904777,"02.03.2027":904793,"07.03.2027":904808,"09.03.2027":904813,"12.03.2027":904828,"14.03.2027":904841,"18.03.2027":904860};
 const PMIN={minor:2,double:4,major:5,misc:10};
+/* Последний проверенный снимок ВХЛ хранится отдельно от исходного журнала оператора. */
+const penaltyCache=new Map(), penaltyRequests=new Map();
+function penaltyLeagueId(m) {
+  const date=String(m.date||'').split('.').reverse().join('-');
+  return LIGA[m.date] || window.SEASON_HISTORY?.matches?.find(game=>game.date===date)?.id || 0;
+}
+function penaltyRecord(m=S){
+  const id=penaltyLeagueId(m);
+  if(!id)return null;
+  if(!penaltyCache.has(id)){
+    let cached=null;
+    try{cached=JSON.parse(localStorage.getItem('lm_vhl_pen_'+id))}catch(_){}
+    penaltyCache.set(id,cached);
+  }
+  const cached=penaltyCache.get(id);
+  const attached=LeaguePenalties.fits(m.leaguePenalties,m,id)?{value:m.leaguePenalties,at:m.leaguePenaltiesAt||0}:null;
+  if(!LeaguePenalties.fits(cached?.value,m,id))return attached;
+  return attached && attached.at>cached.at ? attached : cached;
+}
+function canAttachPenalties(m){
+  return m.id!=='2026-11-15-buran' && !m.ev.some(e=>e.src==='лист') && m.ev.some(e=>e.src==='ввод'&&!e.lg);
+}
+function attachPenalties(m){
+  const record=penaltyRecord(m);
+  if(record && canAttachPenalties(m)){
+    m.leaguePenalties=record.value;
+    m.leaguePenaltiesAt=record.at;
+  }else if(m.leaguePenalties&&!LeaguePenalties.fits(m.leaguePenalties,m,penaltyLeagueId(m))){
+    delete m.leaguePenalties;delete m.leaguePenaltiesAt;
+  }
+}
+const leagueReads=new Map();
+function readLeaguePage(id){
+  if(!leagueReads.has(id)){
+    const request=fetch('https://online.vhlru.ru/online/'+id+'.html',{cache:'no-store',signal:AbortSignal.timeout(12000)})
+      .then(response=>{if(!response.ok||response.redirected)throw new Error('Нет протокола ВХЛ');return response.text()})
+      .finally(()=>leagueReads.delete(id));
+    leagueReads.set(id,request);
+  }
+  return leagueReads.get(id);
+}
+async function refreshPenalties(){
+  const m=S,id=penaltyLeagueId(m);
+  if(!id || !m.home || !m.away || m.away==='Соперник' || document.hidden)return;
+  const key=[id,m.home,m.away].join('|'),request=penaltyRequests.get(key);
+  if(request && Date.now()-request<60000)return;
+  penaltyRequests.set(key,Date.now());
+  try{
+    const fresh=LeaguePenalties.read(await readLeaguePage(id),m,id);
+    if(!fresh || S!==m || id!==penaltyLeagueId(m) || !LeaguePenalties.fits(fresh,m,id))return;
+    const before=penaltyRecord(m),value=LeaguePenalties.merge(before?.value,fresh);
+    const changed=JSON.stringify(before?.value)!==JSON.stringify(value);
+    if(changed){
+      const record={value,at:Date.now()};
+      penaltyCache.set(id,record);
+      try{localStorage.setItem('lm_vhl_pen_'+id,JSON.stringify(record))}catch(_){}
+    }
+    // Дописывать в Google можно только тот матч, который уже ведёт подключённый оператор.
+    if(sync.on() && /^https?:$/.test(location.protocol) && canAttachPenalties(m) &&
+       JSON.stringify(m.leaguePenalties)!==JSON.stringify(value)){
+      const stored=JSON.parse(localStorage.getItem(KEY)||'null');
+      if(stored?.id===m.id && stored.savedAt && stored.savedAt===m.savedAt)save();
+    }
+    if(changed){
+      if(ov.classList.contains('on')){
+        if(sh.querySelector('[data-penalty-sheet]'))penaltySheet(sh.penaltyPlayer,sh.penaltyPage);
+      }else if(UI.tab==='sum')render();
+      else if(UI.tab==='rep')repSend();
+    }
+  }catch(_){} // При отсутствии связи сохраняем прежний снимок.
+}
+function penaltyMinutes(n,part,record){
+  const penalties=record?record.value.list.filter(e=>e.side==='us'):S.ev.filter(e=>e.k==='pen');
+  return penalties.filter(e=>(n==null||e.n===n)&&(part==='all'||e.p===part))
+    .reduce((sum,e)=>sum+(record?e.min:(e.mm||PMIN[e.min]||2)),0);
+}
+function penaltiesConfirmed(snapshot,part){
+  if(!snapshot)return false;
+  if(part!=='all')return snapshot.confirmed.includes(part);
+  return snapshot.complete===true;
+}
+function penaltySheet(player,page=0){
+  sh.classList.remove('narrow');
+  sh.penaltyPlayer=player;
+  const part=UI.tab==='sum'?UI.sumPer:'all',record=penaltyRecord(),snapshot=record?.value;
+  const entries=(snapshot?.list||[]).filter(e=>(part==='all'||e.p===part)&&(player==null||(e.side==='us'&&e.n===player)));
+  const confirmed=penaltiesConfirmed(snapshot,part);
+  const archived=!snapshot && S.ev.some(e=>e.k==='pen'&&(part==='all'||e.p===part));
+  const note=!snapshot?(archived?'Нет данных ВХЛ. Штрафные минуты в таблице матча — из прежнего журнала оператора.':'Нет данных ВХЛ.'):confirmed?'Минуты сверены со сводкой ВХЛ.':'Показаны опубликованные удаления. Полнота списка за этот интервал ещё не подтверждена ВХЛ.';
+  const heading=player==null?'Удаления ВХЛ':'Удаления ВХЛ · '+nm(player);
+  const teams=player==null?snapshot?.teams||rinkOrder(S.venue,S.home,S.away):[S.home];
+  const groups=teams.map(team=>({team,rows:entries.filter(e=>player==null?e.team===team:e.side==='us')}));
+  const stacked=innerWidth<730 && groups.length>1;
+  const perPage=Math.max(1,Math.floor((innerHeight*.94-240)/(stacked?144:68)));
+  const pages=Math.max(1,...groups.map(g=>Math.ceil(g.rows.length/perPage)));
+  const current=Math.min(Math.max(0,page),pages-1);
+  sh.penaltyPage=current;
+  const body=groups.map(({team,rows})=>{
+    const events=rows.slice(current*perPage,(current+1)*perPage).map(e=>`<div class="it"><div class="tx"><b>${esc(e.t)} · ${esc(e.n==null?'Командный штраф':'№'+e.n+' '+e.name)} · ${e.min} мин</b><small>${esc(PS(e.p))}${e.why?' · '+esc(e.why):''}${e.serve?' · отбывал '+esc(e.serve):''}</small></div></div>`).join('');
+    const empty=rows.length?'':`<p class="sub">${confirmed?'Удалений нет':'Нет данных'}</p>`;
+    return `<section class="penalty-team"><div class="lbl">${esc(team)}</div>${events||empty}</section>`;
+  }).join('');
+  const pager=pages>1?`<button class="btn" data-penalty-page="-1" ${current===0?'disabled':''}>Назад</button><span>${current+1} из ${pages}</span><button class="btn" data-penalty-page="1" ${current===pages-1?'disabled':''}>Дальше</button>`:'';
+  sh.innerHTML=`<h2 data-penalty-sheet>${esc(heading)}</h2><p class="sub">${part==='all'?'Вся игра':PN(part)} · ${note}${record?.at?' Последние изменения получены '+esc(new Date(record.at).toLocaleString('ru-RU'))+'.':''}</p><div class="penalty-teams">${body}</div><div class="row foot">${pager}<span class="sp"></span><button class="btn dark" data-x>Закрыть</button></div>`;
+  sh.onclick=e=>{const button=e.target.closest('button');if(!button)return;
+    if(button.hasAttribute('data-penalty-page'))penaltySheet(player,current+Number(button.dataset.penaltyPage));
+    else if(button.hasAttribute('data-x'))close_()};
+  open_();
+}
+
 function st(n){const f=e=>e.n===n&&(UI.sumPer==='all'||e.p===UI.sumPer);const r={};for(const k of ['fw','fl','sh','g','a','bl','hit','to','pen'])r[k]=S.ev.filter(e=>f(e)&&e.k===k).length;
-  r.pen=S.ev.filter(e=>f(e)&&e.k==='pen').reduce((s,e)=>s+(PMIN[e.min]||2),0);   // удаления — в минутах штрафа (слова Антона 16.11); запись без вида штрафа считается малым, 2 минуты
+  r.pen=penaltyMinutes(n,UI.sumPer,penaltyRecord());
   const pm=S.ev.filter(e=>f(e)&&e.k==='pm');r.pm=pm.reduce((s,e)=>s+e.v,0);r.pmc=pm.length;r.pl=pm.filter(e=>e.v>0).length;r.mi=r.pmc-r.pl;return r}
 /* плюсы и минусы показываются отдельно, без общего итога (слова Антона 16.11): «+2 −1» */
 const pmTxt=(pl,mi)=>`+${pl} −${mi}`;
@@ -694,7 +813,10 @@ function renderSum(){
   let rows='';for(const [g,l] of [['н','Нападающие'],['з','Защитники']]){rows+=`<tr class="g"><td colspan="10">${l}</td></tr>`;
     for(const x of all.filter(x=>x.p.pos===g))rows+=`<tr><td class="l"><span class="no">${x.p.n}</span>${x.p.name}</td>${COLS.map(([k])=>cell(x,k)).join('')}</tr>`}
   const T={};for(const k of ['fw','fl','sh','g','a','bl','hit','to','pen'])T[k]=all.reduce((s,x)=>s+x.s[k],0);
-  rows+=`<tr class="t"><td class="l">Команда</td><td>${T.fw}–${T.fl}</td><td>${T.sh}</td><td>${T.g}</td><td>${T.a}</td><td>${T.bl}</td><td>${T.hit}</td><td>${T.to}</td><td>${T.pen}</td><td></td></tr>`;
+  const official=penaltyRecord();
+  T.pen=penaltyMinutes(null,UI.sumPer,official);
+  const teamPenalty=T.pen||penaltiesConfirmed(official?.value,UI.sumPer)?T.pen:'·';
+  rows+=`<tr class="t"><td class="l">Команда</td><td>${T.fw}–${T.fl}</td><td>${T.sh}</td><td>${T.g}</td><td>${T.a}</td><td>${T.bl}</td><td>${T.hit}</td><td>${T.to}</td><td title="${official?'Удаления ВХЛ':'ВХЛ не подтвердила данные'}">${teamPenalty}</td><td></td></tr>`;
   // голы
   const gl=S.ev.filter(e=>e.k==='g'||e.k==='ga').sort((x,y)=>(x.p-y.p)||((x.t||'99').localeCompare(y.t||'99'))||(x.id-y.id));
   let f=0,a=0;const glr=gl.map(e=>{e.k==='g'?f++:a++;const as=e.asst||S.ev.filter(x=>x.gid===e.gid&&x.k==='a').map(x=>x.n);const ty=sitOf(e.sit||'5x5');
@@ -733,9 +855,12 @@ function repData(){
   const sk=S.roster.filter(p=>!p.out||S.ev.some(e=>e.n===p.n)).map(p=>{const c=clubOf(p);return {n:p.n,name:p.name,pos:p.pos,line:!p.out&&p.ln>=1&&p.ln<=4?p.ln:0,ph:PHOTOS&&c&&c.ph?`photos/${c.id}.jpg`:''}});
   const gk=(S.gk||[]).filter(Boolean).map(g=>{const c=g.id&&cById(g.id);return {n:g.n,name:g.name,ph:PHOTOS&&c&&c.ph?`photos/${c.id}.jpg`:''}});
   const sitT=e=>{const k=e.sit||'5x5',[a,b]=k.split('x').map(Number);return a>5||b>5||a+b>10?'en':a>b?'pp':a<b?'pk':'eq'};
-  const ev=S.ev.map(e=>{const o={p:e.p,n:e.n,k:e.k};if(e.v!=null)o.v=e.v;if(e.gk!=null)o.gk=e.gk;if(e.k==='pen')o.min=PMIN[e.min]||2;
+  const leaguePenalties=penaltyRecord()?.value||null;
+  const source=leaguePenalties?S.ev.filter(e=>e.k!=='pen').concat(leaguePenalties.list.filter(e=>e.side==='us')
+    .map(e=>({k:'pen',p:e.p,n:e.n,mm:e.min}))):S.ev;
+  const ev=source.map(e=>{const o={p:e.p,n:e.n,k:e.k};if(e.v!=null)o.v=e.v;if(e.gk!=null)o.gk=e.gk;if(e.k==='pen')o.min=e.mm||PMIN[e.min]||2;
     if(e.k==='g'||e.k==='ga'){const t=sitT(e);o.sit=t;if(e.k==='ga'&&t==='pk')o.pk=1} /* состав записан с нашей стороны: pk — мы в меньшинстве */ return o});
-  return {type:'lm-report',id:S.id,home:S.home,away:S.away,date:S.date||'',venue:S.venue||'',cur:S.cur,roster:sk,gk,ev,so:soSt().win};
+  return {type:'lm-report',leaguePenalties,id:S.id,home:S.home,away:S.away,date:S.date||'',venue:S.venue||'',cur:S.cur,roster:sk,gk,ev,so:soSt().win};
 }
 function repSend(){const f=document.getElementById('repF');if(f&&f.contentWindow)try{f.contentWindow.postMessage(repData(),'*')}catch(_){}}
 function renderRep(){const v=document.getElementById('view');
@@ -795,26 +920,6 @@ function seasonList(D){return D.matches.map(m=>`<div class="sm${m.why?' off':''}
 const ov=document.getElementById('ov'),sh=document.getElementById('sheet');
 function open_(){ov.classList.add('on')} function close_(){ov.classList.remove('on');sh.classList.remove('narrow');sh.onkey=null;sh.oninput=null;sh.ondrop=sh.ondragover=sh.ondragleave=null;sh.classList.remove('drag')}
 addEventListener('dragover',e=>e.preventDefault());addEventListener('drop',e=>e.preventDefault());
-function penSheet(n){
-  sh.innerHTML=`<h2>Удаление · ${nm(n)}</h2><p class="sub">Какой штраф? Состав на льду изменится сам.</p>
-   <div class="pkgrid"><button class="btn dark" data-pk="minor">2 минуты</button><button class="btn dark" data-pk="double">2 + 2 минуты</button><button class="btn dark" data-pk="major">5 минут</button></div>
-   <div class="row" style="margin-top:10px"><button class="btn" data-pk="misc">10 минут (состав не меняется)</button><span class="sp"></span><button class="btn" data-x>Отмена</button></div>`;sh.classList.add('narrow');
-  sh.onclick=e=>{const b=e.target.closest('button');if(!b)return;if('x' in b.dataset){UI.act=null;UI.pl=null;close_();render();return}
-    const kind=b.dataset.pk;if(!kind)return;const gid=S.nextId;push(gid,n,'pen',{min:kind});
-    if(kind!=='misc')S.pens.push({id:gid,gid,side:'us',n,kind});
-    UI.lastGid=gid;UI.act=null;UI.pl=null;save();close_();render(n);
-    snack(`Записано: удаление · ${nm(n)} · ${SITW[sit().type].toLowerCase()} ${sit().us} на ${sit().them}`,'Отменить',()=>delGroup(gid,true))};
-  open_();
-}
-function oppPenSheet(){
-  sh.innerHTML=`<h2>Удаление у соперника</h2><p class="sub">Состав на льду изменится сам.</p>
-   <div class="pkgrid"><button class="btn dark" data-pk="minor">2 минуты</button><button class="btn dark" data-pk="double">2 + 2 минуты</button><button class="btn dark" data-pk="major">5 минут</button></div>
-   <div class="row" style="margin-top:10px"><span class="sp"></span><button class="btn" data-x>Отмена</button></div>`;sh.classList.add('narrow');
-  sh.onclick=e=>{const b=e.target.closest('button');if(!b)return;if('x' in b.dataset){close_();return}
-    const kind=b.dataset.pk;if(!kind)return;const id=S.nextId++;S.pens.push({id,side:'them',kind});save();close_();render();
-    snack(`Соперник удалён · ${SITW[sit().type].toLowerCase()} ${sit().us} на ${sit().them}`,'Отменить',()=>{S.pens=S.pens.filter(p=>p.id!==id);save();render()})};
-  open_();
-}
 function endPen(id){const p=S.pens.find(x=>x.id==id);if(!p)return;
   if(p.kind==='double'){p.kind='minor';save();render();snack('Первые 2 минуты закончились, осталось ещё 2','Понятно',()=>{});return}
   S.pens=S.pens.filter(x=>x.id!=id);save();render();snack('Штраф закончился · '+SITW[sit().type].toLowerCase()+' '+sit().us+' на '+sit().them,'Вернуть',()=>{S.pens.push(p);save();render()})}
@@ -875,7 +980,7 @@ function goalSheet(ours,sc0,egid){sh.classList.remove('narrow');
   sh.onkey=e=>{if(e.key==='Enter'&&e.target.id!=='gT')ok()};
   draw();open_();
 }
-function cellSheet(n,k){sh.classList.remove('narrow');
+function cellSheet(n,k){if(k==='pen'&&penaltyRecord()){penaltySheet(n);return}sh.classList.remove('narrow');
   const kinds=k==='fw'?['fw','fl']:[k];
   const draw=()=>{const evs=S.ev.filter(e=>e.n===n&&kinds.includes(e.k)&&(UI.sumPer==='all'||e.p===UI.sumPer));
     sh.innerHTML=`<h2>${nm(n)} · ${k==='fw'?'Вбрасывания':AN[k]}</h2><p class="sub">${evs.length} ${evs.length===1?'запись':'записей'}. Лишнюю уберите крестиком.</p>
@@ -906,7 +1011,7 @@ function menuSheet(){sh.classList.remove('narrow');
     if(m==='csv')csv();
     if(m==='print'){close_();UI.tab='sum';render();setTimeout(()=>print(),200)}
     if(m==='hints'){close_();try{localStorage.removeItem('lm_hints')}catch(_){}coach(0)}
-    if(m==='keys'){sh.innerHTML=`<h2>Клавиши</h2><p class="sub">Необязательно — всё делается мышкой. Работают в любой раскладке.</p><div style="font-size:17px;line-height:2">S — бросок · Q / W — выиграл / проиграл вбрасывание · B — заблокировал бросок · H — силовой · L — потеря · P — удаление<br>Затем наберите номер игрока цифрами (например 9 5) — запись готова<br>G — гол · Shift+G — гол в наши ворота · ${MOD}Z — отменить последнее<br>← / → — период · Esc — сбросить выбор</div><div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn dark" data-x>Понятно</button></div>`}};
+    if(m==='keys'){sh.innerHTML=`<h2>Клавиши</h2><p class="sub">Необязательно — всё делается мышкой. Работают в любой раскладке.</p><div style="font-size:17px;line-height:2">S — бросок · Q / W — выиграл / проиграл вбрасывание · B — заблокировал бросок · H — силовой · L — потеря<br>Затем наберите номер игрока цифрами (например 9 5) — запись готова<br>G — гол · Shift+G — гол в наши ворота · ${MOD}Z — отменить последнее<br>← / → — период · Esc — сбросить выбор</div><div class="row" style="margin-top:16px"><span class="sp"></span><button class="btn dark" data-x>Понятно</button></div>`}};
   open_();
 }
 /* Состав на матч: все игроки клуба плитками, нажатие — играет / не играет */
@@ -1080,7 +1185,7 @@ function csv(){const keep=UI.sumPer,out=[];
 const HINTS=[['.acts','Увидели действие на льду — нажмите его здесь, например «Бросок».'],
   ['.tiles','Потом нажмите номер игрока. Всё — записано. Можно и наоборот: сначала номер, потом действие.'],
   ['.feed','Ошиблись — нажмите × у записи в этом списке или «Отменить последнее». Ничего не потеряется.'],
-  ['#strip','Здесь видно, сколько игроков на льду. Удаление меняет это само; когда штраф закончится — нажмите «Штраф закончился».']];
+  ['#strip','Удаления публикует ВХЛ. Здесь можно посмотреть протокол и отметить снятого вратаря.']];
 function coach(i){document.querySelectorAll('.coach,.ring').forEach(x=>x.remove());if(UI.tab!=='input'){UI.tab='input';render()}
   if(i>=HINTS.length){try{localStorage.setItem('lm_hints','1')}catch(_){}return}
   const el=document.querySelector(HINTS[i][0]);if(!el)return;const r=el.getBoundingClientRect();
@@ -1094,6 +1199,7 @@ document.addEventListener('click',e=>{if(!VIEW&&e.target.closest('#home,#away')&
   if(UI.sog!=null&&!e.target.closest('button,.pop')){UI.sog=null;render();return}
   if(UI.pl&&!UI.act&&UI.tab==='input'&&!ov.classList.contains('on')&&!e.target.closest('button,.pop')){UI.pl=null;render();return}
   const b=e.target.closest('button');if(!b||ov.contains(b))return;const d=b.dataset;
+  if('officialPenalties' in d){penaltySheet();return}
   if(VIEW&&!(d.tab||d.th||d.sp!=null||d.sv||d.sm||'print' in d||b.id==='menuB'))return;
   if(d.gk){record('sv',+d.gk);return}
   if('gkswap' in d){const old=S.gk.slice(),a=gk0(),b2=S.gk.find(g=>g&&g.n!==a.n);S.gk=[b2,a];UI.act=UI.pl=null;save();render();snack('В воротах '+b2.n+' '+b2.name+' — дальше считаю ему','Вернуть',()=>{S.gk=old;save();render()});return}
@@ -1105,12 +1211,12 @@ document.addEventListener('click',e=>{if(!VIEW&&e.target.closest('#home,#away')&
   if(d.tab){UI.tab=d.tab;render();if(d.tab==='season')loadSeason();return}
   if(d.sm){SEASON.mode=d.sm;seasonScreen.firstPage();render();return} if(d.th){UI.theme=d.th;document.documentElement.dataset.theme=d.th;try{localStorage.setItem('lm_theme',d.th)}catch(_){}render();return}
   if(d.sp!=null){UI.sumPer=d.sp==='all'?'all':+d.sp;render();return} if(d.sv){UI.sumView=d.sv;render();return} if('print' in d){window.print();return}
-  if(d.pend){endPen(d.pend);return} if('opp' in d){oppPenSheet();return} if(d.pull){S.pull[d.pull]=!S.pull[d.pull];save();render();return}
+  if(d.pend){endPen(d.pend);return} if(d.pull){S.pull[d.pull]=!S.pull[d.pull];save();render();return}
   if(b.id==='pPrev'){S.cur=Math.max(1,S.cur-1);save();render();return} if(b.id==='pNext'){perNext();return}
   if(b.id==='menuB'){menuSheet();return}});
 document.addEventListener('click',e=>{const td=e.target.closest('td[data-c]');if(!td||VIEW)return;const [n,k]=td.dataset.c.split('|');cellSheet(+n,k)});
 ov.addEventListener('click',e=>{if(e.target===ov)close_()});
-const KM={KeyS:'sh',KeyQ:'fw',KeyW:'fl',KeyB:'bl',KeyH:'hit',KeyL:'to',KeyP:'pen'};let buf='',bufT;
+const KM={KeyS:'sh',KeyQ:'fw',KeyW:'fl',KeyB:'bl',KeyH:'hit',KeyL:'to'};let buf='',bufT;
 document.addEventListener('keydown',e=>{
   if(ov.classList.contains('on')){if(e.key==='Escape')close_();else if(sh.onkey)sh.onkey(e);return}
   if(/INPUT|TEXTAREA/.test(e.target.tagName)||VIEW||UI.tab==='season')return;
@@ -1133,6 +1239,9 @@ let seenHints=false;try{seenHints=localStorage.getItem('lm_hints')==='1'}catch(_
 if(!seenHints&&!VIEW)setTimeout(()=>{if(UI.tab==='input')coach(0)},400);
 if(UI.tab==='season')loadSeason();
 if(VIEW){pull();setInterval(pull,15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()})} else {sync.soon(800);setInterval(()=>sync.push(),30000)}
+setInterval(refreshPenalties,60000);
+addEventListener('online',()=>{penaltyRequests.clear();refreshPenalties()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshPenalties()});
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
